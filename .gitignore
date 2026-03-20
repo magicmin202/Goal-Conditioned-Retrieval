@@ -22,6 +22,9 @@ serviceAccountKey.json
 GEMINI.md
 devserver.sh
 
+# Generated data (synthetic datasets)
+data/
+
 # API 키 / 인증 관련
 *.json
 !package.json
