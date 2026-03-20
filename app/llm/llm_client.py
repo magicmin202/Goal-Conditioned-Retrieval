@@ -1,9 +1,12 @@
 """LLM client interface.
 
-MockLLMClient is the default. Replace with GeminiLLMClient when ready.
+GeminiLLMClient is the default path when GEMINI_API_KEY is set.
+MockLLMClient is used when the key is absent or use_mock_fallback=True.
 """
 from __future__ import annotations
+
 import logging
+import os
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -16,13 +19,10 @@ class BaseLLMClient(ABC):
 
 
 class MockLLMClient(BaseLLMClient):
-    """Returns deterministic placeholder responses.
-
-    TODO: Replace with GeminiLLMClient when GEMINI_API_KEY is available.
-    """
+    """Returns deterministic placeholder responses."""
 
     def generate(self, prompt: str, **kwargs: Any) -> str:
-        logger.debug("MockLLMClient.generate called (prompt_len=%d)", len(prompt))
+        logger.debug("MockLLMClient.generate (prompt_len=%d)", len(prompt))
         return (
             "[MOCK LLM RESPONSE]\n"
             "목표 진행 분석: 사용자는 목표 관련 활동을 꾸준히 수행하고 있습니다.\n"
@@ -31,25 +31,69 @@ class MockLLMClient(BaseLLMClient):
 
 
 class GeminiLLMClient(BaseLLMClient):
-    """Gemini API client.
+    """Gemini API client via google-generativeai SDK.
 
-    TODO: Implement when GEMINI_API_KEY is available.
-
-        import google.generativeai as genai
-        genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model = genai.GenerativeModel("gemini-pro")
-        response = model.generate_content(prompt)
-        return response.text
+    Set GEMINI_API_KEY (or GOOGLE_API_KEY) environment variable before use.
+    Install dependency: pip install google-generativeai
     """
 
-    def __init__(self, api_key: str | None = None) -> None:
-        raise NotImplementedError("GeminiLLMClient is not yet implemented.")
+    def __init__(
+        self,
+        api_key: str | None = None,
+        model_name: str = "gemini-2.0-flash",
+        temperature: float = 0.2,
+        max_output_tokens: int = 512,
+    ) -> None:
+        try:
+            import google.generativeai as genai  # type: ignore
+        except ImportError as e:
+            raise ImportError(
+                "google-generativeai is not installed. Run: pip install google-generativeai"
+            ) from e
+
+        key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        if not key:
+            raise ValueError(
+                "Gemini API key not found. Set GEMINI_API_KEY environment variable."
+            )
+
+        genai.configure(api_key=key)
+        self._model = genai.GenerativeModel(
+            model_name,
+            generation_config=genai.types.GenerationConfig(
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
+            ),
+        )
+        logger.info("GeminiLLMClient initialized (model=%s)", model_name)
 
     def generate(self, prompt: str, **kwargs: Any) -> str:
-        raise NotImplementedError
+        response = self._model.generate_content(prompt)
+        return response.text
 
 
-def get_llm_client(mock: bool = True) -> BaseLLMClient:
+def get_llm_client(mock: bool = True, config=None) -> BaseLLMClient:
+    """Factory: returns GeminiLLMClient when mock=False and API key is available."""
     if mock:
         return MockLLMClient()
-    raise NotImplementedError("Only mock mode is supported. Implement GeminiLLMClient first.")
+
+    from app.config import DEFAULT_CONFIG
+    cfg = config or DEFAULT_CONFIG.gemini
+
+    api_key = cfg.api_key
+    if not api_key:
+        logger.warning(
+            "GEMINI_API_KEY not set. Falling back to MockLLMClient."
+        )
+        return MockLLMClient()
+
+    try:
+        return GeminiLLMClient(
+            api_key=api_key,
+            model_name=cfg.model_name,
+            temperature=cfg.temperature,
+            max_output_tokens=cfg.max_output_tokens,
+        )
+    except Exception as exc:
+        logger.warning("GeminiLLMClient init failed (%s). Falling back to mock.", exc)
+        return MockLLMClient()

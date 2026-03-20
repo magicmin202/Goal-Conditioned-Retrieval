@@ -73,7 +73,8 @@ def main() -> None:
 
     cfg = DEFAULT_CONFIG.stage2
     cfg.retrieval.top_k = args.top_k
-    cfg.retrieval.candidate_size = min(len(user_logs), 50)
+    # candidate_size: top-N pruning — use ~60% of corpus, minimum top_k * 3
+    cfg.retrieval.candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
 
     pipeline = Stage2Pipeline(config=cfg, use_mock_llm=True)
     pipeline.index(user_logs)

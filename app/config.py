@@ -1,5 +1,7 @@
 """Experiment configuration for the Goal-Conditioned Retrieval research pipeline."""
 from __future__ import annotations
+
+import os
 from dataclasses import dataclass, field
 
 
@@ -12,8 +14,27 @@ class FirestoreCollections:
 
 
 @dataclass
+class GeminiConfig:
+    """Gemini API configuration.
+
+    API key is read from GEMINI_API_KEY or GOOGLE_API_KEY environment variable.
+    """
+    model_name: str = "gemini-2.0-flash"
+    api_key_env: str = "GEMINI_API_KEY"
+    fallback_env: str = "GOOGLE_API_KEY"
+    max_output_tokens: int = 512
+    temperature: float = 0.2        # low temperature → deterministic expansion
+    use_mock_fallback: bool = True   # fall back to heuristic if API call fails
+
+    @property
+    def api_key(self) -> str | None:
+        return os.environ.get(self.api_key_env) or os.environ.get(self.fallback_env)
+
+
+@dataclass
 class RetrievalConfig:
-    candidate_size: int = 30
+    # candidate_size is set dynamically in scripts relative to corpus size
+    candidate_size: int = 20
     top_k: int = 10
     sparse_weight: float = 0.4
     dense_weight: float = 0.6
@@ -23,27 +44,30 @@ class RetrievalConfig:
 
 @dataclass
 class RankerConfig:
-    semantic_weight: float = 0.5
-    goal_focus_weight: float = 0.3
-    evidence_value_weight: float = 0.2
+    # Weights shifted toward goal relevance
+    semantic_weight: float = 0.45
+    goal_focus_weight: float = 0.40    # raised: "relevant to goal" > "evidence of effort"
+    evidence_value_weight: float = 0.15
 
 
 @dataclass
 class DiversityConfig:
-    mmr_lambda: float = 0.5
+    mmr_lambda: float = 0.6            # higher → favour relevance over diversity in MMR
     top_k: int = 10
+    relevance_threshold: float = 0.05  # pre-filter: drop logs below this score before MMR
 
 
 @dataclass
 class QueryExpansionConfig:
     enabled: bool = False
-    max_terms: int = 7
-    mode: str = "simple"  # "simple" | "structured"
+    max_terms: int = 10
+    mode: str = "structured"           # "simple" | "structured"
+    use_mock_fallback: bool = True
 
 
 @dataclass
 class CompressionConfig:
-    cluster_similarity_threshold: float = 0.7
+    cluster_similarity_threshold: float = 0.6
     max_clusters: int = 5
 
 
@@ -71,6 +95,7 @@ class Stage2Config:
 @dataclass
 class AppConfig:
     collections: FirestoreCollections = field(default_factory=FirestoreCollections)
+    gemini: GeminiConfig = field(default_factory=GeminiConfig)
     stage1: Stage1Config = field(default_factory=Stage1Config)
     stage2: Stage2Config = field(default_factory=Stage2Config)
     use_mock: bool = True
