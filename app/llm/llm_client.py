@@ -2,6 +2,8 @@
 
 GeminiLLMClient is the default path when GEMINI_API_KEY is set.
 MockLLMClient is used when the key is absent or use_mock_fallback=True.
+
+Uses google-genai SDK (REST-based, no gRPC dependency).
 """
 from __future__ import annotations
 
@@ -11,6 +13,13 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+# Auto-load .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 
 class BaseLLMClient(ABC):
@@ -31,10 +40,10 @@ class MockLLMClient(BaseLLMClient):
 
 
 class GeminiLLMClient(BaseLLMClient):
-    """Gemini API client via google-generativeai SDK.
+    """Gemini API client via google-genai SDK (REST, no gRPC).
 
-    Set GEMINI_API_KEY (or GOOGLE_API_KEY) environment variable before use.
-    Install dependency: pip install google-generativeai
+    Set GEMINI_API_KEY environment variable before use.
+    Install: pip install google-genai
     """
 
     def __init__(
@@ -45,10 +54,11 @@ class GeminiLLMClient(BaseLLMClient):
         max_output_tokens: int = 512,
     ) -> None:
         try:
-            import google.generativeai as genai  # type: ignore
+            from google import genai
+            from google.genai import types
         except ImportError as e:
             raise ImportError(
-                "google-generativeai is not installed. Run: pip install google-generativeai"
+                "google-genai is not installed. Run: pip install google-genai"
             ) from e
 
         key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
@@ -57,19 +67,22 @@ class GeminiLLMClient(BaseLLMClient):
                 "Gemini API key not found. Set GEMINI_API_KEY environment variable."
             )
 
-        genai.configure(api_key=key)
-        self._model = genai.GenerativeModel(
-            model_name,
-            generation_config=genai.types.GenerationConfig(
-                temperature=temperature,
-                max_output_tokens=max_output_tokens,
-            ),
+        self._client = genai.Client(api_key=key)
+        self._model_name = model_name
+        self._config = types.GenerateContentConfig(
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
         )
         logger.info("GeminiLLMClient initialized (model=%s)", model_name)
 
     def generate(self, prompt: str, **kwargs: Any) -> str:
-        response = self._model.generate_content(prompt)
-        return response.text
+        from google.genai import types
+        resp = self._client.models.generate_content(
+            model=self._model_name,
+            contents=prompt,
+            config=self._config,
+        )
+        return resp.text
 
 
 def get_llm_client(mock: bool = True, config=None) -> BaseLLMClient:
@@ -82,9 +95,7 @@ def get_llm_client(mock: bool = True, config=None) -> BaseLLMClient:
 
     api_key = cfg.api_key
     if not api_key:
-        logger.warning(
-            "GEMINI_API_KEY not set. Falling back to MockLLMClient."
-        )
+        logger.warning("GEMINI_API_KEY not set. Falling back to MockLLMClient.")
         return MockLLMClient()
 
     try:
