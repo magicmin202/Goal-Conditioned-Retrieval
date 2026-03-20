@@ -42,7 +42,7 @@ class Stage2Result:
 class Stage2Pipeline:
     """Full RAG pipeline for Stage 2 (Enhanced Retrieval + Compression + LLM)."""
 
-    def __init__(self, config: Stage2Config | None = None, use_mock_llm: bool = True) -> None:
+    def __init__(self, config: Stage2Config | None = None, use_mock_llm: bool = False) -> None:
         self.config = config or Stage2Config()
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID_EXPANDED, config=self.config.retrieval

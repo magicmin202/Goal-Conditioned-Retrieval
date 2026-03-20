@@ -33,7 +33,7 @@ def build_evidence_text(units: list[CompressedEvidenceUnit]) -> str:
 
 class GoalAnalyzer:
     def __init__(self, llm: BaseLLMClient | None = None) -> None:
-        self.llm = llm or get_llm_client(mock=True)
+        self.llm = llm or get_llm_client(mock=False)
 
     def analyze(
         self, goal: ResearchGoal, evidence_units: list[CompressedEvidenceUnit]
