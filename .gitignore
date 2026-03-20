@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Secrets
+serviceAccountKey.json
+*.env
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# Firebase Studio (Project IDX) - IDE 전용 설정
+.idx/
+GEMINI.md
+devserver.sh
+
+# API 키 / 인증 관련
+*.json
+!package.json
+*.pem
+*.key
+*.p12
+*.credentials
