@@ -60,32 +60,77 @@ class RetrievalConfig:
 
 @dataclass
 class RankerConfig:
-    # Weights: goal_focus is primary signal
-    semantic_weight: float = 0.35
-    goal_focus_weight: float = 0.50     # primary signal
-    evidence_value_weight: float = 0.15
-    negative_term_penalty: float = 0.40  # stronger mismatch suppression
-    priority_term_boost: float = 0.15   # additive bonus when log matches priority terms
+    # ── Final score weights ───────────────────────────────────────────────────
+    semantic_weight: float = 0.30        # reduced; lexicon signals dominate
+    goal_focus_weight: float = 0.50      # primary signal
+    evidence_value_weight: float = 0.10  # reduced
+    negative_term_penalty: float = 0.40  # multiplier on domain_mismatch
 
-    # goal_focus 3-tier breakdown (must sum to 1.0)
-    priority_focus_weight: float = 0.55  # top-signal: priority_terms
-    evidence_focus_weight: float = 0.30  # mid-signal: evidence_terms
-    related_focus_weight: float = 0.15   # weak-signal: related_terms
+    # ── goal_focus 3-tier breakdown ───────────────────────────────────────────
+    # These weights control how much each vocabulary tier contributes inside
+    # goal_focus. They do NOT need to sum to 1.0 (goal_focus is then clipped).
+    priority_focus_weight: float = 0.60  # strongest signal: priority_terms
+    evidence_focus_weight: float = 0.25  # mid signal: evidence_terms
+    related_focus_weight: float = 0.10   # weak signal: related_terms
+    # base goal-text anchor (always applied, small)
+    base_goal_anchor: float = 0.05
+
+    # ── Priority boost (additive, outside goal_focus) ─────────────────────────
+    priority_boost_phrase: float = 0.30  # phrase match in text → strong boost
+    priority_boost_token: float = 0.10   # token match only → weak boost
+    # Back-compat alias used in some call sites
+    @property
+    def priority_term_boost(self) -> float:
+        return self.priority_boost_phrase
+
+    # ── Negative (domain_mismatch) penalty levels ────────────────────────────
+    negative_penalty_phrase: float = 0.70  # full phrase found in text
+    negative_penalty_token: float = 0.40   # single token hit
+    negative_penalty_title: float = 0.30   # extra when match is in title
+    negative_daily_penalty: float = 0.20   # activity_type="daily" (relaxed)
+
+    # ── Title weight ──────────────────────────────────────────────────────────
+    title_weight_multiplier: float = 1.5   # title matches count 1.5× body
 
 
 @dataclass
 class VocabularyBoostConfig:
-    """Vocabulary-based score adjustments applied at candidate retrieval level.
+    """Vocabulary-based score adjustments at the candidate retrieval level.
 
-    These are additive/subtractive offsets on top of the RRF hybrid score,
-    applied before reranking so the best candidates rise earlier.
+    Applied as additive offsets on top of RRF hybrid score BEFORE reranking.
+    Candidate stage = moderate boosts (recall-focused).
+    Reranker stage  = strong boosts (precision-focused, see RankerConfig).
     """
-    priority_term_boost: float = 0.20    # strong positive: priority terms
-    evidence_term_boost: float = 0.10    # normal positive: evidence terms
-    related_term_boost: float = 0.04     # weak positive: related/expanded terms
-    negative_term_penalty: float = 0.15  # penalty per matched negative term/phrase
-    phrase_match_multiplier: float = 1.5  # phrase match counts heavier than token match
-    remove_generic_terms: bool = True     # strip generic terms from expansion output
+    # Priority terms
+    priority_phrase_boost: float = 0.25   # phrase match in full text
+    priority_token_boost: float = 0.15    # token match in full text
+    priority_title_bonus: float = 0.10    # extra when token match in title
+
+    # Evidence terms
+    evidence_phrase_boost: float = 0.12   # phrase match
+    evidence_token_boost: float = 0.08    # token match
+
+    # Related terms (weak signal)
+    related_token_boost: float = 0.03
+
+    # Negative terms
+    negative_phrase_penalty: float = 0.25  # phrase match → penalty
+    negative_token_penalty: float = 0.12   # token match → penalty
+
+    # Back-compat aliases
+    @property
+    def priority_term_boost(self) -> float:
+        return self.priority_phrase_boost
+
+    @property
+    def evidence_term_boost(self) -> float:
+        return self.evidence_phrase_boost
+
+    @property
+    def phrase_match_multiplier(self) -> float:
+        return self.priority_phrase_boost / self.priority_token_boost
+
+    remove_generic_terms: bool = True
 
 
 @dataclass
@@ -116,7 +161,10 @@ class CompressionConfig:
 class Stage1Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
-    diversity: DiversityConfig = field(default_factory=DiversityConfig)
+    diversity: DiversityConfig = field(
+        # Stage 1: higher threshold → tighter precision
+        default_factory=lambda: DiversityConfig(relevance_threshold=0.08)
+    )
     query_expansion: QueryExpansionConfig = field(
         default_factory=lambda: QueryExpansionConfig(enabled=False)
     )
@@ -127,7 +175,10 @@ class Stage1Config:
 class Stage2Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
-    diversity: DiversityConfig = field(default_factory=DiversityConfig)
+    diversity: DiversityConfig = field(
+        # Stage 2: even tighter threshold; Gemini expansion gives better signal
+        default_factory=lambda: DiversityConfig(relevance_threshold=0.10)
+    )
     query_expansion: QueryExpansionConfig = field(
         default_factory=lambda: QueryExpansionConfig(enabled=True)
     )

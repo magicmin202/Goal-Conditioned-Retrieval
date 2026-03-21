@@ -4,18 +4,19 @@ Dispatches to Dense / Hybrid based on mode and stage configuration.
 
 When an ExpandedQuery is provided, applies vocabulary-based score adjustment
 post-hoc on the RRF results before returning candidates:
-  - priority_terms  → strong positive boost
-  - evidence_terms  → normal positive boost
-  - related_terms   → weak positive boost
-  - negative_terms  → penalty
 
-This pre-reranker signal ensures high-vocabulary-match candidates surface
-to the top before the full Goal-Conditioned Reranker runs.
+  Candidate stage = moderate boosts (recall-focused, keeps all relevant logs)
+  Reranker stage  = strong scoring (precision-focused, see reranker.py)
+
+Vocabulary tiers:
+  priority_terms  → strongest positive boost (phrase > token, title bonus)
+  evidence_terms  → normal positive boost
+  related_terms   → weak positive boost
+  negative_terms  → penalty (phrase > token)
 """
 from __future__ import annotations
 
 import logging
-import re
 from enum import Enum
 
 from app.config import RetrievalConfig, VocabularyBoostConfig
@@ -24,6 +25,7 @@ from app.retrieval.hybrid_retriever import HybridRetriever
 from app.retrieval.query_understanding import QueryObject
 from app.retrieval.query_expansion import ExpandedQuery
 from app.schemas import CandidateLog, ResearchLog
+from app.utils.text_matching import TermMatch, match_term, _tok_set
 
 logger = logging.getLogger(__name__)
 
@@ -34,93 +36,80 @@ class RetrievalMode(str, Enum):
     HYBRID_EXPANDED = "hybrid_expanded"
 
 
-def _tokenize(text: str) -> list[str]:
-    return re.findall(r"[\w가-힣]+", text.lower())
-
-
-def _token_set(text: str) -> set[str]:
-    return set(_tokenize(text))
-
-
 def _apply_vocab_boost(
     candidates: list[CandidateLog],
     expanded: ExpandedQuery,
-    boost_cfg: VocabularyBoostConfig,
+    cfg: VocabularyBoostConfig,
 ) -> list[CandidateLog]:
     """Adjust hybrid_score using vocabulary match signals.
 
-    Phrase match (multi-token term found as substring) counts heavier
-    than single-token match (phrase_match_multiplier).
+    Boost/penalty values are intentionally moderate here (candidate stage).
+    The reranker applies the heavy-handed precision scoring later.
     """
     result = []
-    pm = boost_cfg.phrase_match_multiplier
 
     for cand in candidates:
         text = cand.log.full_text
         text_lower = text.lower()
-        tokens = _token_set(text_lower)
-        title_lower = cand.log.title.lower()
-        title_tokens = _token_set(title_lower)
+        text_tokens = _tok_set(text_lower)
+        title = cand.log.title
+        title_lower = title.lower()
+        title_tokens = _tok_set(title_lower)
 
         boost = 0.0
         reasons: list[str] = []
 
-        # Priority terms — strong boost; extra bonus if matched in title
+        # ── Priority terms (strong positive) ─────────────────────────────────
         for term in expanded.priority_terms:
-            t_lower = term.lower()
-            t_tokens = _tokenize(t_lower)
-            if len(t_tokens) > 1 and t_lower in text_lower:
-                b = boost_cfg.priority_term_boost * pm
+            m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
+            if m.level == "phrase":
+                b = cfg.priority_phrase_boost
                 boost += b
                 reasons.append(f"+pri_phrase:{term}(+{b:.3f})")
-            elif t_tokens and any(t in tokens for t in t_tokens):
-                b = boost_cfg.priority_term_boost
+            elif m.level == "token":
+                b = cfg.priority_token_boost
                 boost += b
-                # Extra bonus if match is in title (title is high-precision)
-                if any(t in title_tokens for t in t_tokens):
-                    boost += b * 0.5
-                    reasons.append(f"+pri_title:{term}(+{b*1.5:.3f})")
+                if m.in_title:
+                    boost += cfg.priority_title_bonus
+                    reasons.append(f"+pri_title:{term}(+{b + cfg.priority_title_bonus:.3f})")
                 else:
-                    reasons.append(f"+pri:{term}(+{b:.3f})")
+                    reasons.append(f"+pri_token:{term}(+{b:.3f})")
 
-        # Evidence terms — normal boost
+        # ── Evidence terms (normal positive) ──────────────────────────────────
         for term in expanded.expanded_terms:
-            t_lower = term.lower()
-            t_tokens = _tokenize(t_lower)
-            if len(t_tokens) > 1 and t_lower in text_lower:
-                b = boost_cfg.evidence_term_boost * pm
+            m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
+            if m.level == "phrase":
+                b = cfg.evidence_phrase_boost
                 boost += b
                 reasons.append(f"+ev_phrase:{term}(+{b:.3f})")
-            elif t_tokens and any(t in tokens for t in t_tokens):
-                b = boost_cfg.evidence_term_boost
-                boost += b
+            elif m.level == "token":
+                boost += cfg.evidence_token_boost
 
-        # Related terms — weak boost
+        # ── Related terms (weak positive) ────────────────────────────────────
         for term in expanded.related_terms:
-            t_lower = term.lower()
-            t_tokens = _tokenize(t_lower)
-            if t_tokens and any(t in tokens for t in t_tokens):
-                boost += boost_cfg.related_term_boost
+            m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
+            if m.level != "none":
+                boost += cfg.related_token_boost
 
-        # Negative terms — penalty; phrase match is stronger signal
+        # ── Negative terms (penalty) ──────────────────────────────────────────
         for term in expanded.negative_terms:
-            t_lower = term.lower()
-            t_tokens = _tokenize(t_lower)
-            if len(t_tokens) > 1 and t_lower in text_lower:
-                p = boost_cfg.negative_term_penalty * pm
+            m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
+            if m.level == "phrase":
+                p = cfg.negative_phrase_penalty
                 boost -= p
                 reasons.append(f"-neg_phrase:{term}(-{p:.3f})")
-            elif t_tokens and any(t in tokens for t in t_tokens):
-                p = boost_cfg.negative_term_penalty
+            elif m.level == "token":
+                p = cfg.negative_token_penalty
                 boost -= p
-                reasons.append(f"-neg:{term}(-{p:.3f})")
+                reasons.append(f"-neg_token:{term}(-{p:.3f})")
 
         new_score = max(0.0, round(cand.hybrid_score + boost, 6))
 
         if reasons:
             logger.debug(
-                "VocabBoost  log=%s  boost=%.4f  score: %.6f→%.6f  reasons=%s",
-                cand.log_id, boost, cand.hybrid_score, new_score, reasons,
+                "VocabBoost  log=%s  Δ=%.4f  score: %.4f→%.4f  %s  [%s]",
+                cand.log_id, boost, cand.hybrid_score, new_score,
+                reasons, cand.log.title,
             )
 
         result.append(CandidateLog(
@@ -174,14 +163,14 @@ class CandidateRetriever:
         else:
             candidates = self._hybrid.retrieve(query_text, top_n=n)
 
-        # Apply vocabulary boost when ExpandedQuery with vocabulary is provided
+        # Apply vocabulary boost when ExpandedQuery carries vocabulary
         if (
             isinstance(query, ExpandedQuery)
             and self.vocab_boost_config
             and (query.priority_terms or query.expanded_terms or query.negative_terms)
         ):
             logger.debug(
-                "Applying vocab boost  priority=%d  evidence=%d  related=%d  negative=%d",
+                "VocabBoost  priority=%d  evidence=%d  related=%d  negative=%d",
                 len(query.priority_terms), len(query.expanded_terms),
                 len(query.related_terms), len(query.negative_terms),
             )
