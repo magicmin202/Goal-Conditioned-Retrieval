@@ -3,6 +3,22 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from enum import Enum
+
+
+class AdaptiveMode(str, Enum):
+    """Retrieval intensity mode inferred from corpus size and date span."""
+    SMALL = "small"       # <15 logs OR span_days <14  → prioritise precision
+    STANDARD = "standard"
+    LARGE = "large"       # ≥60 logs AND span_days ≥60 → prioritise diversity
+
+
+@dataclass
+class AdaptivePolicyConfig:
+    small_log_threshold: int = 15
+    small_span_threshold: int = 14
+    large_log_threshold: int = 60
+    large_span_threshold: int = 60
 
 
 @dataclass
@@ -44,18 +60,22 @@ class RetrievalConfig:
 
 @dataclass
 class RankerConfig:
-    # Weights shifted toward goal relevance
-    semantic_weight: float = 0.40
-    goal_focus_weight: float = 0.45    # primary signal: relevant to goal
+    # Weights: goal_focus is primary signal
+    semantic_weight: float = 0.35
+    goal_focus_weight: float = 0.50     # increased: primary signal
     evidence_value_weight: float = 0.15
-    negative_term_penalty: float = 0.30  # subtracted when log contains negative_terms
+    negative_term_penalty: float = 0.40  # increased: stronger mismatch suppression
+    priority_term_boost: float = 0.15   # additive bonus when log matches priority terms
 
 
 @dataclass
 class DiversityConfig:
-    mmr_lambda: float = 0.6            # higher → favour relevance over diversity in MMR
+    mmr_lambda: float = 0.6            # default (STANDARD mode)
+    mmr_lambda_small: float = 0.85     # SMALL corpus → maximise relevance, weak diversity
+    mmr_lambda_large: float = 0.55     # LARGE corpus → more diversity
     top_k: int = 10
     relevance_threshold: float = 0.05  # pre-filter: drop logs below this score before MMR
+    pre_mmr_multiplier: int = 3        # keep top (k * multiplier) before MMR
 
 
 @dataclass
@@ -99,6 +119,7 @@ class AppConfig:
     gemini: GeminiConfig = field(default_factory=GeminiConfig)
     stage1: Stage1Config = field(default_factory=Stage1Config)
     stage2: Stage2Config = field(default_factory=Stage2Config)
+    adaptive_policy: AdaptivePolicyConfig = field(default_factory=AdaptivePolicyConfig)
     use_mock: bool = True
 
 

@@ -41,10 +41,7 @@ class Stage1Pipeline:
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID, config=self.config.retrieval
         )
-        self._reranker = GoalConditionedReranker(
-            config=self.config.ranker,
-            negative_term_penalty=0.30,
-        )
+        self._reranker = GoalConditionedReranker(config=self.config.ranker)
         self._selector = DiversitySelector(config=self.config.diversity)
         self._indexed = False
 

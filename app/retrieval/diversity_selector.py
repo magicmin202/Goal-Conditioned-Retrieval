@@ -2,13 +2,14 @@
 
 Pipeline:
   1. Relevance filtering: drop logs below relevance_threshold
-  2. MMR selection on the filtered pool
+  2. Pre-MMR cap: keep top (k * pre_mmr_multiplier) to reduce compute
+  3. MMR selection on the filtered pool (lambda adapted to corpus mode)
 """
 from __future__ import annotations
 
 import logging
 
-from app.config import DiversityConfig
+from app.config import AdaptiveMode, DiversityConfig
 from app.retrieval.dense_retriever import DenseRetriever, cosine
 from app.schemas import RankedLog, ResearchGoal
 
@@ -31,14 +32,23 @@ class DiversitySelector:
         goal: ResearchGoal,
         ranked_logs: list[RankedLog],
         top_k: int | None = None,
+        adaptive_mode: AdaptiveMode = AdaptiveMode.STANDARD,
     ) -> list[RankedLog]:
-        """Apply relevance threshold, then MMR.
+        """Apply relevance threshold → pre-MMR cap → MMR.
 
         score = λ * relevance - (1-λ) * max_sim_to_selected
+        λ adapts to corpus mode: SMALL uses higher λ (precision), LARGE uses lower (diversity).
         """
         k = top_k or self.config.top_k
-        lam = self.config.mmr_lambda
         threshold = self.config.relevance_threshold
+
+        # Adaptive lambda
+        if adaptive_mode == AdaptiveMode.SMALL:
+            lam = self.config.mmr_lambda_small
+        elif adaptive_mode == AdaptiveMode.LARGE:
+            lam = self.config.mmr_lambda_large
+        else:
+            lam = self.config.mmr_lambda
 
         if not ranked_logs:
             return []
@@ -47,19 +57,27 @@ class DiversitySelector:
         above = [r for r in ranked_logs if r.final_score >= threshold]
         if len(above) < k:
             # Not enough pass threshold → keep top (k * 2) regardless
-            pool = ranked_logs[: k * 2]
+            filtered = ranked_logs[: k * 2]
             logger.debug(
                 "Relevance filter: only %d/%d above threshold %.3f → using top %d",
-                len(above), len(ranked_logs), threshold, len(pool),
+                len(above), len(ranked_logs), threshold, len(filtered),
             )
         else:
-            pool = above
+            filtered = above
             logger.debug(
                 "Relevance filter: %d/%d logs above threshold %.3f",
-                len(pool), len(ranked_logs), threshold,
+                len(filtered), len(ranked_logs), threshold,
             )
 
-        # ── Step 2: MMR ───────────────────────────────────────────────────────
+        # ── Step 2: pre-MMR cap ───────────────────────────────────────────────
+        cap = k * self.config.pre_mmr_multiplier
+        pool = filtered[:cap]
+        if len(filtered) > cap:
+            logger.debug("Pre-MMR cap: %d→%d (k=%d × %d)", len(filtered), cap, k, self.config.pre_mmr_multiplier)
+
+        logger.debug("DiversitySelector mode=%s lambda=%.2f pool=%d", adaptive_mode, lam, len(pool))
+
+        # ── Step 3: MMR ───────────────────────────────────────────────────────
         embeddings = {r.log_id: self._dense.embed(r.log.full_text) for r in pool}
         selected: list[RankedLog] = []
         remaining = list(pool)

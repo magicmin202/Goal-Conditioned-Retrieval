@@ -57,17 +57,38 @@ def _criteria_met(
     return count
 
 
+def _goal_relevance_score(log_text: str, expanded_terms: list[str]) -> float:
+    """Simple goal relevance: fraction of expanded term tokens found in log."""
+    if not expanded_terms:
+        return 1.0  # no gate possible → pass through
+    log_tokens = set(re.findall(r"[\w가-힣]+", log_text.lower()))
+    exp_tokens: set[str] = set()
+    for term in expanded_terms:
+        exp_tokens.update(re.findall(r"[\w가-힣]+", term.lower()))
+    if not exp_tokens:
+        return 1.0
+    return len(exp_tokens & log_tokens) / len(exp_tokens)
+
+
 class LocalExpander:
-    """Expand each anchor log into a cluster of related logs."""
+    """Expand each anchor log into a cluster of related logs.
+
+    anchor_relevance_threshold: anchors below this final_score are skipped.
+    neighbor_goal_relevance_min: neighbors must have ≥ this goal relevance score.
+    """
 
     def __init__(
         self,
         min_criteria: int = 2,
         semantic_threshold: float = 0.45,
+        anchor_relevance_threshold: float = 0.05,
+        neighbor_goal_relevance_min: float = 0.0,
         dense_retriever: DenseRetriever | None = None,
     ) -> None:
         self.min_criteria = min_criteria
         self.semantic_threshold = semantic_threshold
+        self.anchor_relevance_threshold = anchor_relevance_threshold
+        self.neighbor_goal_relevance_min = neighbor_goal_relevance_min
         self._dense = dense_retriever or DenseRetriever()
 
     def expand(
@@ -75,17 +96,34 @@ class LocalExpander:
         anchor_logs: list[RankedLog],
         full_log_pool: list[ResearchLog],
         max_neighbors: int = 5,
+        expanded_terms: list[str] | None = None,
     ) -> dict[str, list[ResearchLog]]:
         """Return anchor_log_id → list of neighbor logs.
 
-        Neighbors satisfy at least min_criteria clustering criteria.
+        Anchors below anchor_relevance_threshold are skipped entirely.
+        Neighbors must meet:
+          - min_criteria cluster criteria
+          - goal relevance ≥ neighbor_goal_relevance_min (when expanded_terms provided)
         Already-selected anchors are excluded from each other's pools.
         """
-        anchor_ids = {r.log_id for r in anchor_logs}
+        exp_terms = expanded_terms or []
+
+        # Filter anchors by relevance threshold
+        valid_anchors = [
+            a for a in anchor_logs if a.final_score >= self.anchor_relevance_threshold
+        ]
+        skipped = len(anchor_logs) - len(valid_anchors)
+        if skipped:
+            logger.debug(
+                "LocalExpander: skipped %d anchors below threshold %.3f",
+                skipped, self.anchor_relevance_threshold,
+            )
+
+        anchor_ids = {r.log_id for r in anchor_logs}  # exclude all anchors from pool
 
         # Pre-compute embeddings once
         anchor_embeddings = {
-            r.log_id: self._dense.embed(r.log.full_text) for r in anchor_logs
+            r.log_id: self._dense.embed(r.log.full_text) for r in valid_anchors
         }
         pool_logs = [log for log in full_log_pool if log.log_id not in anchor_ids]
         pool_embeddings = {
@@ -94,7 +132,7 @@ class LocalExpander:
 
         result: dict[str, list[ResearchLog]] = {}
 
-        for anchor in anchor_logs:
+        for anchor in valid_anchors:
             a_emb = anchor_embeddings[anchor.log_id]
             scored: list[tuple[int, float, ResearchLog]] = []
 
@@ -103,9 +141,21 @@ class LocalExpander:
                 n_criteria = _criteria_met(
                     anchor, log, a_emb, l_emb, self.semantic_threshold
                 )
-                if n_criteria >= self.min_criteria:
-                    sim = cosine(a_emb, l_emb)
-                    scored.append((n_criteria, sim, log))
+                if n_criteria < self.min_criteria:
+                    continue
+
+                # Goal relevance gate for neighbors
+                if self.neighbor_goal_relevance_min > 0.0 and exp_terms:
+                    rel = _goal_relevance_score(log.full_text, exp_terms)
+                    if rel < self.neighbor_goal_relevance_min:
+                        logger.debug(
+                            "Neighbor gate: skip %s (rel=%.3f < %.3f)",
+                            log.log_id, rel, self.neighbor_goal_relevance_min,
+                        )
+                        continue
+
+                sim = cosine(a_emb, l_emb)
+                scored.append((n_criteria, sim, log))
 
             # Sort: more criteria first, then by similarity
             scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
@@ -113,15 +163,21 @@ class LocalExpander:
             result[anchor.log_id] = neighbors
 
             logger.debug(
-                "Anchor %s (%s) → %d neighbors  topic=%s",
+                "Anchor %s (%s) → %d neighbors  topic=%s  score=%.4f",
                 anchor.log_id, anchor.log.title,
                 len(neighbors),
                 anchor.log.metadata.get("topic", "-"),
+                anchor.final_score,
             )
+
+        # Fill empty entries for skipped anchors (so pipeline doesn't break)
+        for anchor in anchor_logs:
+            if anchor.log_id not in result:
+                result[anchor.log_id] = []
 
         total_clustered = sum(len(v) for v in result.values())
         logger.info(
-            "LocalExpander: %d anchors, %d total neighbor logs clustered",
-            len(anchor_logs), total_clustered,
+            "LocalExpander: %d/%d anchors active, %d total neighbor logs clustered",
+            len(valid_anchors), len(anchor_logs), total_clustered,
         )
         return result

@@ -2,9 +2,9 @@
 
 Goal → Query Understanding → LLM Query Expansion (Gemini)
 → Hybrid Candidate Retrieval → Goal-Conditioned Reranking
-→ Relevance Filtering → Diversity-aware Top-K Selection
-→ Anchor-based Local Expansion → Temporal/Semantic Compression
-→ LLM Analysis (Gemini)
+→ Relevance Filtering → Diversity-aware Top-K Selection (adaptive)
+→ Anchor-based Local Expansion (with goal relevance gate)
+→ Temporal/Semantic Compression → LLM Analysis (Gemini)
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 from app.compression.local_expansion import LocalExpander
 from app.compression.temporal_semantic_compressor import TemporalSemanticCompressor
-from app.config import Stage2Config
+from app.config import AdaptiveMode, AdaptivePolicyConfig, Stage2Config
 from app.llm.analysis import GoalAnalyzer
 from app.llm.llm_client import get_llm_client
 from app.retrieval.candidate_retrieval import CandidateRetriever, RetrievalMode
@@ -28,6 +28,41 @@ from app.schemas import (
 logger = logging.getLogger(__name__)
 
 
+def _detect_adaptive_mode(
+    logs: list[ResearchLog],
+    policy: AdaptivePolicyConfig | None = None,
+) -> AdaptiveMode:
+    """Infer retrieval intensity mode from corpus size and date span."""
+    p = policy or AdaptivePolicyConfig()
+    n = len(logs)
+    if n == 0:
+        return AdaptiveMode.SMALL
+
+    from datetime import date as _date
+    dates = sorted(log.date for log in logs if log.date)
+    if len(dates) >= 2:
+        try:
+            span = (_date.fromisoformat(dates[-1]) - _date.fromisoformat(dates[0])).days
+        except (ValueError, TypeError):
+            span = 0
+    else:
+        span = 0
+
+    if n < p.small_log_threshold or span < p.small_span_threshold:
+        mode = AdaptiveMode.SMALL
+    elif n >= p.large_log_threshold and span >= p.large_span_threshold:
+        mode = AdaptiveMode.LARGE
+    else:
+        mode = AdaptiveMode.STANDARD
+
+    density = round(n / max(span, 1), 2)
+    logger.info(
+        "AdaptiveMode=%s  logs=%d  span_days=%d  density=%.2f logs/day",
+        mode, n, span, density,
+    )
+    return mode
+
+
 @dataclass
 class Stage2Result:
     goal: ResearchGoal
@@ -39,6 +74,8 @@ class Stage2Result:
     query_text: str
     expanded_terms: list[str] = field(default_factory=list)
     negative_terms: list[str] = field(default_factory=list)
+    priority_terms: list[str] = field(default_factory=list)
+    adaptive_mode: str = AdaptiveMode.STANDARD
     metadata: dict = field(default_factory=dict)
 
 
@@ -54,27 +91,31 @@ class Stage2Pipeline:
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID_EXPANDED, config=self.config.retrieval
         )
-        self._reranker = GoalConditionedReranker(
-            config=self.config.ranker,
-            negative_term_penalty=0.30,
-        )
+        self._reranker = GoalConditionedReranker(config=self.config.ranker)
         self._selector = DiversitySelector(config=self.config.diversity)
         self._expander = LocalExpander(
             semantic_threshold=0.45,
+            anchor_relevance_threshold=self.config.diversity.relevance_threshold,
+            neighbor_goal_relevance_min=0.02,
         )
         self._compressor = TemporalSemanticCompressor()
         self._analyzer = GoalAnalyzer(llm=get_llm_client(mock=use_mock_llm))
         self._all_logs: list[ResearchLog] = []
+        self._adaptive_mode: AdaptiveMode = AdaptiveMode.STANDARD
         self._indexed = False
 
     def index(self, logs: list[ResearchLog]) -> None:
         self._retriever.index(logs)
         self._all_logs = logs
+        self._adaptive_mode = _detect_adaptive_mode(logs)
         self._indexed = True
 
     def run(self, goal: ResearchGoal) -> Stage2Result:
         if not self._indexed:
             raise RuntimeError("Call index() before run().")
+
+        mode = self._adaptive_mode
+        logger.info("Stage2 pipeline  goal=%s  mode=%s", goal.goal_id, mode)
 
         # 1. Query Understanding
         query_obj = build_query(goal)
@@ -87,8 +128,9 @@ class Stage2Pipeline:
             use_mock_fallback=self.config.query_expansion.use_mock_fallback,
         )
         logger.info(
-            "Stage2 expansion  goal=%s | evidence=%s | negative=%s",
-            goal.goal_id, expanded.expanded_terms, expanded.negative_terms,
+            "Stage2 expansion  goal=%s | evidence=%s | priority=%s | negative=%s",
+            goal.goal_id, expanded.expanded_terms,
+            expanded.priority_terms, expanded.negative_terms,
         )
 
         # 3. Hybrid Candidate Retrieval
@@ -97,11 +139,12 @@ class Stage2Pipeline:
         )
         logger.info("Stage2: %d candidates retrieved  goal=%s", len(candidates), goal.goal_id)
 
-        # 4. Goal-Conditioned Reranking
+        # 4. Goal-Conditioned Reranking (with priority_terms boost)
         ranked = self._reranker.rank(
             goal, candidates,
             expanded_terms=expanded.expanded_terms,
             negative_terms=expanded.negative_terms,
+            priority_terms=expanded.priority_terms,
         )
 
         # 5. Relevance Filtering
@@ -110,15 +153,17 @@ class Stage2Pipeline:
         above = [r for r in ranked if r.final_score >= threshold]
         pool = above if len(above) >= top_k else ranked[: top_k * 2]
         logger.info(
-            "Stage2 relevance filter: %d→%d (threshold=%.3f)",
-            len(ranked), len(pool), threshold,
+            "Stage2 relevance filter: %d→%d (threshold=%.3f)  mode=%s",
+            len(ranked), len(pool), threshold, mode,
         )
 
-        # 6. Diversity-aware Top-K Selection
-        selected = self._selector.select(goal, pool, top_k=top_k)
+        # 6. Diversity-aware Top-K Selection (adaptive lambda)
+        selected = self._selector.select(goal, pool, top_k=top_k, adaptive_mode=mode)
 
-        # 7. Anchor-based Local Expansion
-        expansion_map = self._expander.expand(selected, self._all_logs)
+        # 7. Anchor-based Local Expansion (with goal relevance gate on neighbors)
+        expansion_map = self._expander.expand(
+            selected, self._all_logs, expanded_terms=expanded.expanded_terms
+        )
 
         # 8. Temporal-Semantic Compression
         evidence_units = self._compressor.compress(selected, expansion_map)
@@ -137,8 +182,12 @@ class Stage2Pipeline:
             query_text=expanded.full_text,
             expanded_terms=expanded.expanded_terms,
             negative_terms=expanded.negative_terms,
+            priority_terms=expanded.priority_terms,
+            adaptive_mode=mode,
             metadata={
+                "adaptive_mode": mode,
                 "expanded_terms": expanded.expanded_terms,
+                "priority_terms": expanded.priority_terms,
                 "negative_terms": expanded.negative_terms,
                 "candidate_size": len(candidates),
                 "after_filter": len(pool),

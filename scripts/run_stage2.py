@@ -86,7 +86,9 @@ def main() -> None:
 
     print("\n" + "=" * 60)
     print(f"Stage 2  |  Goal: {result.goal.title}")
+    print(f"Mode    : {result.metadata.get('adaptive_mode', '-')}")
     print(f"Query   : {result.query_text}")
+    print(f"Priority: {result.priority_terms}")
     print(f"Expanded: {result.expanded_terms}")
     print(f"Negative: {result.negative_terms}")
     print(f"Corpus  : {len(user_logs)} logs | Candidates: {result.metadata.get('candidate_size')} → Filter: {result.metadata.get('after_filter')}")
