@@ -49,6 +49,7 @@ def main() -> None:
     parser.add_argument("--top_k", type=int, default=10)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
+    parser.add_argument("--mock", action="store_true", help="Use mock LLM instead of Gemini")
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -76,7 +77,7 @@ def main() -> None:
     # candidate_size: top-N pruning — use ~60% of corpus, minimum top_k * 3
     cfg.retrieval.candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
 
-    pipeline = Stage2Pipeline(config=cfg, use_mock_llm=False)
+    pipeline = Stage2Pipeline(config=cfg, use_mock_llm=args.mock)
     pipeline.index(user_logs)
 
     start = time.time()
@@ -86,8 +87,9 @@ def main() -> None:
     print("\n" + "=" * 60)
     print(f"Stage 2  |  Goal: {result.goal.title}")
     print(f"Query   : {result.query_text}")
-    print(f"Expanded: {result.metadata.get('expanded_terms', [])}")
-    print(f"Corpus  : {len(user_logs)} logs")
+    print(f"Expanded: {result.expanded_terms}")
+    print(f"Negative: {result.negative_terms}")
+    print(f"Corpus  : {len(user_logs)} logs | Candidates: {result.metadata.get('candidate_size')} → Filter: {result.metadata.get('after_filter')}")
     print("=" * 60)
 
     print(f"\n[Selected Logs ({len(result.selected_logs)})]")

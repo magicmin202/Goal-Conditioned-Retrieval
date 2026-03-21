@@ -1,9 +1,8 @@
-"""Stage 1: Candidate Retrieval -> Goal-Conditioned Ranking
-                                -> Relevance Filtering
-                                -> Diversity-aware Top-K Selection.
+"""Stage 1: Candidate Retrieval → Reranking → Relevance Filtering → Diversity Selection.
 
 Core method: raw goal (no expansion).
-Optional variant: --expand flag enables query expansion baseline.
+Expansion variant: set use_expansion=True (optional baseline).
+expanded_terms and negative_terms are passed to the reranker in both cases.
 """
 from __future__ import annotations
 
@@ -13,8 +12,8 @@ from dataclasses import dataclass, field
 from app.config import Stage1Config
 from app.retrieval.candidate_retrieval import CandidateRetriever, RetrievalMode
 from app.retrieval.diversity_selector import DiversitySelector
-from app.retrieval.query_expansion import ExpandedQuery, expand_goal_query
-from app.retrieval.query_understanding import QueryObject, build_query
+from app.retrieval.query_expansion import expand_goal_query
+from app.retrieval.query_understanding import build_query
 from app.retrieval.reranker import GoalConditionedReranker
 from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
 
@@ -30,18 +29,22 @@ class Stage1Result:
     query_text: str
     used_expansion: bool = False
     expanded_terms: list[str] = field(default_factory=list)
+    negative_terms: list[str] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
 
 
 class Stage1Pipeline:
-    """Goal -> Candidate Retrieval -> Reranking -> Relevance Filter -> Diversity Selection."""
+    """Goal → Candidate Retrieval → Reranking → Relevance Filtering → Diversity."""
 
     def __init__(self, config: Stage1Config | None = None) -> None:
         self.config = config or Stage1Config()
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID, config=self.config.retrieval
         )
-        self._reranker = GoalConditionedReranker(config=self.config.ranker)
+        self._reranker = GoalConditionedReranker(
+            config=self.config.ranker,
+            negative_term_penalty=0.30,
+        )
         self._selector = DiversitySelector(config=self.config.diversity)
         self._indexed = False
 
@@ -64,41 +67,58 @@ class Stage1Pipeline:
 
         # 1. Query Understanding
         query_obj = build_query(goal)
+
+        # 2. Optional Query Expansion
         expanded_terms: list[str] = []
-        active_query: QueryObject | ExpandedQuery
+        negative_terms: list[str] = []
 
         if expand:
-            expanded_q = expand_goal_query(
+            expanded = expand_goal_query(
                 goal, query_obj,
                 max_terms=self.config.query_expansion.max_terms,
                 mode=self.config.query_expansion.mode,
+                use_mock_fallback=self.config.query_expansion.use_mock_fallback,
             )
-            active_query = expanded_q
-            expanded_terms = expanded_q.all_expansion_terms
+            active_query = expanded
+            expanded_terms = expanded.expanded_terms
+            negative_terms = expanded.negative_terms
             logger.info(
-                "Stage1: query expansion applied | goal=%s | terms=%s",
-                goal.goal_id, expanded_terms[:5],
+                "Stage1 expansion  goal=%s | terms=%s | neg=%s",
+                goal.goal_id, expanded_terms, negative_terms,
             )
         else:
+            # Even without expansion, use heuristic terms for reranker scoring
+            from app.retrieval.query_expansion import _heuristic_expansion
+            heuristic = _heuristic_expansion(goal, max_terms=10)
+            expanded_terms = heuristic.get("evidence_terms", [])
+            negative_terms = heuristic.get("negative_terms", [])
             active_query = query_obj
 
-        # 2. Candidate Retrieval (top-N pruning enforced by candidate_size)
+        # 3. Candidate Retrieval
         candidates = self._retriever.retrieve(
             active_query, top_n=self.config.retrieval.candidate_size
         )
+        logger.info("Stage1: %d candidates  goal=%s", len(candidates), goal.goal_id)
+
+        # 4. Goal-Conditioned Reranking (with expanded/negative terms)
+        ranked = self._reranker.rank(
+            goal, candidates,
+            expanded_terms=expanded_terms,
+            negative_terms=negative_terms,
+        )
+
+        # 5. Relevance Filtering → cap pool before diversity
+        top_k = self.config.retrieval.top_k
+        threshold = self.config.diversity.relevance_threshold
+        above = [r for r in ranked if r.final_score >= threshold]
+        pool = above if len(above) >= top_k else ranked[: top_k * 2]
         logger.info(
-            "Stage1: %d candidates retrieved (corpus via index) for goal=%s",
-            len(candidates), goal.goal_id,
+            "Stage1 relevance filter: %d→%d (threshold=%.3f)",
+            len(ranked), len(pool), threshold,
         )
 
-        # 3. Goal-Conditioned Reranking (pass expanded_terms for better goal_focus)
-        ranked = self._reranker.rank(goal, candidates, expanded_terms=expanded_terms or None)
-
-        # 4. Relevance Filtering + Diversity-aware Top-K Selection
-        selected = self._selector.select(
-            goal, ranked, top_k=self.config.retrieval.top_k,
-            relevance_threshold=self.config.diversity.relevance_threshold,
-        )
+        # 6. Diversity-aware Top-K Selection
+        selected = self._selector.select(goal, pool, top_k=top_k)
 
         query_text = (
             active_query.full_text
@@ -114,9 +134,10 @@ class Stage1Pipeline:
             query_text=query_text,
             used_expansion=expand,
             expanded_terms=expanded_terms,
+            negative_terms=negative_terms,
             metadata={
                 "candidate_size": len(candidates),
-                "ranked_size": len(ranked),
+                "after_filter": len(pool),
                 "top_k": len(selected),
             },
         )

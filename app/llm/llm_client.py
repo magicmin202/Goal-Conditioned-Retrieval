@@ -85,9 +85,10 @@ class GeminiLLMClient(BaseLLMClient):
         return resp.text
 
 
-def get_llm_client(mock: bool = True, config=None) -> BaseLLMClient:
-    """Factory: returns GeminiLLMClient when mock=False and API key is available."""
+def get_llm_client(mock: bool = False, config=None) -> BaseLLMClient:
+    """Factory: GeminiLLMClient by default. MockLLMClient only when mock=True or API key missing."""
     if mock:
+        logger.info("LLM: MockLLMClient (mock=True)")
         return MockLLMClient()
 
     from app.config import DEFAULT_CONFIG
@@ -95,16 +96,18 @@ def get_llm_client(mock: bool = True, config=None) -> BaseLLMClient:
 
     api_key = cfg.api_key
     if not api_key:
-        logger.warning("GEMINI_API_KEY not set. Falling back to MockLLMClient.")
+        logger.warning("Gemini API not found → fallback to MockLLMClient. Set GEMINI_API_KEY.")
         return MockLLMClient()
 
     try:
-        return GeminiLLMClient(
+        client = GeminiLLMClient(
             api_key=api_key,
             model_name=cfg.model_name,
             temperature=cfg.temperature,
             max_output_tokens=cfg.max_output_tokens,
         )
+        logger.info("Gemini API connected (model=%s)", cfg.model_name)
+        return client
     except Exception as exc:
-        logger.warning("GeminiLLMClient init failed (%s). Falling back to mock.", exc)
+        logger.warning("Gemini API init failed (%s) → fallback to MockLLMClient.", exc)
         return MockLLMClient()

@@ -1,9 +1,8 @@
-"""Diversity-aware Top-K selection via MMR.
+"""Diversity-aware Top-K selection.
 
-Pipeline order (enforced here):
-  reranked logs
-  -> relevance_threshold filtering   <- NEW: irrelevant logs dropped first
-  -> MMR diversity selection
+Pipeline:
+  1. Relevance filtering: drop logs below relevance_threshold
+  2. MMR selection on the filtered pool
 """
 from __future__ import annotations
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class DiversitySelector:
-    """Select top-k logs via MMR with a relevance pre-filter."""
+    """Select top-k logs: relevance filter → MMR."""
 
     def __init__(
         self,
@@ -32,53 +31,38 @@ class DiversitySelector:
         goal: ResearchGoal,
         ranked_logs: list[RankedLog],
         top_k: int | None = None,
-        relevance_threshold: float | None = None,
     ) -> list[RankedLog]:
-        """Apply relevance filtering then MMR.
+        """Apply relevance threshold, then MMR.
 
-        Args:
-            goal: Target goal (used for embedding comparison).
-            ranked_logs: Reranked candidates (highest score first).
-            top_k: Number of logs to select.
-            relevance_threshold: Override config threshold.
+        score = λ * relevance - (1-λ) * max_sim_to_selected
         """
         k = top_k or self.config.top_k
         lam = self.config.mmr_lambda
-        threshold = (
-            relevance_threshold
-            if relevance_threshold is not None
-            else self.config.relevance_threshold
-        )
+        threshold = self.config.relevance_threshold
 
         if not ranked_logs:
             return []
 
-        # Step 1: relevance threshold filtering
-        filtered = [r for r in ranked_logs if r.final_score >= threshold]
-        if not filtered:
-            # Safety: if everything is below threshold, keep top-k by score
-            logger.warning(
-                "All %d logs below relevance_threshold=%.3f. Keeping top-%d by score.",
-                len(ranked_logs), threshold, k,
-            )
-            filtered = ranked_logs[:k]
-
-        dropped = len(ranked_logs) - len(filtered)
-        if dropped > 0:
+        # ── Step 1: relevance filtering ──────────────────────────────────────
+        above = [r for r in ranked_logs if r.final_score >= threshold]
+        if len(above) < k:
+            # Not enough pass threshold → keep top (k * 2) regardless
+            pool = ranked_logs[: k * 2]
             logger.debug(
-                "Relevance filter: dropped %d/%d logs (threshold=%.3f)",
-                dropped, len(ranked_logs), threshold,
+                "Relevance filter: only %d/%d above threshold %.3f → using top %d",
+                len(above), len(ranked_logs), threshold, len(pool),
+            )
+        else:
+            pool = above
+            logger.debug(
+                "Relevance filter: %d/%d logs above threshold %.3f",
+                len(pool), len(ranked_logs), threshold,
             )
 
-        if len(filtered) <= k:
-            for i, r in enumerate(filtered):
-                r.diversity_score = r.final_score
-            return filtered
-
-        # Step 2: MMR on filtered candidates
-        embeddings = {r.log_id: self._dense.embed(r.log.full_text) for r in filtered}
+        # ── Step 2: MMR ───────────────────────────────────────────────────────
+        embeddings = {r.log_id: self._dense.embed(r.log.full_text) for r in pool}
         selected: list[RankedLog] = []
-        remaining = list(filtered)
+        remaining = list(pool)
 
         while remaining and len(selected) < k:
             best_mmr = -float("inf")
@@ -86,8 +70,12 @@ class DiversitySelector:
             for candidate in remaining:
                 rel = candidate.final_score
                 sim_to_selected = (
-                    max(cosine(embeddings[candidate.log_id], embeddings[s.log_id]) for s in selected)
-                    if selected else 0.0
+                    max(
+                        cosine(embeddings[candidate.log_id], embeddings[s.log_id])
+                        for s in selected
+                    )
+                    if selected
+                    else 0.0
                 )
                 mmr = lam * rel - (1 - lam) * sim_to_selected
                 if mmr > best_mmr:
@@ -98,8 +86,5 @@ class DiversitySelector:
             selected.append(best)
             remaining.remove(best)
 
-        logger.debug(
-            "DiversitySelector: selected %d from %d filtered logs",
-            len(selected), len(filtered),
-        )
+        logger.debug("DiversitySelector: %d selected from pool of %d", len(selected), len(pool))
         return selected

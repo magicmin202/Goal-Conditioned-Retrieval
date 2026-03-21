@@ -45,9 +45,10 @@ class RetrievalConfig:
 @dataclass
 class RankerConfig:
     # Weights shifted toward goal relevance
-    semantic_weight: float = 0.45
-    goal_focus_weight: float = 0.40    # raised: "relevant to goal" > "evidence of effort"
+    semantic_weight: float = 0.40
+    goal_focus_weight: float = 0.45    # primary signal: relevant to goal
     evidence_value_weight: float = 0.15
+    negative_term_penalty: float = 0.30  # subtracted when log contains negative_terms
 
 
 @dataclass

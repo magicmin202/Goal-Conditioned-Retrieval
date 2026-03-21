@@ -1,10 +1,10 @@
 """Stage 2: Enhanced Retrieval Pipeline with full RAG.
 
-Goal -> Query Understanding -> Gemini Query Expansion
-     -> Hybrid Candidate Retrieval -> Goal-Conditioned Reranking
-     -> Relevance Filtering -> Diversity-aware Top-K Selection
-     -> Anchor-based Local Expansion -> Temporal/Semantic Compression
-     -> LLM Analysis
+Goal → Query Understanding → LLM Query Expansion (Gemini)
+→ Hybrid Candidate Retrieval → Goal-Conditioned Reranking
+→ Relevance Filtering → Diversity-aware Top-K Selection
+→ Anchor-based Local Expansion → Temporal/Semantic Compression
+→ LLM Analysis (Gemini)
 """
 from __future__ import annotations
 
@@ -21,7 +21,9 @@ from app.retrieval.diversity_selector import DiversitySelector
 from app.retrieval.query_expansion import expand_goal_query
 from app.retrieval.query_understanding import build_query
 from app.retrieval.reranker import GoalConditionedReranker
-from app.schemas import CandidateLog, CompressedEvidenceUnit, RankedLog, ResearchGoal, ResearchLog
+from app.schemas import (
+    CandidateLog, CompressedEvidenceUnit, RankedLog, ResearchGoal, ResearchLog,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,21 +38,29 @@ class Stage2Result:
     llm_analysis: str
     query_text: str
     expanded_terms: list[str] = field(default_factory=list)
+    negative_terms: list[str] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
 
 
 class Stage2Pipeline:
-    """Full RAG pipeline for Stage 2 (Enhanced Retrieval + Compression + LLM)."""
+    """Full RAG pipeline for Stage 2 (Gemini API as default execution path)."""
 
-    def __init__(self, config: Stage2Config | None = None, use_mock_llm: bool = False) -> None:
+    def __init__(
+        self,
+        config: Stage2Config | None = None,
+        use_mock_llm: bool = False,   # False = use Gemini by default
+    ) -> None:
         self.config = config or Stage2Config()
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID_EXPANDED, config=self.config.retrieval
         )
-        self._reranker = GoalConditionedReranker(config=self.config.ranker)
+        self._reranker = GoalConditionedReranker(
+            config=self.config.ranker,
+            negative_term_penalty=0.30,
+        )
         self._selector = DiversitySelector(config=self.config.diversity)
         self._expander = LocalExpander(
-            similarity_threshold=self.config.compression.cluster_similarity_threshold
+            semantic_threshold=0.45,
         )
         self._compressor = TemporalSemanticCompressor()
         self._analyzer = GoalAnalyzer(llm=get_llm_client(mock=use_mock_llm))
@@ -69,42 +79,52 @@ class Stage2Pipeline:
         # 1. Query Understanding
         query_obj = build_query(goal)
 
-        # 2. Gemini Query Expansion (always enabled in Stage 2 My Method)
+        # 2. LLM Query Expansion (Gemini)
         expanded = expand_goal_query(
             goal, query_obj,
             max_terms=self.config.query_expansion.max_terms,
             mode=self.config.query_expansion.mode,
+            use_mock_fallback=self.config.query_expansion.use_mock_fallback,
         )
-        expanded_terms = expanded.all_expansion_terms
         logger.info(
-            "Stage2: expanded terms for goal=%s | %s",
-            goal.goal_id, expanded_terms[:6],
+            "Stage2 expansion  goal=%s | evidence=%s | negative=%s",
+            goal.goal_id, expanded.expanded_terms, expanded.negative_terms,
         )
 
         # 3. Hybrid Candidate Retrieval
         candidates = self._retriever.retrieve(
             expanded, top_n=self.config.retrieval.candidate_size
         )
-        logger.info("Stage2: %d candidates retrieved for goal=%s", len(candidates), goal.goal_id)
+        logger.info("Stage2: %d candidates retrieved  goal=%s", len(candidates), goal.goal_id)
 
-        # 4. Goal-Conditioned Reranking (with expanded_terms)
-        ranked = self._reranker.rank(goal, candidates, expanded_terms=expanded_terms)
-
-        # 5. Relevance Filtering + Diversity-aware Top-K Selection
-        selected = self._selector.select(
-            goal, ranked,
-            top_k=self.config.retrieval.top_k,
-            relevance_threshold=self.config.diversity.relevance_threshold,
+        # 4. Goal-Conditioned Reranking
+        ranked = self._reranker.rank(
+            goal, candidates,
+            expanded_terms=expanded.expanded_terms,
+            negative_terms=expanded.negative_terms,
         )
 
-        # 6. Anchor-based Local Expansion
+        # 5. Relevance Filtering
+        top_k = self.config.retrieval.top_k
+        threshold = self.config.diversity.relevance_threshold
+        above = [r for r in ranked if r.final_score >= threshold]
+        pool = above if len(above) >= top_k else ranked[: top_k * 2]
+        logger.info(
+            "Stage2 relevance filter: %d→%d (threshold=%.3f)",
+            len(ranked), len(pool), threshold,
+        )
+
+        # 6. Diversity-aware Top-K Selection
+        selected = self._selector.select(goal, pool, top_k=top_k)
+
+        # 7. Anchor-based Local Expansion
         expansion_map = self._expander.expand(selected, self._all_logs)
 
-        # 7. Temporal-Semantic Compression
+        # 8. Temporal-Semantic Compression
         evidence_units = self._compressor.compress(selected, expansion_map)
-        logger.info("Stage2: %d evidence units for goal=%s", len(evidence_units), goal.goal_id)
+        logger.info("Stage2: %d evidence units  goal=%s", len(evidence_units), goal.goal_id)
 
-        # 8. LLM Analysis
+        # 9. LLM Analysis (Gemini)
         analysis = self._analyzer.analyze(goal, evidence_units)
 
         return Stage2Result(
@@ -115,11 +135,13 @@ class Stage2Pipeline:
             evidence_units=evidence_units,
             llm_analysis=analysis,
             query_text=expanded.full_text,
-            expanded_terms=expanded_terms,
+            expanded_terms=expanded.expanded_terms,
+            negative_terms=expanded.negative_terms,
             metadata={
-                "expanded_terms": expanded_terms,
+                "expanded_terms": expanded.expanded_terms,
+                "negative_terms": expanded.negative_terms,
                 "candidate_size": len(candidates),
-                "ranked_size": len(ranked),
+                "after_filter": len(pool),
                 "top_k": len(selected),
                 "evidence_units": len(evidence_units),
             },

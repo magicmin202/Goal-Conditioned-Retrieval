@@ -1,12 +1,13 @@
 """Goal-Conditioned Evidence Ranker.
 
-score = 0.45 * semantic_relevance
-      + 0.40 * goal_focus        <- raised; uses expanded terms for precision
+score = 0.40 * semantic_relevance
+      + 0.45 * goal_focus          <- primary signal
       + 0.15 * evidence_value
+      - NEGATIVE_TERM_PENALTY * domain_mismatch
 
-goal_focus now uses expanded_terms overlap so that goal-specific
-vocabulary (e.g. "코딩 테스트", "알고리즘") boosts relevant logs
-rather than generic activity words.
+goal_focus uses expanded evidence_terms for direct overlap scoring.
+domain_mismatch penalises logs that contain negative_terms or are
+entirely unrelated daily activities.
 """
 from __future__ import annotations
 
@@ -19,39 +20,47 @@ from app.schemas import CandidateLog, RankedLog, ResearchGoal
 
 logger = logging.getLogger(__name__)
 
+_PRODUCTIVE_TYPES = {
+    "study", "implementation", "reading", "exercise",
+    "planning", "execution", "reflection", "coding", "social",
+}
+_NOISE_TYPES = {"daily"}
+
 _EVIDENCE_KEYWORDS = {
-    "완료", "완성", "제출", "발표", "구현", "해결", "달성",
+    "완료", "완성", "제출", "발표", "구현", "해결", "달성", "성공",
     "finished", "completed", "implemented", "solved", "achieved",
-    "문제 풀이", "오답 정리", "결과 정리", "제출 완료",
+    "공부", "학습", "정리", "연습", "작성", "읽기", "review", "풀이",
+    "실습", "수행", "진행", "실행",
 }
 
 
 def _tokenize(text: str) -> list[str]:
-    return re.findall(r"[\w\uAC00-\uD7A3]+", text.lower())
+    return re.findall(r"[\w가-힣]+", text.lower())
 
 
-def _token_overlap_score(query_tokens: list[str], log_tokens: list[str]) -> float:
-    """Soft overlap: fraction of query tokens that appear in log."""
-    if not query_tokens or not log_tokens:
+def _token_set(text: str) -> set[str]:
+    return set(_tokenize(text))
+
+
+def _overlap_ratio(query_tokens: set[str], doc_tokens: set[str]) -> float:
+    """Fraction of query_tokens found in doc_tokens."""
+    if not query_tokens:
         return 0.0
-    log_set = set(log_tokens)
-    hits = sum(1 for t in query_tokens if t in log_set)
-    return hits / len(query_tokens)
+    return len(query_tokens & doc_tokens) / len(query_tokens)
 
 
 class GoalConditionedReranker:
-    """Multi-component evidence scorer.
-
-    Accepts optional expanded_terms to strengthen goal_focus signal.
-    """
+    """Multi-component scorer: semantic + goal_focus + evidence - penalty."""
 
     def __init__(
         self,
         config: RankerConfig | None = None,
         dense_retriever: DenseRetriever | None = None,
+        negative_term_penalty: float = 0.30,
     ) -> None:
         self.config = config or RankerConfig()
         self._dense = dense_retriever or DenseRetriever()
+        self.negative_term_penalty = negative_term_penalty
 
     def _semantic_relevance(self, goal: ResearchGoal, log_text: str) -> float:
         g_emb = self._dense.embed(goal.query_text)
@@ -62,65 +71,87 @@ class GoalConditionedReranker:
         self,
         goal: ResearchGoal,
         log_text: str,
-        expanded_terms: list[str] | None = None,
+        expanded_terms: list[str],
     ) -> float:
-        """Overlap-based goal relevance.
+        """Goal relevance: 70% expanded_terms overlap + 30% base goal overlap."""
+        log_tokens = _token_set(log_text)
 
-        Uses expanded_terms (goal-specific vocabulary) when available,
-        falling back to raw goal tokens.
-        High-precision: checks how much of the goal vocab appears in the log,
-        not the reverse (avoids noisy matches from short logs).
-        """
-        log_tokens = _tokenize(log_text)
+        # Build expanded token set
+        expanded_tokens: set[str] = set()
+        for term in expanded_terms:
+            expanded_tokens.update(_tokenize(term))
+        expanded_overlap = _overlap_ratio(expanded_tokens, log_tokens) if expanded_tokens else 0.0
 
-        if expanded_terms:
-            # Score against expanded vocabulary
-            exp_tokens = [t for term in expanded_terms for t in _tokenize(term)]
-            score_exp = _token_overlap_score(exp_tokens, log_tokens)
+        # Base goal token overlap
+        goal_tokens = _token_set(goal.query_text + " " + goal.goal_embedding_text)
+        base_overlap = _overlap_ratio(goal_tokens, log_tokens) if goal_tokens else 0.0
 
-            # Also score against raw goal text
-            goal_tokens = _tokenize(goal.query_text)
-            score_raw = _token_overlap_score(goal_tokens, log_tokens)
+        return 0.7 * expanded_overlap + 0.3 * base_overlap
 
-            # Weighted combination: expanded terms are more precise
-            return min(0.7 * score_exp + 0.3 * score_raw, 1.0)
-        else:
-            goal_tokens = _tokenize(goal.query_text)
-            return _token_overlap_score(goal_tokens, log_tokens)
+    def _evidence_value(self, candidate: CandidateLog) -> float:
+        """Concrete evidence heuristic: keywords + activity_type + metadata strength."""
+        tokens = _token_set(candidate.log.full_text)
+        keyword_score = min(len(tokens & _EVIDENCE_KEYWORDS) / 3.0, 1.0)
+        specificity = min(len(tokens) / 50.0, 0.4)
+        act_bonus = 0.2 if candidate.log.activity_type in _PRODUCTIVE_TYPES else 0.0
+        strength = candidate.log.metadata.get("evidence_strength", "medium")
+        strength_bonus = {"high": 0.2, "medium": 0.1, "low": 0.0}.get(strength, 0.0)
+        return min(keyword_score + specificity + act_bonus + strength_bonus, 1.0)
 
-    def _evidence_value(self, log_text: str) -> float:
-        tokens_set = set(_tokenize(log_text))
-        # Direct keyword hits
-        keyword_score = min(
-            sum(1 for kw in _EVIDENCE_KEYWORDS if kw in log_text.lower()) / 3.0,
-            1.0,
-        )
-        # Specificity bonus for longer, content-rich logs
-        specificity = min(len(tokens_set) / 40.0, 0.4)
-        return min(keyword_score + specificity, 1.0)
+    def _domain_mismatch(
+        self,
+        candidate: CandidateLog,
+        negative_terms: list[str],
+    ) -> float:
+        """Penalty: 0.0 (no mismatch) to 1.0 (strong mismatch)."""
+        log_tokens = _token_set(candidate.log.full_text)
+
+        neg_tokens: set[str] = set()
+        for term in negative_terms:
+            neg_tokens.update(_tokenize(term))
+        neg_overlap = _overlap_ratio(neg_tokens, log_tokens) if neg_tokens else 0.0
+
+        noise_penalty = 0.5 if candidate.log.activity_type in _NOISE_TYPES else 0.0
+
+        return min(neg_overlap + noise_penalty, 1.0)
 
     def score(
         self,
         goal: ResearchGoal,
         candidate: CandidateLog,
         expanded_terms: list[str] | None = None,
+        negative_terms: list[str] | None = None,
     ) -> RankedLog:
+        exp_terms = expanded_terms or []
+        neg_terms = negative_terms or []
+
         log_text = candidate.log.full_text
         sr = self._semantic_relevance(goal, log_text)
-        gf = self._goal_focus(goal, log_text, expanded_terms)
-        ev = self._evidence_value(log_text)
+        gf = self._goal_focus(goal, log_text, exp_terms)
+        ev = self._evidence_value(candidate)
+        dm = self._domain_mismatch(candidate, neg_terms)
+
         w = self.config
-        final = (
+        final = max(0.0, round(
             w.semantic_weight * sr
             + w.goal_focus_weight * gf
             + w.evidence_value_weight * ev
-        )
+            - self.negative_term_penalty * dm,
+            4,
+        ))
+
+        if dm > 0.3:
+            logger.debug(
+                "Penalty  log=%s  dm=%.2f  final=%.4f  [%s]",
+                candidate.log.log_id, dm, final, candidate.log.title,
+            )
+
         return RankedLog(
             log=candidate.log,
             semantic_relevance=round(sr, 4),
             goal_focus=round(gf, 4),
             evidence_value=round(ev, 4),
-            final_score=round(final, 4),
+            final_score=final,
         )
 
     def rank(
@@ -128,14 +159,14 @@ class GoalConditionedReranker:
         goal: ResearchGoal,
         candidates: list[CandidateLog],
         expanded_terms: list[str] | None = None,
+        negative_terms: list[str] | None = None,
     ) -> list[RankedLog]:
-        """Score and rank candidates. Pass expanded_terms for better goal_focus."""
-        ranked = [self.score(goal, c, expanded_terms) for c in candidates]
+        ranked = [
+            self.score(goal, c, expanded_terms=expanded_terms, negative_terms=negative_terms)
+            for c in candidates
+        ]
         ranked.sort(key=lambda x: x.final_score, reverse=True)
         for i, r in enumerate(ranked):
             r.rank = i + 1
-        logger.debug(
-            "Reranked %d candidates for goal=%s (top score=%.4f)",
-            len(ranked), goal.goal_id, ranked[0].final_score if ranked else 0,
-        )
+        logger.debug("Reranked %d candidates  goal=%s", len(ranked), goal.goal_id)
         return ranked
