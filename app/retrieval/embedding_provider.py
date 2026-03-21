@@ -25,11 +25,48 @@ import os
 import random
 from abc import ABC, abstractmethod
 
+import hashlib
+import json
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 EMBEDDING_DIM = 128
 _ST_DEFAULT_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 _GEMINI_EMBED_MODEL = "models/gemini-embedding-001"  # 3072-dim, multilingual
+
+
+# ── Disk cache helpers ────────────────────────────────────────────────────────
+
+def _text_key(text: str) -> str:
+    """Stable hash key for a text string."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+
+def _get_cache_path(cache_dir: str, model: str) -> Path:
+    safe = model.replace("/", "_").replace(":", "_")
+    path = Path(cache_dir) / f"{safe}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _load_disk_cache(path: Path) -> dict[str, list[float]]:
+    if path.exists():
+        try:
+            data = json.loads(path.read_text())
+            logger.debug("Loaded %d cached embeddings from %s", len(data), path)
+            return data
+        except Exception as exc:
+            logger.warning("Failed to load embedding cache %s: %s", path, exc)
+    return {}
+
+
+def _save_disk_cache(path: Path, cache: dict[str, list[float]]) -> None:
+    try:
+        path.write_text(json.dumps(cache))
+        logger.debug("Saved %d embeddings to %s", len(cache), path)
+    except Exception as exc:
+        logger.warning("Failed to save embedding cache: %s", exc)
 
 
 # ── Abstract base ─────────────────────────────────────────────────────────────
@@ -141,7 +178,7 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         api_key: str | None = None,
         model: str = _GEMINI_EMBED_MODEL,
         task_type: str = "RETRIEVAL_DOCUMENT",
-        cache_size: int = 512,
+        cache_dir: str = ".cache/embeddings",
     ) -> None:
         from google import genai  # type: ignore
 
@@ -152,10 +189,17 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         self._client = genai.Client(api_key=key)
         self._model = model
         self._task_type = task_type
-        self._cache: dict[str, list[float]] = {}
-        self._cache_size = cache_size
         self._dim_size: int | None = None
-        logger.info("GeminiEmbeddingProvider initialized [model=%s]", model)
+
+        # Persistent disk cache: survives between runs
+        self._cache_path = _get_cache_path(cache_dir, model)
+        self._cache: dict[str, list[float]] = _load_disk_cache(self._cache_path)
+        self._dirty = False   # track unsaved changes
+
+        logger.info(
+            "GeminiEmbeddingProvider initialized [model=%s  cache=%d entries  path=%s]",
+            model, len(self._cache), self._cache_path,
+        )
 
     def _api_encode(self, text: str) -> list[float]:
         from google.genai import types  # type: ignore
@@ -168,22 +212,35 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         return list(result.embeddings[0].values)
 
     def encode(self, text: str) -> list[float]:
-        if text not in self._cache:
-            if len(self._cache) >= self._cache_size:
-                # Evict oldest entry
-                self._cache.pop(next(iter(self._cache)))
+        key = _text_key(text)
+        if key not in self._cache:
             vec = self._api_encode(text)
-            self._cache[text] = vec
+            self._cache[key] = vec
+            self._dirty = True
             if self._dim_size is None:
                 self._dim_size = len(vec)
-        return self._cache[text]
+            # Auto-save every 10 new embeddings
+            if sum(1 for _ in self._cache) % 10 == 0:
+                self.save_cache()
+        return self._cache[key]
 
     def encode_batch(self, texts: list[str]) -> list[list[float]]:
-        """Encode batch, using cache to skip already-embedded texts."""
-        results = []
-        for text in texts:
-            results.append(self.encode(text))
+        """Encode batch, skipping texts already in cache."""
+        missing = [t for t in texts if _text_key(t) not in self._cache]
+        if missing:
+            logger.info(
+                "GeminiEmbed: %d new texts to embed (%d already cached)",
+                len(missing), len(texts) - len(missing),
+            )
+        results = [self.encode(t) for t in texts]
+        if self._dirty:
+            self.save_cache()
         return results
+
+    def save_cache(self) -> None:
+        """Flush in-memory cache to disk."""
+        _save_disk_cache(self._cache_path, self._cache)
+        self._dirty = False
 
     @property
     def dim(self) -> int:

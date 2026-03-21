@@ -172,7 +172,18 @@ class GoalConditionedReranker:
 
     # ── Semantic similarity (tie-breaker) ─────────────────────────────────────
 
-    def _semantic_similarity(self, goal: ResearchGoal, log_text: str) -> float:
+    def _semantic_similarity(
+        self, goal: ResearchGoal, log_text: str, precomputed: float | None = None
+    ) -> float:
+        """Return semantic similarity.
+
+        If precomputed is provided (candidate.dense_score from retrieval),
+        use it directly — avoids redundant Gemini API calls.
+        Dense embedding is already computed during candidate retrieval;
+        reusing it saves N embedding calls per reranking run.
+        """
+        if precomputed is not None:
+            return precomputed
         g_emb = self._dense.embed(goal.query_text)
         l_emb = self._dense.embed(log_text)
         return max(0.0, cosine(g_emb, l_emb))
@@ -244,7 +255,11 @@ class GoalConditionedReranker:
         rel_score = self._related_score(log_text, log_title, rel_terms)
         action = self._action_signal(candidate)
         domain = self._domain_consistency(candidate, goal)
-        sem = self._semantic_similarity(goal, log_text)
+        # Reuse dense_score from candidate retrieval (avoids redundant API call)
+        sem = self._semantic_similarity(
+            goal, log_text,
+            precomputed=candidate.dense_score if candidate.dense_score > 0 else None,
+        )
         base = self._base_goal_overlap(goal, log_text)
 
         # ── Negative penalty ──────────────────────────────────────────────────

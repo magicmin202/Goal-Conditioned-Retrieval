@@ -17,6 +17,8 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from dotenv import load_dotenv
+load_dotenv()
 
 from app.utils.logging_utils import setup_logging
 setup_logging()
@@ -55,6 +57,8 @@ def main() -> None:
     parser.add_argument("--expand", action="store_true", help="Enable query expansion variant")
     parser.add_argument("--auto", action="store_true", help="Auto-pick first user/goal")
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
+    parser.add_argument("--real_embeddings", action="store_true",
+                        help="Use Gemini Embedding API for dense retrieval (requires GEMINI_API_KEY)")
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -84,7 +88,7 @@ def main() -> None:
     # candidate_size: top-N pruning — use ~60% of corpus, minimum top_k * 3
     cfg.retrieval.candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
 
-    pipeline = Stage1Pipeline(config=cfg)
+    pipeline = Stage1Pipeline(config=cfg, use_real_embeddings=args.real_embeddings)
     pipeline.index(user_logs)
     result = pipeline.run(target_goal, use_expansion=args.expand)
 

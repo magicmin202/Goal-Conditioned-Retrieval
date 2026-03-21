@@ -16,6 +16,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from app.retrieval.query_understanding import QueryObject
 from app.schemas import ResearchGoal
@@ -412,6 +413,34 @@ def _call_gemini(goal: ResearchGoal, max_terms: int, gemini_config=None) -> dict
     }
 
 
+# ── Expansion disk cache ──────────────────────────────────────────────────────
+_EXPANSION_CACHE_DIR = Path(".cache/expansions")
+
+
+def _expansion_cache_path(goal_id: str) -> Path:
+    _EXPANSION_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return _EXPANSION_CACHE_DIR / f"{goal_id}.json"
+
+
+def _load_expansion_cache(goal_id: str) -> dict | None:
+    path = _expansion_cache_path(goal_id)
+    if path.exists():
+        try:
+            data = json.loads(path.read_text())
+            logger.info("Expansion cache hit  goal=%s  (skipping Gemini API call)", goal_id)
+            return data
+        except Exception:
+            pass
+    return None
+
+
+def _save_expansion_cache(goal_id: str, parsed: dict) -> None:
+    try:
+        _expansion_cache_path(goal_id).write_text(json.dumps(parsed, ensure_ascii=False))
+    except Exception as exc:
+        logger.warning("Failed to save expansion cache: %s", exc)
+
+
 # ── Public API ────────────────────────────────────────────────────────────────
 def expand_goal_query(
     goal: ResearchGoal,
@@ -420,37 +449,48 @@ def expand_goal_query(
     mode: str = "structured",
     use_mock_fallback: bool = True,
     gemini_config=None,
+    use_cache: bool = True,
 ) -> ExpandedQuery:
     """Expand goal into structured retrieval vocabulary via Gemini API.
+
+    Caches result to .cache/expansions/{goal_id}.json to avoid repeated
+    Gemini API calls for the same goal across runs.
 
     Returns ExpandedQuery with priority_terms / evidence_terms / related_terms
     / negative_terms for use in candidate retrieval and reranking.
     """
     parsed: dict | None = None
 
-    try:
-        parsed = _call_gemini(goal, max_terms, gemini_config=gemini_config)
-        logger.info(
-            "Gemini expansion  goal=%s\n"
-            "  priority=%s\n"
-            "  evidence=%s\n"
-            "  related=%s\n"
-            "  negative=%s",
-            goal.goal_id,
-            parsed["priority_terms"],
-            parsed["evidence_terms"],
-            parsed["related_terms"],
-            parsed["negative_terms"],
-        )
-    except Exception as exc:
-        if use_mock_fallback:
-            logger.warning(
-                "Gemini expansion failed (%s) → heuristic fallback  goal=%s",
-                exc, goal.goal_id,
+    # Check disk cache first
+    if use_cache:
+        parsed = _load_expansion_cache(goal.goal_id)
+
+    if parsed is None:
+        try:
+            parsed = _call_gemini(goal, max_terms, gemini_config=gemini_config)
+            if use_cache:
+                _save_expansion_cache(goal.goal_id, parsed)
+            logger.info(
+                "Gemini expansion  goal=%s\n"
+                "  priority=%s\n"
+                "  evidence=%s\n"
+                "  related=%s\n"
+                "  negative=%s",
+                goal.goal_id,
+                parsed["priority_terms"],
+                parsed["evidence_terms"],
+                parsed["related_terms"],
+                parsed["negative_terms"],
             )
-            parsed = _heuristic_expansion(goal, max_terms)
-        else:
-            raise
+        except Exception as exc:
+            if use_mock_fallback:
+                logger.warning(
+                    "Gemini expansion failed (%s) → heuristic fallback  goal=%s",
+                    exc, goal.goal_id,
+                )
+                parsed = _heuristic_expansion(goal, max_terms)
+            else:
+                raise
 
     return ExpandedQuery(
         base_query=base_query,
