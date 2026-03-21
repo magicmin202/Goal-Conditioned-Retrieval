@@ -50,6 +50,8 @@ def main() -> None:
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
     parser.add_argument("--mock", action="store_true", help="Use mock LLM instead of Gemini")
+    parser.add_argument("--real_embeddings", action="store_true",
+                        help="Use Gemini Embedding API for dense retrieval (requires GEMINI_API_KEY)")
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -77,7 +79,11 @@ def main() -> None:
     # candidate_size: top-N pruning — use ~60% of corpus, minimum top_k * 3
     cfg.retrieval.candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
 
-    pipeline = Stage2Pipeline(config=cfg, use_mock_llm=args.mock)
+    pipeline = Stage2Pipeline(
+        config=cfg,
+        use_mock_llm=args.mock,
+        use_real_embeddings=args.real_embeddings,
+    )
     pipeline.index(user_logs)
 
     start = time.time()

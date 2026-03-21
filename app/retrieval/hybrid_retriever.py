@@ -1,63 +1,100 @@
-"""Hybrid retriever: sparse + dense via Reciprocal Rank Fusion (RRF)."""
+"""Hybrid retriever: BM25 (sparse) + Dense embedding — dual-space candidate scoring.
+
+Architecture (Stage 1 = recall-focused):
+
+  candidate_score = bm25_weight * bm25_score
+                  + dense_weight * dense_score
+
+Both scores are normalized to [0, 1] before combination.
+The vocabulary boost (0.15 weight) is applied on top in CandidateRetriever.
+
+Default weights: BM25=0.40, Dense=0.45  (sum=0.85, leaves room for vocab=0.15)
+
+Rationale:
+  - BM25 is precise for exact keyword matches
+  - Dense similarity recalls paraphrase / semantically related logs
+  - Together they cover both lexical and semantic recall
+"""
 from __future__ import annotations
+
 import logging
+
 from app.config import RetrievalConfig
 from app.retrieval.dense_retriever import DenseRetriever
+from app.retrieval.embedding_provider import EmbeddingProvider
 from app.retrieval.sparse_retriever import SparseRetriever
 from app.schemas import CandidateLog, ResearchLog
 
 logger = logging.getLogger(__name__)
 
 
-def _rrf_score(rank: int, k: int = 60) -> float:
-    return 1.0 / (k + rank + 1)
-
-
-def _reciprocal_rank_fusion(
-    sparse_results: list[CandidateLog],
-    dense_results: list[CandidateLog],
-    k: int = 60,
-) -> list[CandidateLog]:
-    scores: dict[str, float] = {}
-    sparse_map: dict[str, CandidateLog] = {}
-    dense_map: dict[str, CandidateLog] = {}
-
-    for rank, c in enumerate(sparse_results):
-        scores[c.log_id] = scores.get(c.log_id, 0.0) + _rrf_score(rank, k)
-        sparse_map[c.log_id] = c
-    for rank, c in enumerate(dense_results):
-        scores[c.log_id] = scores.get(c.log_id, 0.0) + _rrf_score(rank, k)
-        dense_map[c.log_id] = c
-
-    merged = []
-    for log_id, hybrid_score in sorted(scores.items(), key=lambda x: x[1], reverse=True):
-        base = sparse_map.get(log_id) or dense_map[log_id]
-        empty = CandidateLog(log=base.log)
-        merged.append(CandidateLog(
-            log=base.log,
-            sparse_score=sparse_map.get(log_id, empty).sparse_score,
-            dense_score=dense_map.get(log_id, empty).dense_score,
-            hybrid_score=round(hybrid_score, 6),
-        ))
-    return merged
-
-
 class HybridRetriever:
-    """Combines SparseRetriever and DenseRetriever via RRF."""
+    """Dual-space candidate retriever: BM25 × weight + Dense × weight."""
 
-    def __init__(self, config: RetrievalConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: RetrievalConfig | None = None,
+        embedding_provider: EmbeddingProvider | None = None,
+    ) -> None:
         self.config = config or RetrievalConfig()
         self.sparse = SparseRetriever()
-        self.dense = DenseRetriever()
+        self.dense = DenseRetriever(provider=embedding_provider)
 
     def index(self, logs: list[ResearchLog]) -> None:
         self.sparse.index(logs)
         self.dense.index(logs)
-        logger.debug("HybridRetriever indexed %d docs", len(logs))
+        logger.debug(
+            "HybridRetriever indexed %d docs [bm25=%.2f dense=%.2f]",
+            len(logs), self.config.sparse_weight, self.config.dense_weight,
+        )
 
     def retrieve(self, query: str, top_n: int | None = None) -> list[CandidateLog]:
+        """Score-based dual-space combination (not rank-based RRF).
+
+        Each log gets:
+          hybrid_score = sparse_weight * bm25_score + dense_weight * dense_score
+
+        Logs that only appear in one list get 0.0 for the missing component.
+        """
         n = top_n or self.config.candidate_size
-        sparse_res = self.sparse.retrieve(query, top_n=n * 2)
-        dense_res = self.dense.retrieve(query, top_n=n * 2)
-        fused = _reciprocal_rank_fusion(sparse_res, dense_res, k=self.config.rrf_k)
-        return fused[:n]
+        cfg = self.config
+
+        # Retrieve from both spaces (get full corpus coverage)
+        fetch_n = max(n * 4, 50)
+        sparse_res = self.sparse.retrieve(query, top_n=fetch_n)
+        dense_res = self.dense.retrieve(query, top_n=fetch_n)
+
+        # Build per-log score maps
+        sparse_map: dict[str, float] = {c.log_id: c.sparse_score for c in sparse_res}
+        dense_map: dict[str, float] = {c.log_id: c.dense_score for c in dense_res}
+        log_map: dict[str, CandidateLog] = {}
+        for c in sparse_res:
+            log_map[c.log_id] = c
+        for c in dense_res:
+            if c.log_id not in log_map:
+                log_map[c.log_id] = c
+
+        # Combine
+        results: list[CandidateLog] = []
+        for lid in set(sparse_map) | set(dense_map):
+            s = sparse_map.get(lid, 0.0)
+            d = dense_map.get(lid, 0.0)
+            hybrid = round(cfg.sparse_weight * s + cfg.dense_weight * d, 6)
+            base = log_map[lid]
+            results.append(CandidateLog(
+                log=base.log,
+                sparse_score=s,
+                dense_score=d,
+                hybrid_score=hybrid,
+            ))
+
+        results.sort(key=lambda x: x.hybrid_score, reverse=True)
+
+        if results:
+            top = results[0]
+            logger.debug(
+                "HybridRetriever top-1: bm25=%.3f dense=%.3f hybrid=%.4f [%s]",
+                top.sparse_score, top.dense_score, top.hybrid_score, top.log.title,
+            )
+
+        return results[:n]

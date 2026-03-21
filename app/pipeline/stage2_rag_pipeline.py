@@ -85,13 +85,18 @@ class Stage2Pipeline:
     def __init__(
         self,
         config: Stage2Config | None = None,
-        use_mock_llm: bool = False,   # False = use Gemini by default
+        use_mock_llm: bool = False,       # False = use Gemini LLM by default
+        use_real_embeddings: bool = False, # True = use Gemini Embedding API
     ) -> None:
+        from app.retrieval.embedding_provider import get_embedding_provider
         self.config = config or Stage2Config()
+        embed_provider = get_embedding_provider(real=use_real_embeddings)
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID_EXPANDED,
             config=self.config.retrieval,
+            candidate_config=self.config.candidate,
             vocab_boost_config=self.config.vocab_boost,
+            embedding_provider=embed_provider,
         )
         self._reranker = GoalConditionedReranker(config=self.config.ranker)
         self._selector = DiversitySelector(config=self.config.diversity)

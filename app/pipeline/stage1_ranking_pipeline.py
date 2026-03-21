@@ -36,12 +36,20 @@ class Stage1Result:
 class Stage1Pipeline:
     """Goal → Candidate Retrieval → Reranking → Relevance Filtering → Diversity."""
 
-    def __init__(self, config: Stage1Config | None = None) -> None:
+    def __init__(
+        self,
+        config: Stage1Config | None = None,
+        use_real_embeddings: bool = False,
+    ) -> None:
+        from app.retrieval.embedding_provider import get_embedding_provider
         self.config = config or Stage1Config()
+        embed_provider = get_embedding_provider(real=use_real_embeddings)
         self._retriever = CandidateRetriever(
             mode=RetrievalMode.HYBRID,
             config=self.config.retrieval,
+            candidate_config=self.config.candidate,
             vocab_boost_config=self.config.vocab_boost,
+            embedding_provider=embed_provider,
         )
         self._reranker = GoalConditionedReranker(config=self.config.ranker)
         self._selector = DiversitySelector(config=self.config.diversity)

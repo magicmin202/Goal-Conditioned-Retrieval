@@ -52,72 +52,111 @@ class RetrievalConfig:
     # candidate_size is set dynamically in scripts relative to corpus size
     candidate_size: int = 20
     top_k: int = 10
-    sparse_weight: float = 0.4
-    dense_weight: float = 0.6
-    rrf_k: int = 60
+    # Dual-space weights for HybridRetriever (BM25 + Dense).
+    # Sum to 0.85 — the remaining 0.15 is the vocab_boost_weight in CandidateConfig.
+    sparse_weight: float = 0.40   # BM25 weight
+    dense_weight: float = 0.45    # Dense embedding weight
+    rrf_k: int = 60               # kept for backward compat (not used in score-based mode)
     random_seed: int = 42
 
 
 @dataclass
+class CandidateConfig:
+    """Dual-space candidate retrieval weights.
+
+    candidate_score = sparse_weight * bm25
+                    + dense_weight  * dense
+                    + vocab_weight  * weak_vocab_boost
+
+    Weights should sum to ~1.0.
+    """
+    vocab_boost_weight: float = 0.15   # how much lexicon can shift candidate score
+
+
+@dataclass
 class RankerConfig:
-    # ── Final score weights ───────────────────────────────────────────────────
-    semantic_weight: float = 0.30        # reduced; lexicon signals dominate
-    goal_focus_weight: float = 0.50      # primary signal
-    evidence_value_weight: float = 0.10  # reduced
-    negative_term_penalty: float = 0.40  # multiplier on domain_mismatch
+    """Lexical-control reranker weights.
 
-    # ── goal_focus 3-tier breakdown ───────────────────────────────────────────
-    # These weights control how much each vocabulary tier contributes inside
-    # goal_focus. They do NOT need to sum to 1.0 (goal_focus is then clipped).
-    priority_focus_weight: float = 0.60  # strongest signal: priority_terms
-    evidence_focus_weight: float = 0.25  # mid signal: evidence_terms
-    related_focus_weight: float = 0.10   # weak signal: related_terms
-    # base goal-text anchor (always applied, small)
-    base_goal_anchor: float = 0.05
+    Dual-space retrieval architecture:
+      Stage 1 (candidate) = recall   → semantic 45%, BM25 40%, vocab 15%
+      Stage 2 (reranker)  = precision → lexical 90%, semantic 5-10%
 
-    # ── Priority boost (additive, outside goal_focus) ─────────────────────────
-    priority_boost_phrase: float = 0.30  # phrase match in text → strong boost
-    priority_boost_token: float = 0.10   # token match only → weak boost
-    # Back-compat alias used in some call sites
+    final_score =
+        priority_weight   * priority_phrase_score
+      + evidence_weight   * evidence_phrase_score
+      + related_weight    * related_score
+      + action_weight     * action_signal
+      + domain_weight     * domain_consistency
+      + semantic_weight   * semantic_similarity
+      + base_weight       * base_goal_overlap
+      - negative_penalty
+    """
+    # ── Reranker component weights (should sum to ~1.0) ───────────────────────
+    priority_weight: float = 0.35       # strongest lexical signal
+    evidence_weight: float = 0.20       # direct evidence vocabulary
+    related_weight: float = 0.10        # indirect/related vocabulary
+    action_weight: float = 0.15         # completion/action keywords
+    domain_weight: float = 0.10         # activity_type + metadata consistency
+    semantic_weight: float = 0.05       # tie-breaker: dense similarity
+    base_weight: float = 0.05           # raw goal-text token overlap
+
+    # ── Negative penalty levels ───────────────────────────────────────────────
+    negative_penalty_phrase: float = 0.70   # phrase match in text body
+    negative_penalty_token: float = 0.40    # token match
+    negative_penalty_title: float = 0.30    # extra if match in title
+    negative_daily_penalty: float = 0.20    # activity_type="daily" extra
+
+    # ── Negative veto ─────────────────────────────────────────────────────────
+    negative_veto_enabled: bool = True
+    negative_veto_dm_threshold: float = 0.70   # dm ≥ this triggers veto
+    negative_veto_priority_min: float = 0.05   # unless priority_score ≥ this
+
+    # ── Title weight (phrase matches in title count more) ─────────────────────
+    title_weight_multiplier: float = 1.5
+
+    # ── Back-compat aliases (used by pipelines/tests) ─────────────────────────
+    @property
+    def negative_term_penalty(self) -> float:
+        return self.negative_penalty_phrase
+
     @property
     def priority_term_boost(self) -> float:
-        return self.priority_boost_phrase
+        return 0.0   # priority handled within score components, not additive
 
-    # ── Negative (domain_mismatch) penalty levels ────────────────────────────
-    negative_penalty_phrase: float = 0.70  # full phrase found in text
-    negative_penalty_token: float = 0.40   # single token hit
-    negative_penalty_title: float = 0.30   # extra when match is in title
-    negative_daily_penalty: float = 0.20   # activity_type="daily" (relaxed)
-
-    # ── Title weight ──────────────────────────────────────────────────────────
-    title_weight_multiplier: float = 1.5   # title matches count 1.5× body
+    @property
+    def goal_focus_weight(self) -> float:
+        return self.priority_weight + self.evidence_weight + self.related_weight
 
 
 @dataclass
 class VocabularyBoostConfig:
-    """Vocabulary-based score adjustments at the candidate retrieval level.
+    """Weak vocabulary boost at candidate retrieval level (recall-focused).
 
-    Applied as additive offsets on top of RRF hybrid score BEFORE reranking.
-    Candidate stage = moderate boosts (recall-focused).
-    Reranker stage  = strong boosts (precision-focused, see RankerConfig).
+    Applied as additive offsets on the hybrid (BM25+Dense) score.
+    Intentionally mild — just nudges direction, does not override semantic recall.
+    Strong precision control happens in the reranker (see RankerConfig).
+
+    Total vocab_boost ∈ [−1, +1], then scaled by CandidateConfig.vocab_boost_weight.
     """
-    # Priority terms
-    priority_phrase_boost: float = 0.25   # phrase match in full text
-    priority_token_boost: float = 0.15    # token match in full text
-    priority_title_bonus: float = 0.10    # extra when token match in title
+    # Priority terms (strongest, but still mild at candidate stage)
+    priority_phrase_boost: float = 0.50   # phrase hit in full text  → normalized [0,1]
+    priority_token_boost: float = 0.30    # token hit in full text
+    priority_title_bonus: float = 0.20    # extra if token hit in title
 
     # Evidence terms
-    evidence_phrase_boost: float = 0.12   # phrase match
-    evidence_token_boost: float = 0.08    # token match
+    evidence_phrase_boost: float = 0.30   # phrase match
+    evidence_token_boost: float = 0.15    # token match
 
-    # Related terms (weak signal)
-    related_token_boost: float = 0.03
+    # Related terms
+    related_token_boost: float = 0.08     # token match (weak)
 
-    # Negative terms
-    negative_phrase_penalty: float = 0.25  # phrase match → penalty
-    negative_token_penalty: float = 0.12   # token match → penalty
+    # Negative terms (mild penalty — don't over-suppress at recall stage)
+    negative_phrase_penalty: float = 0.40  # phrase match
+    negative_token_penalty: float = 0.20   # token match
 
-    # Back-compat aliases
+    remove_generic_terms: bool = True
+
+    # Back-compat
     @property
     def priority_term_boost(self) -> float:
         return self.priority_phrase_boost
@@ -125,12 +164,6 @@ class VocabularyBoostConfig:
     @property
     def evidence_term_boost(self) -> float:
         return self.evidence_phrase_boost
-
-    @property
-    def phrase_match_multiplier(self) -> float:
-        return self.priority_phrase_boost / self.priority_token_boost
-
-    remove_generic_terms: bool = True
 
 
 @dataclass
@@ -160,9 +193,9 @@ class CompressionConfig:
 @dataclass
 class Stage1Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
+    candidate: CandidateConfig = field(default_factory=CandidateConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
     diversity: DiversityConfig = field(
-        # Stage 1: higher threshold → tighter precision
         default_factory=lambda: DiversityConfig(relevance_threshold=0.08)
     )
     query_expansion: QueryExpansionConfig = field(
@@ -174,9 +207,9 @@ class Stage1Config:
 @dataclass
 class Stage2Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
+    candidate: CandidateConfig = field(default_factory=CandidateConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
     diversity: DiversityConfig = field(
-        # Stage 2: even tighter threshold; Gemini expansion gives better signal
         default_factory=lambda: DiversityConfig(relevance_threshold=0.10)
     )
     query_expansion: QueryExpansionConfig = field(
