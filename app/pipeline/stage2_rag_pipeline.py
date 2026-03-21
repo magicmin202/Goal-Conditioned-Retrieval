@@ -89,7 +89,9 @@ class Stage2Pipeline:
     ) -> None:
         self.config = config or Stage2Config()
         self._retriever = CandidateRetriever(
-            mode=RetrievalMode.HYBRID_EXPANDED, config=self.config.retrieval
+            mode=RetrievalMode.HYBRID_EXPANDED,
+            config=self.config.retrieval,
+            vocab_boost_config=self.config.vocab_boost,
         )
         self._reranker = GoalConditionedReranker(config=self.config.ranker)
         self._selector = DiversitySelector(config=self.config.diversity)
@@ -128,23 +130,28 @@ class Stage2Pipeline:
             use_mock_fallback=self.config.query_expansion.use_mock_fallback,
         )
         logger.info(
-            "Stage2 expansion  goal=%s | evidence=%s | priority=%s | negative=%s",
-            goal.goal_id, expanded.expanded_terms,
-            expanded.priority_terms, expanded.negative_terms,
+            "Stage2 expansion  goal=%s\n"
+            "  priority=%s\n"
+            "  evidence=%s\n"
+            "  related=%s\n"
+            "  negative=%s",
+            goal.goal_id, expanded.priority_terms, expanded.expanded_terms,
+            expanded.related_terms, expanded.negative_terms,
         )
 
-        # 3. Hybrid Candidate Retrieval
+        # 3. Hybrid Candidate Retrieval (+ vocab boost applied inside)
         candidates = self._retriever.retrieve(
             expanded, top_n=self.config.retrieval.candidate_size
         )
         logger.info("Stage2: %d candidates retrieved  goal=%s", len(candidates), goal.goal_id)
 
-        # 4. Goal-Conditioned Reranking (with priority_terms boost)
+        # 4. Goal-Conditioned Reranking (3-tier goal_focus + phrase matching)
         ranked = self._reranker.rank(
             goal, candidates,
             expanded_terms=expanded.expanded_terms,
             negative_terms=expanded.negative_terms,
             priority_terms=expanded.priority_terms,
+            related_terms=expanded.related_terms,
         )
 
         # 5. Relevance Filtering
@@ -186,8 +193,9 @@ class Stage2Pipeline:
             adaptive_mode=mode,
             metadata={
                 "adaptive_mode": mode,
-                "expanded_terms": expanded.expanded_terms,
                 "priority_terms": expanded.priority_terms,
+                "evidence_terms": expanded.expanded_terms,
+                "related_terms": expanded.related_terms,
                 "negative_terms": expanded.negative_terms,
                 "candidate_size": len(candidates),
                 "after_filter": len(pool),

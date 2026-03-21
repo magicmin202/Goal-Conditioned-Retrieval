@@ -62,10 +62,30 @@ class RetrievalConfig:
 class RankerConfig:
     # Weights: goal_focus is primary signal
     semantic_weight: float = 0.35
-    goal_focus_weight: float = 0.50     # increased: primary signal
+    goal_focus_weight: float = 0.50     # primary signal
     evidence_value_weight: float = 0.15
-    negative_term_penalty: float = 0.40  # increased: stronger mismatch suppression
+    negative_term_penalty: float = 0.40  # stronger mismatch suppression
     priority_term_boost: float = 0.15   # additive bonus when log matches priority terms
+
+    # goal_focus 3-tier breakdown (must sum to 1.0)
+    priority_focus_weight: float = 0.55  # top-signal: priority_terms
+    evidence_focus_weight: float = 0.30  # mid-signal: evidence_terms
+    related_focus_weight: float = 0.15   # weak-signal: related_terms
+
+
+@dataclass
+class VocabularyBoostConfig:
+    """Vocabulary-based score adjustments applied at candidate retrieval level.
+
+    These are additive/subtractive offsets on top of the RRF hybrid score,
+    applied before reranking so the best candidates rise earlier.
+    """
+    priority_term_boost: float = 0.20    # strong positive: priority terms
+    evidence_term_boost: float = 0.10    # normal positive: evidence terms
+    related_term_boost: float = 0.04     # weak positive: related/expanded terms
+    negative_term_penalty: float = 0.15  # penalty per matched negative term/phrase
+    phrase_match_multiplier: float = 1.5  # phrase match counts heavier than token match
+    remove_generic_terms: bool = True     # strip generic terms from expansion output
 
 
 @dataclass
@@ -100,6 +120,7 @@ class Stage1Config:
     query_expansion: QueryExpansionConfig = field(
         default_factory=lambda: QueryExpansionConfig(enabled=False)
     )
+    vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
 
 
 @dataclass
@@ -111,6 +132,7 @@ class Stage2Config:
         default_factory=lambda: QueryExpansionConfig(enabled=True)
     )
     compression: CompressionConfig = field(default_factory=CompressionConfig)
+    vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
 
 
 @dataclass

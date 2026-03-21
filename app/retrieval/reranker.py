@@ -1,20 +1,24 @@
 """Goal-Conditioned Evidence Ranker.
 
-score = 0.35 * semantic_relevance
-      + 0.50 * goal_focus          <- primary signal (increased)
-      + 0.15 * evidence_value
-      + priority_term_boost        <- additive if log matches priority_terms
-      - 0.40 * domain_mismatch     <- increased penalty
+score = semantic_weight  * semantic_relevance
+      + goal_focus_weight * goal_focus          ← primary signal
+      + evidence_value_weight * evidence_value
+      + priority_boost                          ← additive if matches priority_terms
+      - negative_term_penalty * domain_mismatch
 
-goal_focus uses expanded evidence_terms for direct overlap scoring.
-domain_mismatch penalises logs that contain negative_terms or are
-entirely unrelated daily activities.
-priority_term_boost rewards logs that contain high-signal terms.
+goal_focus uses 3-tier vocabulary:
+  priority_focus_weight  * priority_term_match  (phrase + token)
+  + evidence_focus_weight * evidence_term_match
+  + related_focus_weight  * related_term_match
+
+domain_mismatch uses phrase + token matching against negative_terms.
+priority_boost gives additive reward when log matches high-signal terms.
 """
 from __future__ import annotations
 
 import logging
 import re
+from typing import Optional
 
 from app.config import RankerConfig
 from app.retrieval.dense_retriever import DenseRetriever, cosine
@@ -31,8 +35,7 @@ _NOISE_TYPES = {"daily"}
 _EVIDENCE_KEYWORDS = {
     "완료", "완성", "제출", "발표", "구현", "해결", "달성", "성공",
     "finished", "completed", "implemented", "solved", "achieved",
-    "공부", "학습", "정리", "연습", "작성", "읽기", "review", "풀이",
-    "실습", "수행", "진행", "실행",
+    "공부", "연습", "작성", "읽기", "풀이", "실습", "수행",
 }
 
 
@@ -45,10 +48,35 @@ def _token_set(text: str) -> set[str]:
 
 
 def _overlap_ratio(query_tokens: set[str], doc_tokens: set[str]) -> float:
-    """Fraction of query_tokens found in doc_tokens."""
     if not query_tokens:
         return 0.0
     return len(query_tokens & doc_tokens) / len(query_tokens)
+
+
+def _phrase_overlap(terms: list[str], text: str, phrase_multiplier: float = 1.5) -> float:
+    """Match score with phrase bonus.
+
+    - Phrase match (multi-token term appears as substring): weight = phrase_multiplier
+    - Token match (any token of term found): weight = 1.0
+    Normalized to [0, 1] against max possible score.
+    """
+    if not terms:
+        return 0.0
+    text_lower = text.lower()
+    text_tokens = _token_set(text_lower)
+
+    matched = 0.0
+    max_possible = len(terms) * phrase_multiplier
+
+    for term in terms:
+        term_lower = term.lower()
+        term_tokens = _tokenize(term_lower)
+        if len(term_tokens) > 1 and term_lower in text_lower:
+            matched += phrase_multiplier      # phrase match → full credit
+        elif term_tokens and any(t in text_tokens for t in term_tokens):
+            matched += 1.0                    # token match → partial credit
+
+    return min(matched / max_possible, 1.0)
 
 
 class GoalConditionedReranker:
@@ -58,11 +86,10 @@ class GoalConditionedReranker:
         self,
         config: RankerConfig | None = None,
         dense_retriever: DenseRetriever | None = None,
-        negative_term_penalty: float | None = None,
+        negative_term_penalty: Optional[float] = None,
     ) -> None:
         self.config = config or RankerConfig()
         self._dense = dense_retriever or DenseRetriever()
-        # Allow explicit override; otherwise use config value
         self.negative_term_penalty = (
             negative_term_penalty if negative_term_penalty is not None
             else self.config.negative_term_penalty
@@ -77,25 +104,34 @@ class GoalConditionedReranker:
         self,
         goal: ResearchGoal,
         log_text: str,
-        expanded_terms: list[str],
+        priority_terms: list[str],
+        evidence_terms: list[str],
+        related_terms: list[str],
     ) -> float:
-        """Goal relevance: 70% expanded_terms overlap + 30% base goal overlap."""
-        log_tokens = _token_set(log_text)
+        """3-tier goal relevance score.
 
-        # Build expanded token set
-        expanded_tokens: set[str] = set()
-        for term in expanded_terms:
-            expanded_tokens.update(_tokenize(term))
-        expanded_overlap = _overlap_ratio(expanded_tokens, log_tokens) if expanded_tokens else 0.0
+        priority_focus_weight  * priority_term_match   (strongest signal)
+        + evidence_focus_weight * evidence_term_match
+        + related_focus_weight  * related_term_match
+        + small base goal anchor
+        """
+        cfg = self.config
+        priority_score = _phrase_overlap(priority_terms, log_text)
+        evidence_score = _phrase_overlap(evidence_terms, log_text)
+        related_score = _phrase_overlap(related_terms, log_text)
 
-        # Base goal token overlap
-        goal_tokens = _token_set(goal.query_text + " " + goal.goal_embedding_text)
-        base_overlap = _overlap_ratio(goal_tokens, log_tokens) if goal_tokens else 0.0
+        # Base anchor: raw goal text overlap
+        base_tokens = _token_set(goal.query_text + " " + goal.goal_embedding_text)
+        base_score = _overlap_ratio(base_tokens, _token_set(log_text))
 
-        return 0.7 * expanded_overlap + 0.3 * base_overlap
+        return (
+            cfg.priority_focus_weight * priority_score
+            + cfg.evidence_focus_weight * evidence_score
+            + cfg.related_focus_weight * related_score
+            + 0.10 * base_score  # small anchor, not dominant
+        )
 
     def _evidence_value(self, candidate: CandidateLog) -> float:
-        """Concrete evidence heuristic: keywords + activity_type + metadata strength."""
         tokens = _token_set(candidate.log.full_text)
         keyword_score = min(len(tokens & _EVIDENCE_KEYWORDS) / 3.0, 1.0)
         specificity = min(len(tokens) / 50.0, 0.4)
@@ -109,57 +145,80 @@ class GoalConditionedReranker:
         candidate: CandidateLog,
         negative_terms: list[str],
     ) -> float:
-        """Penalty: 0.0 (no mismatch) to 1.0 (strong mismatch).
+        """Penalty: 0.0 (clean) to 1.0 (strong mismatch).
 
-        Uses per-match counting so one matching negative token already gives
-        a 0.5 penalty (rather than diluting over all negative term tokens).
+        Phrase match → 0.6 per term (stronger signal).
+        Token match  → 0.3 per term (moderate signal).
+        Daily activity_type adds 0.5 noise penalty.
         """
-        log_tokens = _token_set(candidate.log.full_text)
+        log_text = candidate.log.full_text
+        text_lower = log_text.lower()
+        text_tokens = _token_set(text_lower)
 
-        neg_tokens: set[str] = set()
+        match_score = 0.0
+        matched_terms: list[str] = []
+
         for term in negative_terms:
-            neg_tokens.update(_tokenize(term))
-        # Count how many distinct negative tokens appear in the log
-        matches = neg_tokens & log_tokens
-        term_penalty = min(len(matches) * 0.5, 1.0) if matches else 0.0
+            term_lower = term.lower()
+            term_tokens = _tokenize(term_lower)
+            if len(term_tokens) > 1 and term_lower in text_lower:
+                match_score += 0.6
+                matched_terms.append(f"phrase:{term}")
+            elif term_tokens and any(t in text_tokens for t in term_tokens):
+                match_score += 0.3
+                matched_terms.append(f"token:{term}")
 
+        term_penalty = min(match_score, 1.0)
         noise_penalty = 0.5 if candidate.log.activity_type in _NOISE_TYPES else 0.0
+        total = min(term_penalty + noise_penalty, 1.0)
 
-        return min(term_penalty + noise_penalty, 1.0)
+        if total > 0.2:
+            logger.debug(
+                "NegMatch  log=%s  penalty=%.2f  matched=%s  [%s]",
+                candidate.log.log_id, total, matched_terms, candidate.log.title,
+            )
+        return total
 
     def _priority_boost(
         self,
         log_text: str,
         priority_terms: list[str],
     ) -> float:
-        """Additive boost when log strongly matches priority (high-signal) terms."""
+        """Additive boost when log matches priority (high-signal) terms.
+
+        Uses phrase-aware matching: phrase hits count more than token hits.
+        """
         if not priority_terms:
             return 0.0
-        log_tokens = _token_set(log_text)
-        pri_tokens: set[str] = set()
-        for term in priority_terms:
-            pri_tokens.update(_tokenize(term))
-        overlap = _overlap_ratio(pri_tokens, log_tokens) if pri_tokens else 0.0
-        # Apply boost only when overlap is meaningful (≥ 1 priority term matched)
+        overlap = _phrase_overlap(priority_terms, log_text)
         if overlap > 0.0:
-            return min(self.config.priority_term_boost * overlap, self.config.priority_term_boost)
+            boost = min(self.config.priority_term_boost * overlap * 2.0,
+                        self.config.priority_term_boost)
+            if boost > 0.0:
+                logger.debug(
+                    "PriorityBoost  overlap=%.3f  boost=%.4f  [%s]",
+                    overlap, boost, log_text[:60],
+                )
+            return boost
         return 0.0
 
     def score(
         self,
         goal: ResearchGoal,
         candidate: CandidateLog,
-        expanded_terms: list[str] | None = None,
+        expanded_terms: list[str] | None = None,    # evidence_terms
         negative_terms: list[str] | None = None,
         priority_terms: list[str] | None = None,
+        related_terms: list[str] | None = None,
     ) -> RankedLog:
-        exp_terms = expanded_terms or []
+        ev_terms = expanded_terms or []
         neg_terms = negative_terms or []
         pri_terms = priority_terms or []
+        rel_terms = related_terms or []
 
         log_text = candidate.log.full_text
         sr = self._semantic_relevance(goal, log_text)
-        gf = self._goal_focus(goal, log_text, exp_terms)
+        gf = self._goal_focus(goal, log_text, pri_terms, ev_terms, rel_terms)
         ev = self._evidence_value(candidate)
         dm = self._domain_mismatch(candidate, neg_terms)
         pb = self._priority_boost(log_text, pri_terms)
@@ -174,11 +233,10 @@ class GoalConditionedReranker:
             4,
         ))
 
-        if dm > 0.3:
-            logger.debug(
-                "Penalty  log=%s  dm=%.2f  pb=%.4f  final=%.4f  [%s]",
-                candidate.log.log_id, dm, pb, final, candidate.log.title,
-            )
+        logger.debug(
+            "Score  log=%s  sr=%.3f  gf=%.3f  ev=%.3f  dm=%.3f  pb=%.4f  → %.4f  [%s]",
+            candidate.log.log_id, sr, gf, ev, dm, pb, final, candidate.log.title,
+        )
 
         return RankedLog(
             log=candidate.log,
@@ -195,6 +253,7 @@ class GoalConditionedReranker:
         expanded_terms: list[str] | None = None,
         negative_terms: list[str] | None = None,
         priority_terms: list[str] | None = None,
+        related_terms: list[str] | None = None,
     ) -> list[RankedLog]:
         ranked = [
             self.score(
@@ -202,6 +261,7 @@ class GoalConditionedReranker:
                 expanded_terms=expanded_terms,
                 negative_terms=negative_terms,
                 priority_terms=priority_terms,
+                related_terms=related_terms,
             )
             for c in candidates
         ]

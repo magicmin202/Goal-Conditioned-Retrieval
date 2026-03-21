@@ -39,7 +39,9 @@ class Stage1Pipeline:
     def __init__(self, config: Stage1Config | None = None) -> None:
         self.config = config or Stage1Config()
         self._retriever = CandidateRetriever(
-            mode=RetrievalMode.HYBRID, config=self.config.retrieval
+            mode=RetrievalMode.HYBRID,
+            config=self.config.retrieval,
+            vocab_boost_config=self.config.vocab_boost,
         )
         self._reranker = GoalConditionedReranker(config=self.config.ranker)
         self._selector = DiversitySelector(config=self.config.diversity)
@@ -67,6 +69,8 @@ class Stage1Pipeline:
 
         # 2. Optional Query Expansion
         expanded_terms: list[str] = []
+        priority_terms: list[str] = []
+        related_terms: list[str] = []
         negative_terms: list[str] = []
 
         if expand:
@@ -78,30 +82,37 @@ class Stage1Pipeline:
             )
             active_query = expanded
             expanded_terms = expanded.expanded_terms
+            priority_terms = expanded.priority_terms
+            related_terms = expanded.related_terms
             negative_terms = expanded.negative_terms
             logger.info(
-                "Stage1 expansion  goal=%s | terms=%s | neg=%s",
-                goal.goal_id, expanded_terms, negative_terms,
+                "Stage1 expansion  goal=%s\n"
+                "  priority=%s\n  evidence=%s\n  related=%s\n  negative=%s",
+                goal.goal_id, priority_terms, expanded_terms, related_terms, negative_terms,
             )
         else:
             # Even without expansion, use heuristic terms for reranker scoring
             from app.retrieval.query_expansion import _heuristic_expansion
-            heuristic = _heuristic_expansion(goal, max_terms=10)
+            heuristic = _heuristic_expansion(goal, max_terms=15)
             expanded_terms = heuristic.get("evidence_terms", [])
+            priority_terms = heuristic.get("priority_terms", expanded_terms[:5])
+            related_terms = heuristic.get("related_terms", [])
             negative_terms = heuristic.get("negative_terms", [])
             active_query = query_obj
 
-        # 3. Candidate Retrieval
+        # 3. Candidate Retrieval (+ vocab boost if ExpandedQuery)
         candidates = self._retriever.retrieve(
             active_query, top_n=self.config.retrieval.candidate_size
         )
         logger.info("Stage1: %d candidates  goal=%s", len(candidates), goal.goal_id)
 
-        # 4. Goal-Conditioned Reranking (with expanded/negative terms)
+        # 4. Goal-Conditioned Reranking (3-tier goal_focus)
         ranked = self._reranker.rank(
             goal, candidates,
             expanded_terms=expanded_terms,
             negative_terms=negative_terms,
+            priority_terms=priority_terms,
+            related_terms=related_terms,
         )
 
         # 5. Relevance Filtering → cap pool before diversity
@@ -136,5 +147,7 @@ class Stage1Pipeline:
                 "candidate_size": len(candidates),
                 "after_filter": len(pool),
                 "top_k": len(selected),
+                "priority_terms": priority_terms,
+                "related_terms": related_terms,
             },
         )

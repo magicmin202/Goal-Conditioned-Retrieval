@@ -126,6 +126,36 @@ python scripts/run_stage1.py --user_id U0001 --goal_id G-U0001-01 --top_k 5
 | API 키 없음 | heuristic 사전 기반 expansion (goal-specific 키워드) |
 | API 호출 실패 | `use_mock_fallback=True`이면 heuristic으로 자동 전환 |
 
+## Vocabulary Architecture (5th pass)
+
+Query expansion now produces a **6-field structured vocabulary**:
+
+| Field | Role | Usage |
+|---|---|---|
+| `priority_terms` | Top-signal phrases (4-8개) | Strong boost in candidate retrieval + top tier in goal_focus |
+| `evidence_terms` | Direct activity keywords (8-15개) | Normal boost in retrieval + mid tier in goal_focus |
+| `related_terms` | Indirect / expanded terms (5-10개) | Weak boost in retrieval + bottom tier in goal_focus |
+| `negative_terms` | Other-domain phrases (8-15개) | Penalty in retrieval + domain_mismatch in reranker |
+| `core_intents` | Sub-goals (3-5개) | Context only |
+| `goal_summary` | One-line summary | Context only |
+
+**Phrase matching**: `"코딩 문제 풀이"` as a phrase substring counts **1.5× heavier** than single-token match.
+
+### Scoring formula
+
+```
+final_score = 0.35 * semantic
+            + 0.50 * goal_focus          ← primary
+            + 0.15 * evidence_value
+            + priority_boost             ← additive (phrase-aware)
+            - 0.40 * domain_mismatch     ← penalty (phrase-aware)
+
+goal_focus  = 0.55 * priority_phrase_overlap
+            + 0.30 * evidence_phrase_overlap
+            + 0.15 * related_phrase_overlap
+            + 0.10 * base_goal_overlap
+```
+
 ## Baselines (Stage 1)
 
 | Method | Description |
