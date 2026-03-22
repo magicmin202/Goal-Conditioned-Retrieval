@@ -191,6 +191,32 @@ class CompressionConfig:
 
 
 @dataclass
+class ConsolidationConfig:
+    """Stage 2 anchor-centered evidence consolidation settings.
+
+    Stage 2 = consolidation only (NOT new retrieval).
+    - Only admitted anchors (reranker score >= anchor_admission_threshold) enter.
+    - Local expansion is limited to anchor ± temporal window (days).
+    - Neighbors must pass reranker re-admission before entering cluster.
+    - allow_fewer_than_k=True: fewer correct > full noisy.
+    """
+    consolidation_mode: bool = True
+
+    # Temporal expansion window (days ± from anchor date)
+    local_expansion_window_small: int = 5      # sparse corpus
+    local_expansion_window_standard: int = 3   # default
+    local_expansion_window_large: int = 2      # dense corpus → tighter
+
+    # Admission thresholds
+    anchor_admission_threshold: float = 0.10   # reranker score to be an anchor
+    neighbor_admission_threshold: float = 0.08  # slightly lower for neighbors
+
+    # Do NOT fill to top_k with below-threshold logs
+    allow_fewer_than_k: bool = True
+    max_neighbors_per_anchor: int = 5
+
+
+@dataclass
 class Stage1Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     candidate: CandidateConfig = field(default_factory=CandidateConfig)
@@ -216,6 +242,7 @@ class Stage2Config:
         default_factory=lambda: QueryExpansionConfig(enabled=True)
     )
     compression: CompressionConfig = field(default_factory=CompressionConfig)
+    consolidation: ConsolidationConfig = field(default_factory=ConsolidationConfig)
     vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
 
 

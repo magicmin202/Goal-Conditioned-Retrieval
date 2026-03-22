@@ -86,11 +86,21 @@ class TemporalSemanticCompressor:
         anchor_logs: list[RankedLog],
         expansion_map: dict[str, list[ResearchLog]],
     ) -> list[CompressedEvidenceUnit]:
-        """One CompressedEvidenceUnit per anchor cluster.
+        """Summarise each admitted anchor+neighbor cluster.
 
-        Clusters with same activity_type and topic are merged when
-        they share anchor-neighbor overlap (deduplication).
+        Compressor role: summarization ONLY.
+          - Does NOT judge relevance.
+          - Does NOT add new logs to clusters.
+          - Does NOT re-retrieve from corpus.
+        All relevance decisions were made upstream (reranker admission).
         """
+        total_neighbor_logs = sum(len(v) for v in expansion_map.values())
+        logger.info(
+            "Compressor input: %d admitted anchors  %d total neighbor logs"
+            "  (summarization only — no relevance re-judgment)",
+            len(anchor_logs), total_neighbor_logs,
+        )
+
         units: list[CompressedEvidenceUnit] = []
         seen_log_ids: set[str] = set()
 

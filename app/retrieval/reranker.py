@@ -33,7 +33,7 @@ from typing import Optional
 from app.config import RankerConfig
 from app.retrieval.dense_retriever import DenseRetriever, cosine
 from app.retrieval.embedding_provider import MockEmbeddingProvider
-from app.schemas import CandidateLog, RankedLog, ResearchGoal
+from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
 from app.utils.text_matching import (
     TermMatch,
     _tok_set,
@@ -327,6 +327,31 @@ class GoalConditionedReranker:
             evidence_value=round(action, 4),
             final_score=final,
         )
+
+    def score_log(
+        self,
+        goal: ResearchGoal,
+        log: ResearchLog,
+        expanded_terms: list[str] | None = None,
+        negative_terms: list[str] | None = None,
+        priority_terms: list[str] | None = None,
+        related_terms: list[str] | None = None,
+    ) -> float:
+        """Score a single ResearchLog for neighbor admission check.
+
+        Used by LocalExpander to re-admit temporal neighbors through the same
+        admission gate as anchors — prevents non-admitted logs from entering
+        the compressor via the expansion path.
+        """
+        candidate = CandidateLog(log=log, sparse_score=0.0, dense_score=0.0, hybrid_score=0.0)
+        ranked = self.rank(
+            goal, [candidate],
+            expanded_terms=expanded_terms,
+            negative_terms=negative_terms,
+            priority_terms=priority_terms,
+            related_terms=related_terms,
+        )
+        return ranked[0].final_score if ranked else 0.0
 
     def rank(
         self,
