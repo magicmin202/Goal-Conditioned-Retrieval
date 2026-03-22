@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from app.config import Stage1Config
 from app.retrieval.candidate_retrieval import CandidateRetriever, RetrievalMode
 from app.retrieval.diversity_selector import DiversitySelector
-from app.retrieval.query_expansion import expand_goal_query
+from app.retrieval.query_expansion import ExpandedQuery, expand_goal_query
 from app.retrieval.query_understanding import build_query
 from app.retrieval.reranker import GoalConditionedReranker
 from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
@@ -25,11 +25,14 @@ class Stage1Result:
     goal: ResearchGoal
     candidates: list[CandidateLog]
     ranked_logs: list[RankedLog]
-    selected_logs: list[RankedLog]
+    selected_logs: list[RankedLog]       # admitted anchors — contract: Stage2 input
     query_text: str
     used_expansion: bool = False
     expanded_terms: list[str] = field(default_factory=list)
     negative_terms: list[str] = field(default_factory=list)
+    priority_terms: list[str] = field(default_factory=list)
+    related_terms: list[str] = field(default_factory=list)
+    expanded_query: ExpandedQuery | None = None   # carry for Stage2 neighbor admission
     metadata: dict = field(default_factory=dict)
 
 
@@ -80,6 +83,7 @@ class Stage1Pipeline:
         priority_terms: list[str] = []
         related_terms: list[str] = []
         negative_terms: list[str] = []
+        expanded_query_obj: ExpandedQuery | None = None
 
         if expand:
             expanded = expand_goal_query(
@@ -89,6 +93,7 @@ class Stage1Pipeline:
                 use_mock_fallback=self.config.query_expansion.use_mock_fallback,
             )
             active_query = expanded
+            expanded_query_obj = expanded
             expanded_terms = expanded.expanded_terms
             priority_terms = expanded.priority_terms
             related_terms = expanded.related_terms
@@ -157,11 +162,12 @@ class Stage1Pipeline:
             used_expansion=expand,
             expanded_terms=expanded_terms,
             negative_terms=negative_terms,
+            priority_terms=priority_terms,
+            related_terms=related_terms,
+            expanded_query=expanded_query_obj,
             metadata={
                 "candidate_size": len(candidates),
-                "after_filter": len(pool),
+                "admitted": len(above),
                 "top_k": len(selected),
-                "priority_terms": priority_terms,
-                "related_terms": related_terms,
             },
         )

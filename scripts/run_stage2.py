@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """Stage 2 RAG experiment runner.
 
+Architecture:
+  Stage 1 (retrieval + reranking + admission)  →  Stage 2 (consolidation only)
+
+Stage 2 does NOT do independent global retrieval.
+It receives Stage 1 admitted anchors and consolidates them.
+
 Usage:
-    python scripts/run_stage2.py --auto
-    python scripts/run_stage2.py --user_id U0001 --goal_id G-U0001-01
+    .venv/bin/python scripts/run_stage2.py --auto
+    .venv/bin/python scripts/run_stage2.py --goal_id G-U0001-01 --top_k 5
+    .venv/bin/python scripts/run_stage2.py --goal_id G-U0001-01 --real_embeddings
 """
 from __future__ import annotations
 
@@ -25,6 +32,7 @@ from app.config import DEFAULT_CONFIG
 from app.data_generation.dataset_builder import build_dataset
 from app.data_generation.export_utils import load_dataset_from_json
 from app.evaluation.rag_metrics import compute_rag_metrics
+from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline
 from app.pipeline.stage2_rag_pipeline import Stage2Pipeline
 from app.schemas import GoalLogLabel, ResearchGoal, ResearchLog
 
@@ -46,7 +54,7 @@ def load_data(data_dir: str) -> tuple[list[ResearchGoal], list[ResearchLog], lis
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Stage 2 RAG Experiment")
+    parser = argparse.ArgumentParser(description="Run Stage 1 → Stage 2 Pipeline")
     parser.add_argument("--user_id", default=None)
     parser.add_argument("--goal_id", default=None)
     parser.add_argument("--top_k", type=int, default=10)
@@ -54,7 +62,7 @@ def main() -> None:
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
     parser.add_argument("--mock", action="store_true", help="Use mock LLM instead of Gemini")
     parser.add_argument("--real_embeddings", action="store_true",
-                        help="Use Gemini Embedding API for dense retrieval (requires GEMINI_API_KEY)")
+                        help="Use Gemini Embedding API (requires GEMINI_API_KEY)")
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -74,39 +82,65 @@ def main() -> None:
 
     user_id = target_goal.user_id
     user_logs = [l for l in logs if l.user_id == user_id]
+    logger.info(
+        "User: %s | Goal: %s (%s) | Logs: %d",
+        user_id, target_goal.goal_id, target_goal.title, len(user_logs),
+    )
 
-    logger.info("User: %s | Goal: %s (%s) | Logs: %d", user_id, target_goal.goal_id, target_goal.title, len(user_logs))
+    candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
 
-    cfg = DEFAULT_CONFIG.stage2
-    cfg.retrieval.top_k = args.top_k
-    # candidate_size: top-N pruning — use ~60% of corpus, minimum top_k * 3
-    cfg.retrieval.candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
+    # ── Stage 1: Retrieval + Reranking + Admission ────────────────────────────
+    s1_cfg = DEFAULT_CONFIG.stage1
+    s1_cfg.retrieval.top_k = args.top_k
+    s1_cfg.retrieval.candidate_size = candidate_size
 
-    pipeline = Stage2Pipeline(
-        config=cfg,
+    s1_pipeline = Stage1Pipeline(config=s1_cfg, use_real_embeddings=args.real_embeddings)
+    s1_pipeline.index(user_logs)
+
+    # Always use expansion for Stage1→Stage2 chain (vocabulary needed for neighbor admission)
+    s1_result = s1_pipeline.run(target_goal, use_expansion=True)
+
+    logger.info(
+        "Stage1 complete  admitted_anchors=%d  goal=%s",
+        len(s1_result.selected_logs), target_goal.goal_id,
+    )
+
+    # ── Stage 2: Anchor-centered Consolidation ────────────────────────────────
+    # Stage 2 does NOT retrieve from corpus again.
+    # It receives Stage 1 admitted anchors as fixed input.
+    s2_cfg = DEFAULT_CONFIG.stage2
+
+    s2_pipeline = Stage2Pipeline(
+        config=s2_cfg,
         use_mock_llm=args.mock,
         use_real_embeddings=args.real_embeddings,
     )
-    pipeline.index(user_logs)
+    s2_pipeline.index(user_logs)   # stores corpus for temporal expansion only
 
     start = time.time()
-    result = pipeline.run(target_goal)
+    result = s2_pipeline.run_with_stage1(s1_result)
     elapsed = time.time() - start
 
+    # ── Output ────────────────────────────────────────────────────────────────
     print("\n" + "=" * 60)
-    print(f"Stage 2  |  Goal: {result.goal.title}")
-    print(f"Mode    : {result.metadata.get('adaptive_mode', '-')}")
-    print(f"Query   : {result.query_text}")
-    print(f"Priority: {result.priority_terms}")
-    print(f"Expanded: {result.expanded_terms}")
-    print(f"Negative: {result.negative_terms}")
-    print(f"Corpus  : {len(user_logs)} logs | Candidates: {result.metadata.get('candidate_size')} → Filter: {result.metadata.get('after_filter')}")
+    print(f"Stage 1→2  |  Goal: {result.goal.title}")
+    print(f"Mode      : {result.metadata.get('adaptive_mode', '-')}")
+    print(f"Query     : {result.query_text}")
+    print(f"Priority  : {result.priority_terms}")
+    print(f"Expanded  : {result.expanded_terms}")
+    print(f"Negative  : {result.negative_terms}")
+    print(f"Corpus    : {len(user_logs)} logs  →  Stage1 anchors: {len(s1_result.selected_logs)}")
     print("=" * 60)
 
-    print(f"\n[Selected Logs ({len(result.selected_logs)})]")
-    for r in result.selected_logs:
+    print(f"\n[Stage1 Admitted Anchors ({len(s1_result.selected_logs)})]")
+    for r in s1_result.selected_logs:
         strength = r.log.metadata.get("evidence_strength", "-")
-        print(f"  [{r.rank:2d}] score={r.final_score:.4f}  {r.log.date}  [{strength}]  {r.log.title}")
+        reason = r.admission_reason or "-"
+        print(
+            f"  [{r.rank:2d}] score={r.final_score:.4f}  {r.log.date}"
+            f"  [{strength}]  {r.log.title}"
+        )
+        print(f"       admission_reason: {reason}")
 
     print(f"\n[Evidence Units ({len(result.evidence_units)})]")
     for u in result.evidence_units:
