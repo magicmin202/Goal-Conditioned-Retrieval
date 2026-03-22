@@ -48,13 +48,20 @@ class HybridRetriever:
             len(logs), self.config.sparse_weight, self.config.dense_weight,
         )
 
-    def retrieve(self, query: str, top_n: int | None = None) -> list[CandidateLog]:
+    def retrieve(
+        self,
+        query: str,
+        top_n: int | None = None,
+        dense_query: str | None = None,
+    ) -> list[CandidateLog]:
         """Score-based dual-space combination (not rank-based RRF).
 
         Each log gets:
           hybrid_score = sparse_weight * bm25_score + dense_weight * dense_score
 
-        Logs that only appear in one list get 0.0 for the missing component.
+        sparse (BM25) uses `query`; dense uses `dense_query` if provided.
+        Keeping them separate avoids semantic drift caused by injecting full
+        lexical expansion into the dense embedding query.
         """
         n = top_n or self.config.candidate_size
         cfg = self.config
@@ -62,7 +69,13 @@ class HybridRetriever:
         # Retrieve from both spaces (get full corpus coverage)
         fetch_n = max(n * 4, 50)
         sparse_res = self.sparse.retrieve(query, top_n=fetch_n)
-        dense_res = self.dense.retrieve(query, top_n=fetch_n)
+        dense_q = dense_query if dense_query is not None else query
+        if dense_query and dense_query != query:
+            logger.debug(
+                "HybridRetriever: bm25_q=%s  dense_q=%s",
+                query[:50], dense_q[:50],
+            )
+        dense_res = self.dense.retrieve(dense_q, top_n=fetch_n)
 
         # Build per-log score maps
         sparse_map: dict[str, float] = {c.log_id: c.sparse_score for c in sparse_res}

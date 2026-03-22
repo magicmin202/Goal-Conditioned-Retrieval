@@ -123,17 +123,23 @@ class Stage1Pipeline:
             related_terms=related_terms,
         )
 
-        # 5. Relevance Filtering → cap pool before diversity
+        # 5. Relevance Filtering — strict admission, no fill-to-k fallback
+        # "fewer but correct" > "full but noisy"
         top_k = self.config.retrieval.top_k
         threshold = self.config.diversity.relevance_threshold
         above = [r for r in ranked if r.final_score >= threshold]
-        pool = above if len(above) >= top_k else ranked[: top_k * 2]
         logger.info(
-            "Stage1 relevance filter: %d→%d (threshold=%.3f)",
-            len(ranked), len(pool), threshold,
+            "Stage1 admission: %d/%d logs admitted  threshold=%.3f",
+            len(above), len(ranked), threshold,
         )
+        for r in above:
+            logger.debug(
+                "  Admitted %s  score=%.4f  reason=%s  [%s]",
+                r.log_id, r.final_score, r.admission_reason, r.log.title,
+            )
 
-        # 6. Diversity-aware Top-K Selection
+        # 6. Diversity-aware Top-K Selection (from admitted only)
+        pool = above
         selected = self._selector.select(goal, pool, top_k=top_k)
 
         query_text = (

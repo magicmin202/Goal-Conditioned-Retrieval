@@ -77,6 +77,14 @@ class RankedLog:
     evidence_value: float = 0.0
     final_score: float = 0.0
     diversity_score: float = 0.0
+    # Explanation trace (populated by reranker)
+    matched_priority: list[str] = field(default_factory=list)
+    matched_evidence: list[str] = field(default_factory=list)
+    matched_related: list[str] = field(default_factory=list)
+    matched_negative: list[str] = field(default_factory=list)
+    admission_reason: str = ""    # why admitted
+    rejection_reason: str = ""    # why rejected / vetoed
+    anchor_source: str = ""       # "stage1" | "stage2_neighbor"
 
     @property
     def log_id(self) -> str:

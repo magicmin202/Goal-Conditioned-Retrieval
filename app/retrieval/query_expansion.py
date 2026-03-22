@@ -330,9 +330,42 @@ class ExpandedQuery:
         return self.base_query.canonical_text
 
     @property
+    def dense_query(self) -> str:
+        """Minimal semantic core for dense embedding — NO lexical expansion.
+
+        Including related_terms or full vocab in the dense query causes semantic
+        drift: the embedding centroid moves away from the goal, pulling in
+        tangentially related logs (exercise, cooking, etc.) via cosine similarity.
+
+        Dense query = goal_summary + first core_intent only.
+        """
+        parts = []
+        if self.goal_summary:
+            parts.append(self.goal_summary)
+        else:
+            parts.append(self.base_query.canonical_text)
+        if self.core_intents:
+            parts.append(self.core_intents[0])
+        # Deduplicate while preserving order
+        seen: set[str] = set()
+        unique = [p for p in parts if not (p in seen or seen.add(p))]  # type: ignore
+        return " ".join(unique).strip()
+
+    @property
+    def bm25_query(self) -> str:
+        """BM25 query: canonical text + top priority + top evidence terms.
+
+        BM25 is a lexical matcher — injecting many terms broadens recall without
+        the semantic drift risk. But keep it focused: priority first, evidence second.
+        NO related_terms, NO negative_terms in BM25 query.
+        """
+        terms = self.priority_terms[:3] + self.expanded_terms[:4]
+        return f"{self.base_query.canonical_text} {' '.join(terms)}".strip()
+
+    @property
     def full_text(self) -> str:
-        all_terms = self.priority_terms + self.expanded_terms + self.related_terms
-        return f"{self.base_query.canonical_text} {' '.join(all_terms)}".strip()
+        """Legacy property — use bm25_query for BM25, dense_query for dense embedding."""
+        return self.bm25_query
 
     @property
     def goal_id(self) -> str:

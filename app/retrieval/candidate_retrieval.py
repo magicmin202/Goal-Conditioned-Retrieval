@@ -169,18 +169,30 @@ class CandidateRetriever:
             raise RuntimeError("Call index() before retrieve().")
 
         n = top_n or self.config.candidate_size
-        query_text = (
-            query.full_text if isinstance(query, ExpandedQuery) else query.canonical_text
-        )
+
+        if isinstance(query, ExpandedQuery):
+            # BM25: canonical + top priority/evidence terms (lexical recall)
+            bm25_text = query.bm25_query
+            # Dense: minimal semantic core only (goal_summary + first core_intent)
+            # Using full lexical expansion for dense causes semantic drift — the
+            # embedding centroid moves away from the goal, admitting unrelated logs.
+            dense_text = query.dense_query
+            logger.debug(
+                "CandidateRetriever  bm25_q=%s  dense_q=%s",
+                bm25_text[:60], dense_text[:60],
+            )
+        else:
+            bm25_text = query.canonical_text
+            dense_text = query.canonical_text
 
         if self.mode == RetrievalMode.DENSE:
-            candidates = self._dense.retrieve(query_text, top_n=n)
+            candidates = self._dense.retrieve(dense_text, top_n=n)
         else:
-            candidates = self._hybrid.retrieve(query_text, top_n=n)
+            candidates = self._hybrid.retrieve(bm25_text, top_n=n, dense_query=dense_text)
 
         logger.debug(
-            "Stage1 candidates: %d  query=%s",
-            len(candidates), query_text[:60],
+            "Stage1 candidates: %d  bm25_q=%s",
+            len(candidates), bm25_text[:60],
         )
 
         # Apply weak vocabulary boost when ExpandedQuery vocabulary is present

@@ -265,7 +265,33 @@ class GoalConditionedReranker:
         # ── Negative penalty ──────────────────────────────────────────────────
         raw_dm, penalty, neg_matched = self._negative_penalty(candidate, neg_terms)
 
-        # ── Negative veto ──────────────────────────────────────────────────────
+        # ── Zero-positive hard block ───────────────────────────────────────────
+        # Logs with no lexical evidence of goal relevance are rejected regardless
+        # of action/domain/semantic signal. This prevents lifestyle/exercise logs
+        # from being admitted via the action_signal + domain_consistency path alone.
+        #
+        # A log MUST have at least ONE of:
+        #   - priority phrase/token match     (direct goal vocabulary)
+        #   - evidence phrase/token match     (supporting vocabulary)
+        #   - base goal token overlap         (raw goal text overlap)
+        if pri_score == 0.0 and ev_score == 0.0 and base == 0.0:
+            logger.debug(
+                "ZERO-POSITIVE BLOCK  log=%s  [%s]  "
+                "(no priority/evidence/base match → reject)",
+                candidate.log.log_id, log_title,
+            )
+            return RankedLog(
+                log=candidate.log,
+                semantic_relevance=round(sem, 4),
+                goal_focus=0.0,
+                evidence_value=0.0,
+                final_score=0.0,
+                rejection_reason="zero_positive_evidence",
+            )
+
+        # ── Negative veto (domain conflict gate) ──────────────────────────────
+        # Veto fires when: significant domain mismatch AND no priority evidence.
+        # This is a domain conflict gate, not a keyword blacklist.
         veto = (
             cfg.negative_veto_enabled
             and raw_dm >= cfg.negative_veto_dm_threshold
@@ -274,7 +300,7 @@ class GoalConditionedReranker:
 
         if veto:
             logger.debug(
-                "VETO  log=%s  dm=%.2f  pri=%.3f  matched=%s  [%s]",
+                "DOMAIN-CONFLICT VETO  log=%s  dm=%.2f  pri=%.3f  matched=%s  [%s]",
                 candidate.log.log_id, raw_dm, pri_score, neg_matched, log_title,
             )
             return RankedLog(
@@ -283,6 +309,8 @@ class GoalConditionedReranker:
                 goal_focus=0.0,
                 evidence_value=0.0,
                 final_score=0.0,
+                matched_negative=list(neg_matched),
+                rejection_reason=f"domain_conflict_veto(dm={raw_dm:.2f})",
             )
 
         # ── Final score ───────────────────────────────────────────────────────
@@ -298,24 +326,40 @@ class GoalConditionedReranker:
             4,
         ))
 
+        # Explanation trace
+        matched_pri = [m.term for m in pri_matches if m.level != "none"]
+        matched_ev = [m.term for m in ev_matches if m.level != "none"]
+
+        if final > 0:
+            reason_parts = []
+            if matched_pri:
+                reason_parts.append(f"priority={matched_pri}")
+            if matched_ev:
+                reason_parts.append(f"evidence={matched_ev}")
+            if base > 0:
+                reason_parts.append(f"base_overlap={base:.3f}")
+            admission_reason = " | ".join(reason_parts) if reason_parts else "weak_match"
+        else:
+            admission_reason = ""
+
         # ── Debug breakdown ───────────────────────────────────────────────────
         logger.debug(
-            "[Stage2 Score Breakdown]  log=%s  [%s]\n"
-            "  priority_phrase: %.3f  (matched=%s)\n"
-            "  evidence_phrase: %.3f  (matched=%s)\n"
+            "[Reranker Score]  log=%s  [%s]\n"
+            "  priority_phrase: %.3f  matched=%s\n"
+            "  evidence_phrase: %.3f  matched=%s\n"
             "  related:         %.3f\n"
             "  action_signal:   %.3f\n"
             "  domain_consist:  %.3f\n"
             "  semantic:        %.3f\n"
             "  base_overlap:    %.3f\n"
-            "  neg_penalty:     %.3f  veto=%s  (matched=%s)\n"
-            "  → final:         %.4f",
+            "  neg_penalty:     %.3f  (matched=%s)\n"
+            "  → final:         %.4f  reason=%s",
             candidate.log.log_id, log_title,
-            pri_score, [m.term for m in pri_matches if m.level != "none"],
-            ev_score, [m.term for m in ev_matches if m.level != "none"],
+            pri_score, matched_pri,
+            ev_score, matched_ev,
             rel_score, action, domain, sem, base,
-            penalty, veto, neg_matched,
-            final,
+            penalty, neg_matched,
+            final, admission_reason,
         )
 
         return RankedLog(
@@ -326,6 +370,10 @@ class GoalConditionedReranker:
             ),
             evidence_value=round(action, 4),
             final_score=final,
+            matched_priority=matched_pri,
+            matched_evidence=matched_ev,
+            matched_negative=list(neg_matched),
+            admission_reason=admission_reason,
         )
 
     def score_log(
