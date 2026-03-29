@@ -177,6 +177,31 @@ class DiversityConfig:
 
 
 @dataclass
+class SchemaCategoryConfig:
+    """Schema-based evidence category gate for Stage1/Stage2 admission.
+
+    Category gate is a HARD FILTER — "none" relevance → immediate reject.
+    Schema signals are used ONLY in the category gate, NOT in reranker scoring.
+    Goal lexical (priority/evidence/base) remains the primary scoring driver.
+
+    Initial active domains (4):
+      fitness_muscle_gain, fitness_fat_loss, productivity_development, learning_coding
+
+    Gate rules:
+      "none"       → always reject (category mismatch)
+      "core"       → admit with any goal signal (relaxed gate)
+      "supporting" → admit only with explicit goal lexical signal
+
+    goal_signal_base_threshold:
+      Minimum base_goal_overlap to count as a "goal lexical hit".
+      (0.04 avoids false passes from accidental 1-token overlap.)
+    """
+    enabled: bool = True
+    require_category_for_admission: bool = True
+    goal_signal_base_threshold: float = 0.04   # base_overlap must be ≥ this
+
+
+@dataclass
 class QueryExpansionConfig:
     enabled: bool = False
     max_terms: int = 10
@@ -228,6 +253,7 @@ class Stage1Config:
         default_factory=lambda: QueryExpansionConfig(enabled=False)
     )
     vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
+    schema_category: SchemaCategoryConfig = field(default_factory=SchemaCategoryConfig)
 
 
 @dataclass
@@ -244,6 +270,7 @@ class Stage2Config:
     compression: CompressionConfig = field(default_factory=CompressionConfig)
     consolidation: ConsolidationConfig = field(default_factory=ConsolidationConfig)
     vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
+    schema_category: SchemaCategoryConfig = field(default_factory=SchemaCategoryConfig)
 
 
 @dataclass

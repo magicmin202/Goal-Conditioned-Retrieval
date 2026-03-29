@@ -1,28 +1,32 @@
-"""Lexical-Control Reranker (Stage 2 — precision-focused).
+"""Lexical-Control Reranker with Category-First Admission.
 
 Dual-space architecture:
   Stage 1 (candidate) = recall  → semantic 45%, BM25 40%, vocab 15%
   Stage 2 (reranker)  = precision → lexical 90%, semantic 5–10%
 
-Final score formula:
+Admission gates (applied IN ORDER before scoring):
+  1. Schema category gate  — log must belong to a category relevant to goal domain
+       "none" → immediate reject (category_mismatch)
+  2. Goal lexical gate     — log must have at least ONE direct goal signal
+       pri=0 AND ev=0 AND base<threshold → reject (no_goal_signal)
+  3. Negative veto         — domain conflict + no positive evidence
+       dm≥veto_threshold AND pri<veto_min → reject (domain_conflict_veto)
+
+Scoring formula (only reached after all gates pass):
   final_score =
       priority_weight   * priority_phrase_score   (0.35)
     + evidence_weight   * evidence_phrase_score    (0.20)
     + related_weight    * related_score            (0.10)
     + action_weight     * action_signal            (0.15)
-    + domain_weight     * domain_consistency       (0.10)
+    + domain_weight     * domain_consistency       (0.10)  ← now goal-domain-aware
     + semantic_weight   * semantic_similarity      (0.05)
     + base_weight       * base_goal_overlap        (0.05)
     − negative_penalty
 
-Negative veto:
-  If domain_mismatch ≥ veto_threshold AND priority_score < veto_priority_min
-  → score = 0.0 (hard veto)
-
-All positive components use phrase-aware scoring from text_matching:
-  exact phrase > substring (multi-token) > token
-
-Title matches receive title_weight_multiplier bonus (1.5×).
+Schema signals:
+  - Used ONLY in category mapper (gate logic)
+  - NOT injected into reranker scoring terms
+  - Small additive boost stays at candidate stage (VocabularyBoostConfig)
 """
 from __future__ import annotations
 
@@ -33,6 +37,7 @@ from typing import Optional
 from app.config import RankerConfig
 from app.retrieval.dense_retriever import DenseRetriever, cosine
 from app.retrieval.embedding_provider import MockEmbeddingProvider
+from app.retrieval.schema_category import CategoryScore, SchemaMapper, _schema_mapper
 from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
 from app.utils.text_matching import (
     TermMatch,
@@ -45,47 +50,41 @@ logger = logging.getLogger(__name__)
 
 # ── Action/completion signal keywords ────────────────────────────────────────
 _ACTION_KEYWORDS: set[str] = {
-    # Completion/achievement
     "완료", "완성", "달성", "성공", "해결", "제출", "발표", "합격",
     "finished", "completed", "achieved", "solved", "submitted",
-    # Active work
     "구현", "작성", "풀었", "풀이", "풀기", "실습", "수행",
     "implemented", "wrote", "built", "practiced",
-    # Study/progress
     "공부", "연습", "정리", "분석", "학습완료", "오답",
     "reviewed", "analyzed",
 }
 
-_PRODUCTIVE_TYPES: set[str] = {
-    "study", "implementation", "reading", "exercise",
-    "planning", "execution", "reflection", "coding", "social",
-}
 _NOISE_TYPES: set[str] = {"daily"}
 
 
 class GoalConditionedReranker:
-    """Lexical-control precision reranker for Stage 2.
+    """Category-first lexical-control precision reranker.
 
-    Semantic similarity acts as tie-breaker only (5% weight).
-    Lexical phrase/token matching and rule-based signals = 90%+ of score.
+    Schema category gate fires before scoring — ensures:
+      - Lifestyle/unrelated logs are rejected by domain mismatch
+      - action_signal + domain_consistency cannot carry zero-evidence logs
+      - Scoring is only reached by categorically-relevant logs with goal signal
     """
 
     def __init__(
         self,
         config: RankerConfig | None = None,
         dense_retriever: DenseRetriever | None = None,
-        # Back-compat parameter (ignored; penalty is in config)
-        negative_term_penalty: Optional[float] = None,
+        negative_term_penalty: Optional[float] = None,  # back-compat, ignored
     ) -> None:
         self.config = config or RankerConfig()
         self._dense = dense_retriever or DenseRetriever(provider=MockEmbeddingProvider())
+        self._schema = _schema_mapper   # module-level singleton, stateless
 
     # ── Priority phrase score ─────────────────────────────────────────────────
 
     def _priority_phrase_score(
         self, log_text: str, log_title: str, priority_terms: list[str]
     ) -> tuple[float, list[TermMatch]]:
-        """Strongest positive signal: phrase/token match of priority_terms."""
         score, matches = score_terms(
             priority_terms, log_text, log_title,
             phrase_weight=1.5, token_weight=1.0,
@@ -98,7 +97,6 @@ class GoalConditionedReranker:
     def _evidence_phrase_score(
         self, log_text: str, log_title: str, evidence_terms: list[str]
     ) -> tuple[float, list[TermMatch]]:
-        """Direct evidence vocabulary match."""
         score, matches = score_terms(
             evidence_terms, log_text, log_title,
             phrase_weight=1.5, token_weight=1.0,
@@ -111,7 +109,6 @@ class GoalConditionedReranker:
     def _related_score(
         self, log_text: str, log_title: str, related_terms: list[str]
     ) -> float:
-        """Weak signal: indirect/related vocabulary."""
         score, _ = score_terms(
             related_terms, log_text, log_title,
             phrase_weight=1.2, token_weight=1.0,
@@ -122,66 +119,48 @@ class GoalConditionedReranker:
     # ── Action signal ─────────────────────────────────────────────────────────
 
     def _action_signal(self, candidate: CandidateLog) -> float:
-        """Does the log contain evidence of real action / progress / completion?
-
-        Components:
-          - Action/completion keywords in text
-          - activity_type (productive > noise)
-          - evidence_strength metadata
-        """
+        """Evidence of real action / completion (goal-agnostic signal)."""
         tokens = _tok_set(candidate.log.full_text)
         kw_hits = len(tokens & _ACTION_KEYWORDS)
         kw_score = min(kw_hits / 3.0, 1.0)
 
         act = candidate.log.activity_type
-        if act in _PRODUCTIVE_TYPES:
-            act_score = 0.8
-        elif act in _NOISE_TYPES:
+        # Note: activity_type relevance is handled by category gate;
+        # here we only measure "how active" the log is (not goal-domain relevance).
+        if act in _NOISE_TYPES:
             act_score = 0.1
         else:
-            act_score = 0.4
+            act_score = 0.7
 
         strength = candidate.log.metadata.get("evidence_strength", "medium")
         strength_score = {"high": 1.0, "medium": 0.6, "low": 0.2}.get(strength, 0.5)
 
         return min(0.4 * kw_score + 0.4 * act_score + 0.2 * strength_score, 1.0)
 
-    # ── Domain consistency ────────────────────────────────────────────────────
+    # ── Domain consistency (now GOAL-DOMAIN-AWARE) ────────────────────────────
 
     def _domain_consistency(
-        self, candidate: CandidateLog, goal: ResearchGoal
+        self, candidate: CandidateLog, cat_result: CategoryScore
     ) -> float:
-        """Is this log in the right domain for the goal?
+        """Goal-domain-aware domain consistency.
 
-        Measured positively (higher = more consistent).
-        Separate from negative_penalty which measures harmful mismatch.
+        Uses schema category relevance instead of goal-agnostic _PRODUCTIVE_TYPES.
+        Logs that reach this point passed the category gate, so relevance ∈ {core, supporting}.
         """
-        act = candidate.log.activity_type
-        if act in _PRODUCTIVE_TYPES:
-            type_score = 0.7
-        elif act in _NOISE_TYPES:
-            type_score = 0.1
-        else:
-            type_score = 0.4
+        base_scores = {"core": 0.80, "supporting": 0.50, "none": 0.05}
+        base = base_scores.get(cat_result.relevance, 0.05)
 
-        # Specificity: longer, denser logs are more informative
+        # Specificity bonus: denser logs are more informative
         tokens = _tok_set(candidate.log.full_text)
-        specificity = min(len(tokens) / 40.0, 0.3)
+        specificity = min(len(tokens) / 40.0, 0.20)
 
-        return min(type_score + specificity, 1.0)
+        return min(base + specificity, 1.0)
 
     # ── Semantic similarity (tie-breaker) ─────────────────────────────────────
 
     def _semantic_similarity(
         self, goal: ResearchGoal, log_text: str, precomputed: float | None = None
     ) -> float:
-        """Return semantic similarity.
-
-        If precomputed is provided (candidate.dense_score from retrieval),
-        use it directly — avoids redundant Gemini API calls.
-        Dense embedding is already computed during candidate retrieval;
-        reusing it saves N embedding calls per reranking run.
-        """
         if precomputed is not None:
             return precomputed
         g_emb = self._dense.embed(goal.query_text)
@@ -191,7 +170,6 @@ class GoalConditionedReranker:
     # ── Base goal overlap ─────────────────────────────────────────────────────
 
     def _base_goal_overlap(self, goal: ResearchGoal, log_text: str) -> float:
-        """Raw token overlap of goal text with log text."""
         goal_tokens = _tok_set(goal.query_text + " " + goal.goal_embedding_text)
         log_tokens = _tok_set(log_text)
         if not goal_tokens:
@@ -203,25 +181,15 @@ class GoalConditionedReranker:
     def _negative_penalty(
         self, candidate: CandidateLog, negative_terms: list[str]
     ) -> tuple[float, float, list[str]]:
-        """Compute raw domain mismatch score and final penalty.
-
-        Returns (raw_dm, capped_penalty, matched_descriptions).
-        raw_dm is used for veto decision; capped_penalty for score deduction.
-        """
         cfg = self.config
-        log_text = candidate.log.full_text
-        log_title = candidate.log.title
-
         raw_dm, matched = penalty_score(
-            negative_terms, log_text, log_title,
+            negative_terms, candidate.log.full_text, candidate.log.title,
             phrase_penalty=cfg.negative_penalty_phrase,
             token_penalty=cfg.negative_penalty_token,
             title_extra_penalty=cfg.negative_penalty_title,
         )
-
         noise = cfg.negative_daily_penalty if candidate.log.activity_type in _NOISE_TYPES else 0.0
         capped = min(raw_dm + noise, 1.0)
-
         if capped > 0.2:
             logger.debug(
                 "NegPenalty  log=%s  dm=%.2f  matched=%s  [%s]",
@@ -249,49 +217,96 @@ class GoalConditionedReranker:
         log_title = candidate.log.title
         cfg = self.config
 
-        # ── Compute all components ────────────────────────────────────────────
+        # ══════════════════════════════════════════════════════════════════════
+        # GATE 1: Schema Category Gate
+        # Goal-domain-aware hard filter.
+        # Unrelated categories are rejected before any scoring.
+        # Schema signals are NOT in the scoring formula — category is gate-only.
+        # ══════════════════════════════════════════════════════════════════════
+        cat_result = self._schema.evaluate(candidate.log, goal)
+
+        if cat_result.relevance == "none":
+            logger.debug(
+                "CATEGORY GATE REJECT  log=%s  cat=%s  domain=%s  goal_domain=%s  [%s]",
+                candidate.log.log_id,
+                cat_result.log_category,
+                cat_result.goal_domain,
+                cat_result.goal_domain,
+                log_title,
+            )
+            return RankedLog(
+                log=candidate.log,
+                semantic_relevance=0.0,
+                goal_focus=0.0,
+                evidence_value=0.0,
+                final_score=0.0,
+                rejection_reason=(
+                    f"category_mismatch(cat={cat_result.log_category}"
+                    f"  domain={cat_result.goal_domain})"
+                ),
+                schema_category=cat_result.log_category,
+                goal_domain=cat_result.goal_domain,
+                category_hit_strength=cat_result.relevance,
+            )
+
+        # ══════════════════════════════════════════════════════════════════════
+        # Compute goal lexical scores (needed for GATE 2 and scoring)
+        # ══════════════════════════════════════════════════════════════════════
         pri_score, pri_matches = self._priority_phrase_score(log_text, log_title, pri_terms)
         ev_score, ev_matches = self._evidence_phrase_score(log_text, log_title, ev_terms)
+        base = self._base_goal_overlap(goal, log_text)
+
+        # ══════════════════════════════════════════════════════════════════════
+        # GATE 2: Goal Lexical Gate
+        # At least ONE goal signal required:
+        #   - priority phrase/token match  (direct goal vocabulary)
+        #   - evidence phrase/token match  (supporting vocabulary)
+        #   - base goal token overlap ≥ 0.04 (raw goal text)
+        #
+        # This prevents action_signal + domain_consistency from carrying logs
+        # that have category match but NO goal vocabulary overlap.
+        # Threshold 0.04 avoids false passes from accidental 1-token overlap.
+        # ══════════════════════════════════════════════════════════════════════
+        goal_lexical_hit = (pri_score > 0.0 or ev_score > 0.0 or base >= 0.04)
+
+        if not goal_lexical_hit:
+            logger.debug(
+                "GOAL LEXICAL GATE REJECT  log=%s  cat=%s  relevance=%s  "
+                "pri=%.3f  ev=%.3f  base=%.3f  [%s]",
+                candidate.log.log_id, cat_result.log_category, cat_result.relevance,
+                pri_score, ev_score, base, log_title,
+            )
+            return RankedLog(
+                log=candidate.log,
+                semantic_relevance=0.0,
+                goal_focus=0.0,
+                evidence_value=0.0,
+                final_score=0.0,
+                rejection_reason="no_goal_signal(pri=0,ev=0,base<0.04)",
+                schema_category=cat_result.log_category,
+                goal_domain=cat_result.goal_domain,
+                category_hit_strength=cat_result.relevance,
+            )
+
+        # ══════════════════════════════════════════════════════════════════════
+        # Remaining components
+        # ══════════════════════════════════════════════════════════════════════
         rel_score = self._related_score(log_text, log_title, rel_terms)
         action = self._action_signal(candidate)
-        domain = self._domain_consistency(candidate, goal)
-        # Reuse dense_score from candidate retrieval (avoids redundant API call)
+        domain = self._domain_consistency(candidate, cat_result)  # goal-domain-aware
         sem = self._semantic_similarity(
             goal, log_text,
             precomputed=candidate.dense_score if candidate.dense_score > 0 else None,
         )
-        base = self._base_goal_overlap(goal, log_text)
 
         # ── Negative penalty ──────────────────────────────────────────────────
         raw_dm, penalty, neg_matched = self._negative_penalty(candidate, neg_terms)
 
-        # ── Zero-positive hard block ───────────────────────────────────────────
-        # Logs with no lexical evidence of goal relevance are rejected regardless
-        # of action/domain/semantic signal. This prevents lifestyle/exercise logs
-        # from being admitted via the action_signal + domain_consistency path alone.
-        #
-        # A log MUST have at least ONE of:
-        #   - priority phrase/token match     (direct goal vocabulary)
-        #   - evidence phrase/token match     (supporting vocabulary)
-        #   - base goal token overlap         (raw goal text overlap)
-        if pri_score == 0.0 and ev_score == 0.0 and base == 0.0:
-            logger.debug(
-                "ZERO-POSITIVE BLOCK  log=%s  [%s]  "
-                "(no priority/evidence/base match → reject)",
-                candidate.log.log_id, log_title,
-            )
-            return RankedLog(
-                log=candidate.log,
-                semantic_relevance=round(sem, 4),
-                goal_focus=0.0,
-                evidence_value=0.0,
-                final_score=0.0,
-                rejection_reason="zero_positive_evidence",
-            )
-
-        # ── Negative veto (domain conflict gate) ──────────────────────────────
-        # Veto fires when: significant domain mismatch AND no priority evidence.
-        # This is a domain conflict gate, not a keyword blacklist.
+        # ══════════════════════════════════════════════════════════════════════
+        # GATE 3: Negative Veto (domain conflict gate)
+        # Fires when: significant domain mismatch AND no priority evidence.
+        # NOT a keyword blacklist — requires BOTH conditions.
+        # ══════════════════════════════════════════════════════════════════════
         veto = (
             cfg.negative_veto_enabled
             and raw_dm >= cfg.negative_veto_dm_threshold
@@ -311,6 +326,9 @@ class GoalConditionedReranker:
                 final_score=0.0,
                 matched_negative=list(neg_matched),
                 rejection_reason=f"domain_conflict_veto(dm={raw_dm:.2f})",
+                schema_category=cat_result.log_category,
+                goal_domain=cat_result.goal_domain,
+                category_hit_strength=cat_result.relevance,
             )
 
         # ── Final score ───────────────────────────────────────────────────────
@@ -336,25 +354,29 @@ class GoalConditionedReranker:
                 reason_parts.append(f"priority={matched_pri}")
             if matched_ev:
                 reason_parts.append(f"evidence={matched_ev}")
-            if base > 0:
+            if base >= 0.04:
                 reason_parts.append(f"base_overlap={base:.3f}")
+            reason_parts.append(
+                f"cat={cat_result.log_category}({cat_result.relevance})"
+            )
             admission_reason = " | ".join(reason_parts) if reason_parts else "weak_match"
         else:
             admission_reason = ""
 
-        # ── Debug breakdown ───────────────────────────────────────────────────
         logger.debug(
             "[Reranker Score]  log=%s  [%s]\n"
+            "  category:        %s  (relevance=%s  domain=%s)\n"
             "  priority_phrase: %.3f  matched=%s\n"
             "  evidence_phrase: %.3f  matched=%s\n"
             "  related:         %.3f\n"
             "  action_signal:   %.3f\n"
-            "  domain_consist:  %.3f\n"
+            "  domain_consist:  %.3f  (goal-aware)\n"
             "  semantic:        %.3f\n"
             "  base_overlap:    %.3f\n"
             "  neg_penalty:     %.3f  (matched=%s)\n"
             "  → final:         %.4f  reason=%s",
             candidate.log.log_id, log_title,
+            cat_result.log_category, cat_result.relevance, cat_result.goal_domain,
             pri_score, matched_pri,
             ev_score, matched_ev,
             rel_score, action, domain, sem, base,
@@ -374,7 +396,34 @@ class GoalConditionedReranker:
             matched_evidence=matched_ev,
             matched_negative=list(neg_matched),
             admission_reason=admission_reason,
+            schema_category=cat_result.log_category,
+            goal_domain=cat_result.goal_domain,
+            category_hit_strength=cat_result.relevance,
         )
+
+    def rank_log(
+        self,
+        goal: ResearchGoal,
+        log: ResearchLog,
+        expanded_terms: list[str] | None = None,
+        negative_terms: list[str] | None = None,
+        priority_terms: list[str] | None = None,
+        related_terms: list[str] | None = None,
+    ) -> RankedLog:
+        """Score a single ResearchLog and return full RankedLog (with category trace).
+
+        Preferred over score_log() when caller needs category/admission info.
+        Used by LocalExpander for neighbor re-admission.
+        """
+        candidate = CandidateLog(log=log, sparse_score=0.0, dense_score=0.0, hybrid_score=0.0)
+        results = self.rank(
+            goal, [candidate],
+            expanded_terms=expanded_terms,
+            negative_terms=negative_terms,
+            priority_terms=priority_terms,
+            related_terms=related_terms,
+        )
+        return results[0]
 
     def score_log(
         self,
@@ -385,21 +434,14 @@ class GoalConditionedReranker:
         priority_terms: list[str] | None = None,
         related_terms: list[str] | None = None,
     ) -> float:
-        """Score a single ResearchLog for neighbor admission check.
-
-        Used by LocalExpander to re-admit temporal neighbors through the same
-        admission gate as anchors — prevents non-admitted logs from entering
-        the compressor via the expansion path.
-        """
-        candidate = CandidateLog(log=log, sparse_score=0.0, dense_score=0.0, hybrid_score=0.0)
-        ranked = self.rank(
-            goal, [candidate],
+        """Return final_score only. Back-compat wrapper around rank_log()."""
+        return self.rank_log(
+            goal, log,
             expanded_terms=expanded_terms,
             negative_terms=negative_terms,
             priority_terms=priority_terms,
             related_terms=related_terms,
-        )
-        return ranked[0].final_score if ranked else 0.0
+        ).final_score
 
     def rank(
         self,

@@ -85,6 +85,10 @@ class RankedLog:
     admission_reason: str = ""    # why admitted
     rejection_reason: str = ""    # why rejected / vetoed
     anchor_source: str = ""       # "stage1" | "stage2_neighbor"
+    # Schema category trace (populated by reranker)
+    schema_category: str = ""           # assigned evidence category ("training", "implementation", …)
+    goal_domain: str = ""               # inferred goal domain ("productivity_development", …)
+    category_hit_strength: str = ""     # "core" | "supporting" | "none"
 
     @property
     def log_id(self) -> str:

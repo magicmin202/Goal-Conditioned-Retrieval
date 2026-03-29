@@ -3,13 +3,18 @@
 Stage 2 = consolidation only (NOT new retrieval).
 
 For each admitted anchor:
-  1. Temporal filter  — only logs within anchor.date ± window_days
-  2. Topical filter   — activity_type / topic / title keyword overlap (≥ min_criteria)
-  3. Neighbor re-admission — same reranker gate as anchors
+  1. Temporal filter   — only logs within anchor.date ± window_days
+  2. Topical filter    — activity_type / topic / title keyword overlap (≥ min_criteria)
+  3. Neighbor re-admission — same reranker gate as anchors (includes category gate)
      → logs that fail are NEVER sent to the compressor
+
+Return type: dict[anchor_log_id → list[RankedLog]]
+Neighbors are returned as RankedLog so the compressor can inspect
+category_hit_strength and other trace fields.
 
 Invariants:
   - Non-admitted logs do NOT enter the compressor.
+  - Neighbors with category_hit_strength="none" are rejected at reranker gate.
   - Fewer logs in cluster is acceptable; correctness > coverage.
 """
 from __future__ import annotations
@@ -37,7 +42,7 @@ def _parse_date(s: str | None) -> _date | None:
 
 
 def _topical_criteria(anchor: RankedLog, log: ResearchLog) -> int:
-    """Count topical cluster criteria satisfied (0–3; no semantic needed)."""
+    """Count topical cluster criteria satisfied (0–3)."""
     count = 0
     if log.activity_type == anchor.log.activity_type:
         count += 1
@@ -55,6 +60,9 @@ def _topical_criteria(anchor: RankedLog, log: ResearchLog) -> int:
 class LocalExpander:
     """Expand each admitted anchor into a cluster of temporally-close, admitted neighbors.
 
+    Neighbors are returned as RankedLog objects (not ResearchLog) so that
+    category_hit_strength and admission traces are preserved for the compressor.
+
     Parameters
     ----------
     min_topical_criteria:
@@ -66,10 +74,10 @@ class LocalExpander:
     def __init__(
         self,
         min_topical_criteria: int = 1,
-        semantic_threshold: float = 0.45,   # kept for API compat, unused
+        semantic_threshold: float = 0.45,      # kept for API compat, unused
         anchor_relevance_threshold: float = 0.05,
         neighbor_goal_relevance_min: float = 0.0,  # kept for API compat, unused
-        dense_retriever=None,               # kept for API compat, unused
+        dense_retriever=None,                   # kept for API compat, unused
     ) -> None:
         self.min_topical_criteria = min_topical_criteria
         self.anchor_relevance_threshold = anchor_relevance_threshold
@@ -87,17 +95,16 @@ class LocalExpander:
         temporal_window: int = 3,
         neighbor_admission_threshold: float = 0.08,
         max_neighbors: int = 5,
-        # Back-compat keyword (ignored; use temporal_window instead)
-        max_neighbors_compat: int = 5,
-    ) -> dict[str, list[ResearchLog]]:
-        """Return anchor_log_id → list of admitted neighbor logs.
+        max_neighbors_compat: int = 5,  # back-compat, ignored
+    ) -> dict[str, list[RankedLog]]:
+        """Return anchor_log_id → list of admitted neighbor RankedLogs.
 
         Steps per anchor:
           1. Skip anchor if below anchor_relevance_threshold
           2. Temporal filter: pool → logs within ±temporal_window days
           3. Topical filter: ≥ min_topical_criteria
-          4. Reranker re-admission check (if reranker + goal provided)
-          5. Admit top max_neighbors
+          4. Reranker re-admission (rank_log) — includes category gate + goal signal gate
+          5. Admit top max_neighbors by score
         """
         exp_terms = expanded_terms or []
         neg_terms = negative_terms or []
@@ -118,7 +125,7 @@ class LocalExpander:
                 skipped_anchors, self.anchor_relevance_threshold,
             )
 
-        result: dict[str, list[ResearchLog]] = {}
+        result: dict[str, list[RankedLog]] = {}
 
         for anchor in valid_anchors:
             anchor_date = _parse_date(anchor.log.date)
@@ -144,55 +151,69 @@ class LocalExpander:
                     topical_candidates.append(log)
 
             # ── Step 3: Neighbor re-admission via reranker ────────────────────
-            admitted: list[ResearchLog] = []
-            rejected: list[tuple[str, float]] = []
+            # Use rank_log() to get full RankedLog including category trace.
+            # Category gate + goal lexical gate fire inside rank_log — same
+            # admission rules as anchors. Non-admitted logs get final_score=0.0.
+            admitted: list[RankedLog] = []
+            rejected_ids: list[tuple[str, str]] = []   # (log_id, rejection_reason)
 
             for log in topical_candidates:
                 if reranker is not None and goal is not None:
-                    score = reranker.score_log(
+                    ranked = reranker.rank_log(
                         goal, log,
                         expanded_terms=exp_terms,
                         negative_terms=neg_terms,
                         priority_terms=pri_terms,
                         related_terms=rel_terms,
                     )
-                    if score < neighbor_admission_threshold:
-                        rejected.append((log.log_id, score))
+                    if ranked.final_score < neighbor_admission_threshold:
+                        rejected_ids.append((log.log_id, ranked.rejection_reason or "below_threshold"))
                         logger.debug(
-                            "  Neighbor REJECTED %s (score=%.4f < %.4f): %s",
-                            log.log_id, score, neighbor_admission_threshold, log.title,
+                            "  Neighbor REJECTED %s  score=%.4f  reason=%s  "
+                            "cat=%s(%s)  [%s]",
+                            log.log_id, ranked.final_score, ranked.rejection_reason,
+                            ranked.schema_category, ranked.category_hit_strength,
+                            log.title,
                         )
                         continue
+                    ranked.anchor_source = "stage2_neighbor"
                     logger.debug(
-                        "  Neighbor ADMITTED %s (score=%.4f): %s",
-                        log.log_id, score, log.title,
+                        "  Neighbor ADMITTED %s  score=%.4f  cat=%s(%s)  [%s]",
+                        log.log_id, ranked.final_score,
+                        ranked.schema_category, ranked.category_hit_strength,
+                        log.title,
                     )
-                admitted.append(log)
+                    admitted.append(ranked)
+                else:
+                    # No reranker → create minimal RankedLog for passthrough
+                    admitted.append(RankedLog(
+                        log=log, final_score=1.0, anchor_source="stage2_neighbor",
+                    ))
 
+            # Sort admitted by score, take top N
+            admitted.sort(key=lambda r: r.final_score, reverse=True)
             neighbors = admitted[:max_neighbors]
             result[anchor.log_id] = neighbors
 
             logger.info(
                 "[Anchor Consolidation]\n"
-                "  anchor=%s  date=%s\n"
+                "  anchor=%s  date=%s  cat=%s(%s)\n"
                 "  window=±%dd  [%s → %s]\n"
                 "  temporal_candidates=%d  topical=%d  admitted=%d  → cluster_size=%d"
                 "  (rejected=%d)",
                 anchor.log_id, anchor.log.date,
+                anchor.schema_category, anchor.category_hit_strength,
                 temporal_window,
                 window_start.isoformat() if window_start else "?",
                 window_end.isoformat() if window_end else "?",
                 len(temporal_candidates), len(topical_candidates),
                 len(admitted), len(neighbors),
-                len(rejected),
+                len(rejected_ids),
             )
-            if rejected:
-                logger.debug(
-                    "  Rejected from cluster: %s",
-                    [(lid, f"{s:.4f}") for lid, s in rejected],
-                )
+            if rejected_ids:
+                logger.debug("  Rejected: %s", rejected_ids)
 
-        # Fill empty entries for anchors that were skipped (below threshold)
+        # Fill empty entries for anchors that were skipped
         for anchor in anchor_logs:
             if anchor.log_id not in result:
                 result[anchor.log_id] = []
