@@ -101,16 +101,33 @@ class EmbeddingProvider(ABC):
 class MockEmbeddingProvider(EmbeddingProvider):
     """Deterministic hash-based mock embeddings. No external dependencies.
 
-    Produces meaningful token-overlap-like similarity for short texts with
-    shared vocabulary, but does NOT capture true semantic similarity.
-    Use as a stand-in until a real model is installed.
+    ⚠ WARNING: Python hash() is PYTHONHASHSEED-randomized (Python 3.3+).
+    This means dense scores CHANGE BETWEEN RUNS unless PYTHONHASHSEED=0 is set.
+    For stable retrieval results use --real_embeddings or set PYTHONHASHSEED=0.
+
+    Produces token-overlap-like similarity for short texts with shared
+    vocabulary, but does NOT capture true semantic similarity.
     """
 
     def __init__(self, dim: int = EMBEDDING_DIM) -> None:
         self._dim = dim
+        import os
+        seed = os.environ.get("PYTHONHASHSEED", "random")
+        if seed == "random":
+            logger.warning(
+                "MockEmbeddingProvider: PYTHONHASHSEED is not fixed — "
+                "dense scores will differ across runs. "
+                "Set PYTHONHASHSEED=0 for reproducible results, "
+                "or use --real_embeddings for real semantic similarity."
+            )
+        else:
+            logger.debug("MockEmbeddingProvider: PYTHONHASHSEED=%s (fixed)", seed)
 
     def encode(self, text: str) -> list[float]:
-        rng = random.Random(hash(text) % (2 ** 32))
+        # Use SHA256 (not Python hash) for cross-run determinism
+        import hashlib
+        seed = int(hashlib.sha256(text.encode()).hexdigest()[:8], 16)
+        rng = random.Random(seed)
         vec = [rng.gauss(0, 1) for _ in range(self._dim)]
         norm = math.sqrt(sum(v ** 2 for v in vec)) or 1.0
         return [v / norm for v in vec]

@@ -66,6 +66,7 @@ class Stage1Pipeline:
         self,
         goal: ResearchGoal,
         use_expansion: bool | None = None,
+        run_label: str = "stage1_standalone",
     ) -> Stage1Result:
         if not self._indexed:
             raise RuntimeError("Call index() before run().")
@@ -73,6 +74,19 @@ class Stage1Pipeline:
         expand = (
             use_expansion if use_expansion is not None
             else self.config.query_expansion.enabled
+        )
+
+        # ── Run-level diagnostic trace ─────────────────────────────────────────
+        logger.info(
+            "[Stage1 Run]  label=%s  goal=%s  user=%s\n"
+            "  expansion=%s  candidate_size=%d  top_k=%d\n"
+            "  admission_threshold=%.3f  schema_enabled=%s",
+            run_label, goal.goal_id, goal.user_id,
+            expand,
+            self.config.retrieval.candidate_size,
+            self.config.retrieval.top_k,
+            self.config.diversity.relevance_threshold,
+            getattr(self.config, "schema_category", None) is not None,
         )
 
         # 1. Query Understanding
@@ -113,11 +127,37 @@ class Stage1Pipeline:
             negative_terms = heuristic.get("negative_terms", [])
             active_query = query_obj
 
+        # ── Query trace ────────────────────────────────────────────────────────
+        if expand and expanded_query_obj:
+            logger.info(
+                "[Stage1 Query]  goal=%s  label=%s\n"
+                "  bm25_q (first 80): %s\n"
+                "  dense_q (first 80): %s",
+                goal.goal_id, run_label,
+                expanded_query_obj.bm25_query[:80],
+                expanded_query_obj.dense_query[:80],
+            )
+        else:
+            logger.info(
+                "[Stage1 Query]  goal=%s  label=%s  (no expansion)\n"
+                "  canonical (first 80): %s",
+                goal.goal_id, run_label,
+                query_obj.canonical_text[:80],
+            )
+
         # 3. Candidate Retrieval (+ vocab boost if ExpandedQuery)
         candidates = self._retriever.retrieve(
             active_query, top_n=self.config.retrieval.candidate_size
         )
         logger.info("Stage1: %d candidates  goal=%s", len(candidates), goal.goal_id)
+
+        # ── Candidate diagnostic trace ─────────────────────────────────────────
+        logger.info("[Stage1 Candidates top-10]  goal=%s  label=%s", goal.goal_id, run_label)
+        for c in candidates[:10]:
+            logger.info(
+                "  %s  bm25=%.4f  dense=%.4f  hybrid=%.4f  [%s]",
+                c.log_id, c.sparse_score, c.dense_score, c.hybrid_score, c.log.title,
+            )
 
         # 4. Goal-Conditioned Reranking (3-tier goal_focus)
         ranked = self._reranker.rank(
@@ -134,13 +174,19 @@ class Stage1Pipeline:
         threshold = self.config.diversity.relevance_threshold
         above = [r for r in ranked if r.final_score >= threshold]
         logger.info(
-            "Stage1 admission: %d/%d logs admitted  threshold=%.3f",
-            len(above), len(ranked), threshold,
+            "Stage1 admission: %d/%d logs admitted  threshold=%.3f  label=%s",
+            len(above), len(ranked), threshold, run_label,
         )
-        for r in above:
-            logger.debug(
-                "  Admitted %s  score=%.4f  reason=%s  [%s]",
-                r.log_id, r.final_score, r.admission_reason, r.log.title,
+        # Per-candidate admission trace (INFO level for debugging)
+        for r in ranked[:15]:
+            decision = "ADMIT" if r.final_score >= threshold else "REJECT"
+            logger.info(
+                "  [%s] %s  score=%.4f  cat=%s(%s)  reason=%s  [%s]",
+                decision, r.log_id, r.final_score,
+                getattr(r, "schema_category", "?"),
+                getattr(r, "category_hit_strength", "?"),
+                r.rejection_reason or r.admission_reason or "-",
+                r.log.title,
             )
 
         # 6. Diversity-aware Top-K Selection (from admitted only)
