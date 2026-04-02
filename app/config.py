@@ -106,6 +106,21 @@ class RankerConfig:
     negative_penalty_title: float = 0.30    # extra if match in title
     negative_daily_penalty: float = 0.20    # activity_type="daily" extra
 
+    # ── Evidence quality weights ──────────────────────────────────────────────
+    # final_score = relevance_score + quality_weight * quality_score - penalty
+    # relevance components sum to (1 - quality_weight)
+    quality_weight: float = 0.30         # quality contributes 30% of final score
+    # Within quality_score (must sum to 1.0)
+    quality_specificity_w:   float = 0.25
+    quality_actionability_w: float = 0.35
+    quality_goal_progress_w: float = 0.25
+    quality_domain_consist_w: float = 0.15
+
+    # Redundancy penalty (applied in Stage1Pipeline post-rank)
+    redundancy_penalty_exact:   float = 0.30
+    redundancy_penalty_similar: float = 0.15
+    redundancy_similarity_threshold: float = 0.60
+
     # ── Negative veto ─────────────────────────────────────────────────────────
     negative_veto_enabled: bool = True
     negative_veto_dm_threshold: float = 0.70   # dm ≥ this triggers veto

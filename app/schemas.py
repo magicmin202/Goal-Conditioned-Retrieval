@@ -89,6 +89,13 @@ class RankedLog:
     schema_category: str = ""           # assigned evidence category ("training", "implementation", …)
     goal_domain: str = ""               # inferred goal domain ("productivity_development", …)
     category_hit_strength: str = ""     # "core" | "supporting" | "none"
+    # Evidence quality trace (populated by reranker)
+    relevance_score: float = 0.0        # goal lexical + semantic component
+    evidence_quality_score: float = 0.0 # quality component total
+    specificity_score: float = 0.0
+    actionability_score: float = 0.0
+    goal_progress_score: float = 0.0    # category value prior
+    redundancy_penalty: float = 0.0     # applied post-rank in Stage1Pipeline
 
     @property
     def log_id(self) -> str:

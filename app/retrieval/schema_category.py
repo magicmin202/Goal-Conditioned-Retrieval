@@ -109,6 +109,40 @@ _LOG_CATEGORIES: list[_LogCategoryDef] = [
         frozenset(["planning"]),
         frozenset(["계획", "목표", "전략", "로드맵", "일정"]),
     ),
+
+    # ── Travel ────────────────────────────────────────────────────────────────
+    _LogCategoryDef(
+        "booking",
+        frozenset([]),
+        frozenset([
+            "예약", "항공권", "비행기", "숙소", "호텔", "에어비앤비",
+            "결제", "확정", "티켓", "예매", "booking", "reserved",
+        ]),
+    ),
+    _LogCategoryDef(
+        "budgeting",
+        frozenset([]),
+        frozenset([
+            "예산", "비용", "환전", "가계부", "지출", "저비용", "경비",
+            "절약", "할인", "가격", "저렴", "budget",
+        ]),
+    ),
+    _LogCategoryDef(
+        "logistics",
+        frozenset([]),
+        frozenset([
+            "짐", "준비물", "패킹", "챙기기", "이동", "교통",
+            "필요한것", "체크리스트", "packing", "luggage",
+        ]),
+    ),
+    _LogCategoryDef(
+        "travel_research",
+        frozenset([]),
+        frozenset([
+            "여행지", "관광", "명소", "후기", "리뷰", "조사",
+            "여행 정보", "블로그", "검색", "destination",
+        ]),
+    ),
 ]
 
 _CAT_BY_NAME: dict[str, _LogCategoryDef] = {c.name: c for c in _LOG_CATEGORIES}
@@ -148,6 +182,12 @@ _GOAL_DOMAINS: list[_GoalDomainDef] = [
         frozenset(["알고리즘", "코테", "코딩테스트", "학습", "공부", "강의", "스터디"]),
         frozenset(["study_progress", "problem_solving"]),
         frozenset(["implementation", "planning"]),
+    ),
+    _GoalDomainDef(
+        "travel_planning",
+        frozenset(["여행", "해외", "여행지", "배낭", "숙소", "항공", "해외여행", "저비용"]),
+        frozenset(["booking", "budgeting", "logistics"]),
+        frozenset(["travel_research", "planning"]),
     ),
 ]
 

@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from app.config import Stage1Config
 from app.retrieval.candidate_retrieval import CandidateRetriever, RetrievalMode
 from app.retrieval.diversity_selector import DiversitySelector
+from app.retrieval.evidence_quality import compute_redundancy_penalty
 from app.retrieval.query_expansion import ExpandedQuery, expand_goal_query
 from app.retrieval.query_understanding import build_query
 from app.retrieval.reranker import GoalConditionedReranker
@@ -177,20 +178,60 @@ class Stage1Pipeline:
             "Stage1 admission: %d/%d logs admitted  threshold=%.3f  label=%s",
             len(above), len(ranked), threshold, run_label,
         )
+
+        # 5b. Redundancy Penalty (applied greedy, high-score first)
+        # Logs that are near-duplicates of already-admitted logs get penalised.
+        # This pushes out repeated low-info logs (e.g. "여행 준비물 쇼핑" ×3).
+        rdup_cfg = self.config.ranker
+        admitted_logs: list = []
+        penalised: list[RankedLog] = []
+        for r in above:
+            pen, reason = compute_redundancy_penalty(
+                r.log,
+                admitted_logs,
+                exact_penalty=rdup_cfg.redundancy_penalty_exact,
+                similar_penalty=rdup_cfg.redundancy_penalty_similar,
+                similarity_threshold=rdup_cfg.redundancy_similarity_threshold,
+            )
+            if pen > 0:
+                r.redundancy_penalty = round(pen, 4)
+                r.final_score = max(0.0, round(r.final_score - pen, 4))
+                r.rejection_reason = r.rejection_reason or f"redundancy:{reason}"
+                logger.info(
+                    "  [REDUNDANCY] %s  penalty=%.2f  reason=%s  new_score=%.4f  [%s]",
+                    r.log_id, pen, reason, r.final_score, r.log.title,
+                )
+            admitted_logs.append(r.log)
+            penalised.append(r)
+
+        # Re-sort after redundancy penalty
+        penalised.sort(key=lambda x: x.final_score, reverse=True)
+        for i, r in enumerate(penalised):
+            r.rank = i + 1
+
         # Per-candidate admission trace (INFO level for debugging)
         for r in ranked[:15]:
+            rel = r.relevance_score if hasattr(r, "relevance_score") else 0.0
+            qual = r.evidence_quality_score if hasattr(r, "evidence_quality_score") else 0.0
+            rpen = r.redundancy_penalty if hasattr(r, "redundancy_penalty") else 0.0
             decision = "ADMIT" if r.final_score >= threshold else "REJECT"
             logger.info(
-                "  [%s] %s  score=%.4f  cat=%s(%s)  reason=%s  [%s]",
+                "  [%s] %s  score=%.4f  rel=%.4f  qual=%.4f  red_pen=%.3f"
+                "  spec=%.3f  act=%.3f  prog=%.3f"
+                "  cat=%s(%s)  reason=%s  [%s]",
                 decision, r.log_id, r.final_score,
+                rel, qual, rpen,
+                getattr(r, "specificity_score", 0.0),
+                getattr(r, "actionability_score", 0.0),
+                getattr(r, "goal_progress_score", 0.0),
                 getattr(r, "schema_category", "?"),
                 getattr(r, "category_hit_strength", "?"),
                 r.rejection_reason or r.admission_reason or "-",
                 r.log.title,
             )
 
-        # 6. Diversity-aware Top-K Selection (from admitted only)
-        pool = above
+        # 6. Diversity-aware Top-K Selection (from admitted only, after redundancy)
+        pool = penalised
         selected = self._selector.select(goal, pool, top_k=top_k)
 
         query_text = (

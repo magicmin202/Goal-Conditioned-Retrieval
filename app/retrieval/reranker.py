@@ -37,6 +37,7 @@ from typing import Optional
 from app.config import RankerConfig
 from app.retrieval.dense_retriever import DenseRetriever, cosine
 from app.retrieval.embedding_provider import MockEmbeddingProvider
+from app.retrieval.evidence_quality import _quality_scorer
 from app.retrieval.schema_category import CategoryScore, SchemaMapper, _schema_mapper
 from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
 from app.utils.text_matching import (
@@ -331,20 +332,52 @@ class GoalConditionedReranker:
                 category_hit_strength=cat_result.relevance,
             )
 
-        # ── Final score ───────────────────────────────────────────────────────
-        final = max(0.0, round(
-            cfg.priority_weight * pri_score
-            + cfg.evidence_weight * ev_score
-            + cfg.related_weight * rel_score
-            + cfg.action_weight * action
-            + cfg.domain_weight * domain
-            + cfg.semantic_weight * sem
-            + cfg.base_weight * base
-            - penalty,
-            4,
-        ))
+        # ── Evidence Quality Score ────────────────────────────────────────────
+        # Separate from relevance — measures analysis value of the log.
+        # Components: specificity, actionability, goal_progress, domain_consist
+        qs = _quality_scorer.score(
+            candidate.log,
+            log_category=cat_result.log_category,
+            goal_domain=cat_result.goal_domain,
+            cat_relevance=cat_result.relevance,
+        )
 
-        # Explanation trace
+        # ── Final score ───────────────────────────────────────────────────────
+        # Dual-component formula:
+        #   relevance_score = priority + evidence + related + semantic + base
+        #   quality_score   = EvidenceQualityScorer.total
+        #   final = (1 - quality_weight) * relevance_score
+        #         + quality_weight       * quality_score
+        #         - negative_penalty
+        #
+        # Effective relevance weights (each × 0.70):
+        #   priority=0.30, evidence=0.18, related=0.08, semantic=0.04, base=0.05
+        # Effective quality weight: 0.30
+        qw = cfg.quality_weight           # 0.30
+        rw = 1.0 - qw                     # 0.70
+
+        # Normalise relevance sub-weights so they sum to rw
+        total_rel_w = (
+            cfg.priority_weight + cfg.evidence_weight + cfg.related_weight
+            + cfg.semantic_weight + cfg.base_weight
+        ) or 1.0
+        scale = rw / total_rel_w
+
+        relevance_score = round(
+            scale * (
+                cfg.priority_weight * pri_score
+                + cfg.evidence_weight * ev_score
+                + cfg.related_weight * rel_score
+                + cfg.semantic_weight * sem
+                + cfg.base_weight * base
+            ),
+            4,
+        )
+        quality_score = round(qw * qs.total, 4)
+
+        final = max(0.0, round(relevance_score + quality_score - penalty, 4))
+
+        # ── Explanation trace ─────────────────────────────────────────────────
         matched_pri = [m.term for m in pri_matches if m.level != "none"]
         matched_ev = [m.term for m in ev_matches if m.level != "none"]
 
@@ -359,6 +392,10 @@ class GoalConditionedReranker:
             reason_parts.append(
                 f"cat={cat_result.log_category}({cat_result.relevance})"
             )
+            reason_parts.append(
+                f"quality(spec={qs.specificity:.2f},act={qs.actionability:.2f}"
+                f",prog={qs.goal_progress:.2f})"
+            )
             admission_reason = " | ".join(reason_parts) if reason_parts else "weak_match"
         else:
             admission_reason = ""
@@ -369,19 +406,29 @@ class GoalConditionedReranker:
             "  priority_phrase: %.3f  matched=%s\n"
             "  evidence_phrase: %.3f  matched=%s\n"
             "  related:         %.3f\n"
-            "  action_signal:   %.3f\n"
-            "  domain_consist:  %.3f  (goal-aware)\n"
             "  semantic:        %.3f\n"
             "  base_overlap:    %.3f\n"
+            "  → relevance_score: %.4f\n"
+            "  specificity:     %.3f  (metrics=%s  nums=%s)\n"
+            "  actionability:   %.3f  (hits=%s  browse=%s)\n"
+            "  goal_progress:   %.3f  (cat_prior)\n"
+            "  domain_consist:  %.3f\n"
+            "  → quality_score: %.4f  (raw=%.4f × %.2f)\n"
             "  neg_penalty:     %.3f  (matched=%s)\n"
-            "  → final:         %.4f  reason=%s",
+            "  → final:         %.4f  [rel=%.4f + qual=%.4f - pen=%.4f]",
             candidate.log.log_id, log_title,
             cat_result.log_category, cat_result.relevance, cat_result.goal_domain,
             pri_score, matched_pri,
             ev_score, matched_ev,
-            rel_score, action, domain, sem, base,
+            rel_score, sem, base,
+            relevance_score,
+            qs.specificity, qs.has_metrics, qs.has_numbers,
+            qs.actionability, qs.action_hits, qs.browse_hits,
+            qs.goal_progress,
+            qs.domain_consist,
+            quality_score, qs.total, qw,
             penalty, neg_matched,
-            final, admission_reason,
+            final, relevance_score, quality_score, penalty,
         )
 
         return RankedLog(
@@ -390,7 +437,7 @@ class GoalConditionedReranker:
             goal_focus=round(
                 cfg.priority_weight * pri_score + cfg.evidence_weight * ev_score, 4
             ),
-            evidence_value=round(action, 4),
+            evidence_value=round(qs.actionability, 4),
             final_score=final,
             matched_priority=matched_pri,
             matched_evidence=matched_ev,
@@ -399,6 +446,12 @@ class GoalConditionedReranker:
             schema_category=cat_result.log_category,
             goal_domain=cat_result.goal_domain,
             category_hit_strength=cat_result.relevance,
+            # Quality trace
+            relevance_score=relevance_score,
+            evidence_quality_score=quality_score,
+            specificity_score=round(qs.specificity, 4),
+            actionability_score=round(qs.actionability, 4),
+            goal_progress_score=round(qs.goal_progress, 4),
         )
 
     def rank_log(
