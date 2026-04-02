@@ -22,12 +22,16 @@ serviceAccountKey.json
 GEMINI.md
 devserver.sh
 
-# Generated data (synthetic datasets)
+# Generated data (synthetic datasets) — actual files committed via explicit add
 data/
 
 # API 키 / 인증 관련
 *.json
 !package.json
+!data/synthetic/users.json
+!data/synthetic/goals.json
+!data/synthetic/logs.json
+!data/synthetic/labels.json
 *.pem
 *.key
 *.p12

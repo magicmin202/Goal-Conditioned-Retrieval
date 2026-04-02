@@ -58,8 +58,16 @@ def build_dataset(
     if small_mode:
         num_users = 3
 
-    min_logs, max_logs = (25, 40) if small_mode else (80, 150)
-    min_goals, max_goals = (3, 3) if small_mode else (3, 5)
+    if small_mode:
+        min_logs, max_logs = 25, 40
+        min_goals, max_goals = 3, 3
+    elif num_users <= 15:
+        # medium range: enough logs for realistic retrieval experiments
+        min_logs, max_logs = 50, 70
+        min_goals, max_goals = 3, 4
+    else:
+        min_logs, max_logs = 80, 150
+        min_goals, max_goals = 3, 5
 
     dataset = SyntheticDataset()
     users = generate_users(num_users, seed=seed)

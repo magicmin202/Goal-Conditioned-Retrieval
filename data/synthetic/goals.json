@@ -1,0 +1,352 @@
+[
+  {
+    "goal_id": "G-U0001-01",
+    "user_id": "U0001",
+    "title": "개발자로 취업하기",
+    "description": "소프트웨어 개발 역량을 쌓아 IT 기업에 취업한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "개발자 취업 코딩 알고리즘 포트폴리오 기술 면접",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0001-02",
+    "user_id": "U0001",
+    "title": "월 저축 50만원 달성하기",
+    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "저축 절약 지출 가계부 재테크 적금",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0001-03",
+    "user_id": "U0001",
+    "title": "규칙적으로 운동하기",
+    "description": "매주 4회 이상 운동하여 체력을 키우고 건강을 관리한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "운동 헬스 유산소 근력 스트레칭 체력",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0002-01",
+    "user_id": "U0002",
+    "title": "저비용 해외여행 계획하기",
+    "description": "항공권과 숙소를 미리 예약하고 여행 예산을 관리하여 저비용으로 해외여행을 다녀온다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "goal_embedding_text": "여행 해외 항공권 숙소 예산 배낭 관광",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0002-02",
+    "user_id": "U0002",
+    "title": "투자 공부 시작하기",
+    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "투자 주식 ETF 부동산 재테크 경제 공부",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0002-03",
+    "user_id": "U0002",
+    "title": "요리 레퍼토리 늘리기",
+    "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "요리 레시피 요리법 식재료 쿠킹 홈쿡",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0003-01",
+    "user_id": "U0003",
+    "title": "요리 레퍼토리 늘리기",
+    "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "요리 레시피 요리법 식재료 쿠킹 홈쿡",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0003-02",
+    "user_id": "U0003",
+    "title": "월 저축 50만원 달성하기",
+    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "저축 절약 지출 가계부 재테크 적금",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0003-03",
+    "user_id": "U0003",
+    "title": "식단 관리하기",
+    "description": "건강한 식습관을 유지하고 불필요한 외식을 줄인다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "식단 다이어트 건강식 채소 단백질 칼로리",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0003-04",
+    "user_id": "U0003",
+    "title": "개발자로 취업하기",
+    "description": "소프트웨어 개발 역량을 쌓아 IT 기업에 취업한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "개발자 취업 코딩 알고리즘 포트폴리오 기술 면접",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0004-01",
+    "user_id": "U0004",
+    "title": "투자 공부 시작하기",
+    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "투자 주식 ETF 부동산 재테크 경제 공부",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0004-02",
+    "user_id": "U0004",
+    "title": "토익 900점 달성",
+    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "goal_embedding_text": "토익 영어 리스닝 리딩 어휘 문법",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0004-03",
+    "user_id": "U0004",
+    "title": "친구 관계 넓히기",
+    "description": "다양한 모임과 활동을 통해 인맥을 넓히고 사회성을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "친구 인맥 모임 네트워킹 사교 활동",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0004-04",
+    "user_id": "U0004",
+    "title": "AI 엔지니어 역량 강화",
+    "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "AI 개발 역량 수학 머신러닝 딥러닝 논문 구현",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0005-01",
+    "user_id": "U0005",
+    "title": "식단 관리하기",
+    "description": "건강한 식습관을 유지하고 불필요한 외식을 줄인다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "식단 다이어트 건강식 채소 단백질 칼로리",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0005-02",
+    "user_id": "U0005",
+    "title": "AI 엔지니어 역량 강화",
+    "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "AI 개발 역량 수학 머신러닝 딥러닝 논문 구현",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0005-03",
+    "user_id": "U0005",
+    "title": "토익 900점 달성",
+    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "goal_embedding_text": "토익 영어 리스닝 리딩 어휘 문법",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0005-04",
+    "user_id": "U0005",
+    "title": "월 저축 50만원 달성하기",
+    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "저축 절약 지출 가계부 재테크 적금",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0006-01",
+    "user_id": "U0006",
+    "title": "투자 공부 시작하기",
+    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "투자 주식 ETF 부동산 재테크 경제 공부",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0006-02",
+    "user_id": "U0006",
+    "title": "사진 촬영 실력 키우기",
+    "description": "카메라 사용법을 익히고 매주 외출하여 사진을 찍고 편집한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "사진 카메라 촬영 편집 포토샵 구도",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0006-03",
+    "user_id": "U0006",
+    "title": "일찍 일어나는 습관 만들기",
+    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "기상 아침 루틴 수면 습관 생산성",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0006-04",
+    "user_id": "U0006",
+    "title": "대학원 진학 준비",
+    "description": "석사 과정 입학을 위해 연구실 탐색, 연구계획서 작성, 영어 공부를 한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "대학원 석사 연구 지도교수 연구계획서 GRE TOEFL",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0007-01",
+    "user_id": "U0007",
+    "title": "AI 엔지니어 역량 강화",
+    "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "AI 개발 역량 수학 머신러닝 딥러닝 논문 구현",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0007-02",
+    "user_id": "U0007",
+    "title": "토익 900점 달성",
+    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "goal_embedding_text": "토익 영어 리스닝 리딩 어휘 문법",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0007-03",
+    "user_id": "U0007",
+    "title": "일찍 일어나는 습관 만들기",
+    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "기상 아침 루틴 수면 습관 생산성",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0008-01",
+    "user_id": "U0008",
+    "title": "일찍 일어나는 습관 만들기",
+    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "기상 아침 루틴 수면 습관 생산성",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0008-02",
+    "user_id": "U0008",
+    "title": "토익 900점 달성",
+    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "goal_embedding_text": "토익 영어 리스닝 리딩 어휘 문법",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0008-03",
+    "user_id": "U0008",
+    "title": "투자 공부 시작하기",
+    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "투자 주식 ETF 부동산 재테크 경제 공부",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0009-01",
+    "user_id": "U0009",
+    "title": "월 저축 50만원 달성하기",
+    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "저축 절약 지출 가계부 재테크 적금",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0009-02",
+    "user_id": "U0009",
+    "title": "일찍 일어나는 습관 만들기",
+    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "기상 아침 루틴 수면 습관 생산성",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0009-03",
+    "user_id": "U0009",
+    "title": "저비용 해외여행 계획하기",
+    "description": "항공권과 숙소를 미리 예약하고 여행 예산을 관리하여 저비용으로 해외여행을 다녀온다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "goal_embedding_text": "여행 해외 항공권 숙소 예산 배낭 관광",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0009-04",
+    "user_id": "U0009",
+    "title": "친구 관계 넓히기",
+    "description": "다양한 모임과 활동을 통해 인맥을 넓히고 사회성을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "친구 인맥 모임 네트워킹 사교 활동",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0010-01",
+    "user_id": "U0010",
+    "title": "국내 여행 루틴 만들기",
+    "description": "매달 1회 국내 여행을 다니며 새로운 장소를 경험한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "국내여행 당일치기 숙소 카페 맛집 사진",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0010-02",
+    "user_id": "U0010",
+    "title": "독서 습관 만들기",
+    "description": "매일 30분 이상 독서를 하여 지식을 넓히고 사고력을 키운다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "goal_embedding_text": "독서 책 습관 자기계발 지식 독후감",
+    "created_at": "2026-03-01"
+  },
+  {
+    "goal_id": "G-U0010-03",
+    "user_id": "U0010",
+    "title": "식단 관리하기",
+    "description": "건강한 식습관을 유지하고 불필요한 외식을 줄인다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "goal_embedding_text": "식단 다이어트 건강식 채소 단백질 칼로리",
+    "created_at": "2026-03-01"
+  }
+]
