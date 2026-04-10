@@ -98,7 +98,11 @@ _LOG_CATEGORIES: list[_LogCategoryDef] = [
     ),
     _LogCategoryDef(
         "problem_solving",
-        frozenset(["execution"]),
+        frozenset(),  # removed "execution" — that activity_type is too broad and
+                      # caused travel-prep logs (act=execution) to be misclassified as
+                      # problem_solving, triggering a category_mismatch reject under
+                      # travel_planning domain.  Problem-solving logs are identified
+                      # reliably via keywords alone (알고리즘/코테/백준/프로그래머스…).
         frozenset([
             "문제", "알고리즘", "코테", "풀이", "풀었", "코딩테스트",
             "리트코드", "백준", "프로그래머스",
@@ -145,7 +149,8 @@ _LOG_CATEGORIES: list[_LogCategoryDef] = [
     ),
     _LogCategoryDef(
         "mock_test",
-        frozenset(["execution"]),
+        frozenset(),  # removed "execution" — same reason as problem_solving above;
+                      # mock-test logs are unambiguously identified by their keywords.
         frozenset([
             "모의고사", "실전 문제", "기출 문제", "mock", "실전 연습",
             "파트 풀이", "전체 풀이", "시험 풀이",
@@ -245,8 +250,11 @@ _GOAL_DOMAINS: list[_GoalDomainDef] = [
     _GoalDomainDef(
         "travel_planning",
         frozenset(["여행", "해외", "여행지", "배낭", "숙소", "항공", "해외여행", "저비용"]),
-        frozenset(["booking", "budgeting", "logistics"]),
-        frozenset(["travel_research", "planning"]),
+        frozenset(["booking", "budgeting"]),
+        # logistics moved from core → supporting: packing/supply-prep is contextual
+        # evidence for a *planning* goal, not direct booking/budget progress.
+        # travel_research and planning remain supporting.
+        frozenset(["logistics", "travel_research", "planning"]),
     ),
     _GoalDomainDef(
         "language_exam",

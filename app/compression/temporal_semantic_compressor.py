@@ -54,7 +54,12 @@ def _build_progression_summary(anchor: RankedLog, neighbors: list[RankedLog]) ->
     neighbor_logs = [n.log for n in neighbors]
     all_logs = sorted([anchor.log] + neighbor_logs, key=lambda l: l.date)
     date_range = _date_range(all_logs)
-    topic = anchor.log.metadata.get("topic") or anchor.log.activity_type
+    # Use anchor title as the most specific descriptor for this cluster.
+    # Fallback chain: anchor.log.title → metadata["topic"] → activity_type.
+    # Previously only metadata["topic"] was used, which produced repeated
+    # generic labels (e.g. "여행 예산 정리" ×4) even when anchor titles were
+    # distinct ("여행 예산 계획", "예산 관리", "여행 비용 정리").
+    topic = anchor.log.title or anchor.log.metadata.get("topic") or anchor.log.activity_type
     n = len(all_logs)
 
     strengths = [l.metadata.get("evidence_strength", "medium") for l in all_logs]
