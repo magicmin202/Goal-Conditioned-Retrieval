@@ -1,33 +1,57 @@
 """BM25-based sparse retriever.
 
-Falls back to simple TF scoring if rank_bm25 is not installed.
+Uses a pure-Python BM25Okapi implementation (no numpy dependency).
 """
 from __future__ import annotations
 import logging
+import math
 import re
 from collections import Counter
 from app.schemas import CandidateLog, ResearchLog
 
 logger = logging.getLogger(__name__)
 
-try:
-    from rank_bm25 import BM25Okapi  # type: ignore
-    _HAS_BM25 = True
-except ImportError:
-    _HAS_BM25 = False
-    logger.warning("rank_bm25 not installed; using simple TF scoring.")
-
 
 def _tokenize(text: str) -> list[str]:
     return re.findall(r"[\w가-힣]+", text.lower())
 
 
-def _tf_score(query_tokens: list[str], doc_tokens: list[str]) -> float:
-    if not doc_tokens:
-        return 0.0
-    counter = Counter(doc_tokens)
-    total = len(doc_tokens)
-    return sum(counter.get(t, 0) / total for t in query_tokens)
+class _BM25Okapi:
+    """Pure-Python BM25Okapi — no numpy required."""
+
+    def __init__(self, corpus: list[list[str]], k1: float = 1.5, b: float = 0.75) -> None:
+        self.k1 = k1
+        self.b = b
+        self.corpus_size = len(corpus)
+        self.avgdl = sum(len(d) for d in corpus) / max(self.corpus_size, 1)
+        self.doc_freqs: list[Counter] = [Counter(doc) for doc in corpus]
+        self.doc_lens: list[int] = [len(doc) for doc in corpus]
+
+        # document frequency per term
+        df: Counter = Counter()
+        for freq in self.doc_freqs:
+            for term in freq:
+                df[term] += 1
+        self.idf: dict[str, float] = {
+            term: math.log((self.corpus_size - n + 0.5) / (n + 0.5) + 1)
+            for term, n in df.items()
+        }
+
+    def get_scores(self, query: list[str]) -> list[float]:
+        scores = []
+        for i, freq in enumerate(self.doc_freqs):
+            dl = self.doc_lens[i]
+            score = 0.0
+            for term in query:
+                if term not in freq:
+                    continue
+                tf = freq[term]
+                idf = self.idf.get(term, 0.0)
+                score += idf * (tf * (self.k1 + 1)) / (
+                    tf + self.k1 * (1 - self.b + self.b * dl / self.avgdl)
+                )
+            scores.append(score)
+        return scores
 
 
 class SparseRetriever:
@@ -35,24 +59,19 @@ class SparseRetriever:
 
     def __init__(self) -> None:
         self._corpus: list[ResearchLog] = []
-        self._tokenized: list[list[str]] = []
-        self._bm25 = None
+        self._bm25: _BM25Okapi | None = None
 
     def index(self, logs: list[ResearchLog]) -> None:
         self._corpus = logs
-        self._tokenized = [_tokenize(log.full_text) for log in logs]
-        if _HAS_BM25:
-            self._bm25 = BM25Okapi(self._tokenized)
-        logger.debug("SparseRetriever indexed %d docs", len(logs))
+        tokenized = [_tokenize(log.full_text) for log in logs]
+        self._bm25 = _BM25Okapi(tokenized)
+        logger.debug("SparseRetriever indexed %d docs (BM25Okapi)", len(logs))
 
     def retrieve(self, query: str, top_n: int = 30) -> list[CandidateLog]:
-        if not self._corpus:
+        if not self._corpus or self._bm25 is None:
             return []
         query_tokens = _tokenize(query)
-        if _HAS_BM25 and self._bm25 is not None:
-            scores = list(self._bm25.get_scores(query_tokens))
-        else:
-            scores = [_tf_score(query_tokens, doc) for doc in self._tokenized]
+        scores = self._bm25.get_scores(query_tokens)
 
         max_s = max(scores) if scores else 1.0
         if max_s == 0:

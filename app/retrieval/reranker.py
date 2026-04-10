@@ -258,36 +258,72 @@ class GoalConditionedReranker:
         base = self._base_goal_overlap(goal, log_text)
 
         # ══════════════════════════════════════════════════════════════════════
-        # GATE 2: Goal Lexical Gate
-        # At least ONE goal signal required:
-        #   - priority phrase/token match  (direct goal vocabulary)
-        #   - evidence phrase/token match  (supporting vocabulary)
-        #   - base goal token overlap ≥ 0.04 (raw goal text)
+        # GATE 2: Goal Lexical Gate + Support Gate
         #
-        # This prevents action_signal + domain_consistency from carrying logs
-        # that have category match but NO goal vocabulary overlap.
-        # Threshold 0.04 avoids false passes from accidental 1-token overlap.
+        # Primary path (gate_mode="direct"):
+        #   Any of: priority match, evidence match, base_overlap ≥ 0.04
+        #   → proceed to full scoring, no score cap
+        #
+        # Support path (gate_mode="supporting"):
+        #   When no primary signal exists BUT:
+        #     (a) log text contains a support_context_signal for the goal domain
+        #     (b) log category is a supporting_category for the goal domain
+        #   → proceed to scoring with score_cap=0.12
+        #   score_cap ensures support logs never rank above direct evidence.
+        #
+        # Reject: neither path satisfied → no_goal_signal
         # ══════════════════════════════════════════════════════════════════════
-        goal_lexical_hit = (pri_score > 0.0 or ev_score > 0.0 or base >= 0.04)
+        primary_signal = (pri_score > 0.0 or ev_score > 0.0 or base >= 0.04)
+        score_cap: float | None = None
+        support_context_matched: list[str] = []
 
-        if not goal_lexical_hit:
-            logger.debug(
-                "GOAL LEXICAL GATE REJECT  log=%s  cat=%s  relevance=%s  "
-                "pri=%.3f  ev=%.3f  base=%.3f  [%s]",
-                candidate.log.log_id, cat_result.log_category, cat_result.relevance,
-                pri_score, ev_score, base, log_title,
+        if primary_signal:
+            gate_mode = "direct"
+        else:
+            support_hit, sup_matched = self._schema.support_context_hit(
+                candidate.log, cat_result.goal_domain
             )
-            return RankedLog(
-                log=candidate.log,
-                semantic_relevance=0.0,
-                goal_focus=0.0,
-                evidence_value=0.0,
-                final_score=0.0,
-                rejection_reason="no_goal_signal(pri=0,ev=0,base<0.04)",
-                schema_category=cat_result.log_category,
-                goal_domain=cat_result.goal_domain,
-                category_hit_strength=cat_result.relevance,
+            subdomain_ok = self._schema.is_subdomain_consistent(
+                cat_result.log_category, cat_result.goal_domain
             )
+
+            if support_hit and subdomain_ok:
+                gate_mode = "supporting"
+                score_cap = 0.12
+                support_context_matched = sup_matched
+                logger.debug(
+                    "SUPPORT GATE ADMIT  log=%s  cat=%s  domain=%s"
+                    "  matched=%s  score_cap=%.2f  [%s]",
+                    candidate.log.log_id, cat_result.log_category,
+                    cat_result.goal_domain, sup_matched, score_cap, log_title,
+                )
+            else:
+                logger.debug(
+                    "GOAL LEXICAL GATE REJECT  log=%s  cat=%s  relevance=%s  "
+                    "pri=%.3f  ev=%.3f  base=%.3f  "
+                    "support_hit=%s  subdomain_ok=%s  [%s]",
+                    candidate.log.log_id, cat_result.log_category, cat_result.relevance,
+                    pri_score, ev_score, base,
+                    support_hit, subdomain_ok, log_title,
+                )
+                _reason = "no_goal_signal(pri=0,ev=0,base<0.04"
+                if support_hit and not subdomain_ok:
+                    _reason += ",subdomain_mismatch"
+                elif not support_hit and subdomain_ok:
+                    _reason += ",no_support_context"
+                _reason += ")"
+                return RankedLog(
+                    log=candidate.log,
+                    semantic_relevance=0.0,
+                    goal_focus=0.0,
+                    evidence_value=0.0,
+                    final_score=0.0,
+                    gate_mode="reject",
+                    rejection_reason=_reason,
+                    schema_category=cat_result.log_category,
+                    goal_domain=cat_result.goal_domain,
+                    category_hit_strength=cat_result.relevance,
+                )
 
         # ══════════════════════════════════════════════════════════════════════
         # Remaining components
@@ -377,12 +413,18 @@ class GoalConditionedReranker:
 
         final = max(0.0, round(relevance_score + quality_score - penalty, 4))
 
+        # Apply score cap for supporting-mode logs
+        if score_cap is not None:
+            final = min(final, score_cap)
+
         # ── Explanation trace ─────────────────────────────────────────────────
         matched_pri = [m.term for m in pri_matches if m.level != "none"]
         matched_ev = [m.term for m in ev_matches if m.level != "none"]
 
         if final > 0:
             reason_parts = []
+            if gate_mode == "supporting":
+                reason_parts.append(f"support_gate(matched={support_context_matched})")
             if matched_pri:
                 reason_parts.append(f"priority={matched_pri}")
             if matched_ev:
@@ -396,6 +438,8 @@ class GoalConditionedReranker:
                 f"quality(spec={qs.specificity:.2f},act={qs.actionability:.2f}"
                 f",prog={qs.goal_progress:.2f})"
             )
+            if score_cap is not None:
+                reason_parts.append(f"score_cap={score_cap:.2f}")
             admission_reason = " | ".join(reason_parts) if reason_parts else "weak_match"
         else:
             admission_reason = ""
@@ -446,6 +490,8 @@ class GoalConditionedReranker:
             schema_category=cat_result.log_category,
             goal_domain=cat_result.goal_domain,
             category_hit_strength=cat_result.relevance,
+            gate_mode=gate_mode,
+            support_context_matched=support_context_matched,
             # Quality trace
             relevance_score=relevance_score,
             evidence_quality_score=quality_score,

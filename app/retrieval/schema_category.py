@@ -110,6 +110,64 @@ _LOG_CATEGORIES: list[_LogCategoryDef] = [
         frozenset(["계획", "목표", "전략", "로드맵", "일정"]),
     ),
 
+    # ── Language Exam ─────────────────────────────────────────────────────────
+    _LogCategoryDef(
+        "language_exam_study",
+        frozenset(["study", "reading"]),
+        frozenset([
+            "토익", "toeic", "영어 공부", "영어 학습", "영어 시험",
+            "teps", "ielts", "toefl", "영어 자격증",
+        ]),
+    ),
+    _LogCategoryDef(
+        "vocab_building",
+        frozenset([]),
+        frozenset([
+            "단어 암기", "어휘", "vocabulary", "단어장", "영단어",
+            "단어 외우기", "word", "voca",
+        ]),
+    ),
+    _LogCategoryDef(
+        "listening_practice",
+        frozenset([]),
+        frozenset([
+            "리스닝", "lc", "lc 풀이", "청취", "듣기 연습",
+            "listening", "lc 연습", "받아쓰기",
+        ]),
+    ),
+    _LogCategoryDef(
+        "reading_practice",
+        frozenset([]),
+        frozenset([
+            "리딩", "rc", "rc 풀이", "독해", "독해 연습",
+            "reading", "rc 연습", "지문 풀이",
+        ]),
+    ),
+    _LogCategoryDef(
+        "mock_test",
+        frozenset(["execution"]),
+        frozenset([
+            "모의고사", "실전 문제", "기출 문제", "mock", "실전 연습",
+            "파트 풀이", "전체 풀이", "시험 풀이",
+        ]),
+    ),
+    _LogCategoryDef(
+        "graduate_admission_prep",
+        frozenset(["study"]),
+        frozenset([
+            "대학원 준비", "대학원 지원", "gre", "지도교수 컨택", "지원서",
+            "연구계획서", "sop", "추천서", "대학원 서류",
+        ]),
+    ),
+    _LogCategoryDef(
+        "career_support",
+        frozenset(["planning"]),
+        frozenset([
+            "취업 준비", "취업 스펙", "영어 자격증 준비", "이력서", "자소서",
+            "자기소개서", "채용 공고", "job", "resume",
+        ]),
+    ),
+
     # ── Travel ────────────────────────────────────────────────────────────────
     _LogCategoryDef(
         "booking",
@@ -156,6 +214,7 @@ class _GoalDomainDef:
     detection_keywords: frozenset[str]       # infer domain from goal text
     core_categories: frozenset[str]          # direct evidence (strong gate)
     supporting_categories: frozenset[str]    # contextual evidence (relaxed gate)
+    support_context_signals: frozenset[str] = frozenset()  # phrases that trigger support gate
 
 
 _GOAL_DOMAINS: list[_GoalDomainDef] = [
@@ -188,6 +247,19 @@ _GOAL_DOMAINS: list[_GoalDomainDef] = [
         frozenset(["여행", "해외", "여행지", "배낭", "숙소", "항공", "해외여행", "저비용"]),
         frozenset(["booking", "budgeting", "logistics"]),
         frozenset(["travel_research", "planning"]),
+    ),
+    _GoalDomainDef(
+        "language_exam",
+        frozenset([
+            "토익", "toeic", "lc", "rc", "리스닝", "리딩",
+            "영어 시험", "영어 자격증", "모의고사", "toefl", "ielts", "teps",
+        ]),
+        frozenset(["mock_test", "reading_practice", "listening_practice", "vocab_building"]),
+        frozenset(["graduate_admission_prep", "career_support"]),
+        support_context_signals=frozenset([
+            "취업 준비", "대학원 준비", "대학원 지원", "gre", "지도교수",
+            "지원서", "영어 자격증", "대학원 지원서",
+        ]),
     ),
 ]
 
@@ -260,6 +332,28 @@ class SchemaMapper:
                 best_cat = cat.name
 
         return best_cat if best_score >= 1 else None
+
+    def support_context_hit(
+        self, log: ResearchLog, goal_domain: str
+    ) -> tuple[bool, list[str]]:
+        """Check if log text contains any support-context signal for goal_domain.
+
+        Returns (hit, matched_signals).  Phrase-level substring match.
+        """
+        domain_def = _DOMAIN_BY_NAME.get(goal_domain)
+        if not domain_def or not domain_def.support_context_signals:
+            return False, []
+        log_lower = log.full_text.lower()
+        matched = [sig for sig in domain_def.support_context_signals
+                   if sig.lower() in log_lower]
+        return bool(matched), matched
+
+    def is_subdomain_consistent(self, log_category: str, goal_domain: str) -> bool:
+        """Return True if log_category is a supporting_category for goal_domain."""
+        domain_def = _DOMAIN_BY_NAME.get(goal_domain)
+        if not domain_def:
+            return False
+        return log_category in domain_def.supporting_categories
 
     def evaluate(self, log: ResearchLog, goal: ResearchGoal) -> CategoryScore:
         """Evaluate log's evidence category relevance to goal domain.

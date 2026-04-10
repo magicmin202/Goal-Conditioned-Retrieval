@@ -96,6 +96,8 @@ class RankedLog:
     actionability_score: float = 0.0
     goal_progress_score: float = 0.0    # category value prior
     redundancy_penalty: float = 0.0     # applied post-rank in Stage1Pipeline
+    gate_mode: str = "direct"           # "direct" | "supporting" | "reject"
+    support_context_matched: list[str] = field(default_factory=list)  # terms matched in support gate
 
     @property
     def log_id(self) -> str:

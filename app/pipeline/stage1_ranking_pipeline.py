@@ -216,22 +216,30 @@ class Stage1Pipeline:
             rpen = r.redundancy_penalty if hasattr(r, "redundancy_penalty") else 0.0
             decision = "ADMIT" if r.final_score >= threshold else "REJECT"
             logger.info(
-                "  [%s] %s  score=%.4f  rel=%.4f  qual=%.4f  red_pen=%.3f"
+                "  [%s|%s] %s  score=%.4f  rel=%.4f  qual=%.4f  red_pen=%.3f"
                 "  spec=%.3f  act=%.3f  prog=%.3f"
-                "  cat=%s(%s)  reason=%s  [%s]",
-                decision, r.log_id, r.final_score,
+                "  cat=%s(%s)  support=%s  reason=%s  [%s]",
+                decision, getattr(r, "gate_mode", "?"),
+                r.log_id, r.final_score,
                 rel, qual, rpen,
                 getattr(r, "specificity_score", 0.0),
                 getattr(r, "actionability_score", 0.0),
                 getattr(r, "goal_progress_score", 0.0),
                 getattr(r, "schema_category", "?"),
                 getattr(r, "category_hit_strength", "?"),
+                getattr(r, "support_context_matched", []),
                 r.rejection_reason or r.admission_reason or "-",
                 r.log.title,
             )
 
         # 6. Diversity-aware Top-K Selection (from admitted only, after redundancy)
-        pool = penalised
+        # Exclude logs whose score dropped to 0 after redundancy penalty —
+        # they are effectively rejected and must NOT reach Stage2 as anchors.
+        pool = [r for r in penalised if r.final_score > 0]
+        logger.info(
+            "Stage1 pool after redundancy filter: %d/%d  label=%s",
+            len(pool), len(penalised), run_label,
+        )
         selected = self._selector.select(goal, pool, top_k=top_k)
 
         query_text = (
