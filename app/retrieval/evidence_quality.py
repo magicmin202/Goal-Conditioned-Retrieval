@@ -29,6 +29,10 @@ import re
 from dataclasses import dataclass, field
 
 from app.schemas import ResearchLog
+from app.retrieval.schema_category import (
+    classify_log_activity_type,
+    get_activity_type_quality_prior,
+)
 
 # ── Completion / execution action vocabulary ──────────────────────────────────
 
@@ -162,7 +166,8 @@ class EvidenceQualityScorer:
     ) -> EvidenceQualityScore:
         spec, spec_trace = self._specificity(log)
         action, action_trace = self._actionability(log)
-        progress = self._goal_progress(log_category, goal_domain)
+        # Pass log directly; _goal_progress uses activity-type based prior
+        progress = self._goal_progress(log, cat_relevance)
         domain = self._domain_consistency(log, cat_relevance)
 
         total = round(
@@ -260,22 +265,33 @@ class EvidenceQualityScorer:
             "browse": browse_hits,
         }
 
-    def _goal_progress(self, log_category: str, goal_domain: str) -> float:
-        """Category-level evidence value prior for this goal domain."""
-        domain_priors = _CATEGORY_VALUE_PRIORS.get(goal_domain, {})
-        return domain_priors.get(log_category, _DEFAULT_PRIOR)
+    def _goal_progress(self, log: ResearchLog, cat_relevance: str) -> float:
+        """Activity-type based goal progress prior.
+
+        Replaces the category/domain lookup with an activity-type classification
+        so that evidence value is tied to *how* the log was done, not domain taxonomy.
+        cat_relevance correction is preserved: core logs get a 20% bonus.
+        """
+        log_text = log.title + " " + (log.content or "")
+        activity_type = classify_log_activity_type(log_text)
+        weights = get_activity_type_quality_prior(activity_type)
+        base_prior = weights["progression"]
+
+        if cat_relevance == "core":
+            return min(base_prior * 1.2, 1.0)
+        elif cat_relevance == "supporting":
+            return base_prior
+        else:
+            return base_prior * 0.5
 
     def _domain_consistency(self, log: ResearchLog, cat_relevance: str) -> float:
-        """Goal-domain-aware domain consistency.
+        """Simplified domain consistency based on schema relevance tier.
 
-        "core" category → high base score.
-        "supporting" → medium.
-        Specificity bonus for denser logs.
+        Separates relevance (already captured by category gate + lexical gate)
+        from quality (this component).  No redundant specificity bonus needed
+        here — specificity has its own sub-score.
         """
-        base = {"core": 0.80, "supporting": 0.50, "none": 0.05}.get(cat_relevance, 0.05)
-        toks = set(re.findall(r"[\w가-힣]+", log.full_text.lower()))
-        specificity_bonus = min(len(toks) / 40.0, 0.20)
-        return min(base + specificity_bonus, 1.0)
+        return {"core": 1.0, "supporting": 0.6, "none": 0.0}.get(cat_relevance, 0.0)
 
 
 # ── Redundancy (applied in Stage1Pipeline, not inside reranker) ───────────────

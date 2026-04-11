@@ -139,7 +139,10 @@ class Stage2Pipeline:
     ) -> None:
         self.config = config or Stage2Config()
         # Stage 2 has NO CandidateRetriever — no global retrieval.
-        self._reranker = GoalConditionedReranker(config=self.config.ranker)
+        self._reranker = GoalConditionedReranker(
+            config=self.config.ranker,
+            use_real_embeddings=use_real_embeddings,
+        )
         self._expander = LocalExpander(
             anchor_relevance_threshold=self.config.consolidation.anchor_admission_threshold,
         )

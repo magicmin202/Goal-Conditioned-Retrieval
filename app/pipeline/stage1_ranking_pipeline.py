@@ -55,7 +55,10 @@ class Stage1Pipeline:
             vocab_boost_config=self.config.vocab_boost,
             embedding_provider=embed_provider,
         )
-        self._reranker = GoalConditionedReranker(config=self.config.ranker)
+        self._reranker = GoalConditionedReranker(
+            config=self.config.ranker,
+            use_real_embeddings=use_real_embeddings,
+        )
         self._selector = DiversitySelector(config=self.config.diversity)
         self._indexed = False
 

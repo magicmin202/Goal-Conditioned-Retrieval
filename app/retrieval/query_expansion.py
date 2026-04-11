@@ -324,6 +324,7 @@ class ExpandedQuery:
     core_intents: list[str] = field(default_factory=list)
     goal_summary: str = ""
     mode: str = "structured"
+    goal_activity_types: list[str] = field(default_factory=list)  # inferred from goal
 
     @property
     def canonical_text(self) -> str:
@@ -374,6 +375,11 @@ class ExpandedQuery:
 
 # ── Heuristic fallback ────────────────────────────────────────────────────────
 def _heuristic_expansion(goal: ResearchGoal, max_terms: int) -> dict:
+    from app.retrieval.schema_category import get_goal_expected_activity_types
+    activity_types = get_goal_expected_activity_types(
+        goal.title, getattr(goal, "description", "") or ""
+    )
+
     key = goal.title
     for kw, data in _HEURISTIC.items():
         if kw in key:
@@ -388,6 +394,7 @@ def _heuristic_expansion(goal: ResearchGoal, max_terms: int) -> dict:
                 "negative_terms": negative,
                 "core_intents": [],
                 "goal_summary": key,
+                "goal_activity_types": activity_types,
             }
     # Last resort: use embedding text tokens
     tokens = goal.goal_embedding_text.split()
@@ -399,6 +406,7 @@ def _heuristic_expansion(goal: ResearchGoal, max_terms: int) -> dict:
         "negative_terms": [],
         "core_intents": [],
         "goal_summary": goal.title,
+        "goal_activity_types": activity_types,
     }
 
 
@@ -443,6 +451,7 @@ def _call_gemini(goal: ResearchGoal, max_terms: int, gemini_config=None) -> dict
         "negative_terms": negative,
         "core_intents": parsed.get("core_intents", []),
         "goal_summary": parsed.get("goal_summary", ""),
+        "goal_activity_types": parsed.get("goal_activity_types", []),
     }
 
 
@@ -525,6 +534,13 @@ def expand_goal_query(
             else:
                 raise
 
+    # Resolve goal_activity_types: prefer cached/Gemini value; fall back to
+    # rule-based classifier so older cache files without this field still work.
+    from app.retrieval.schema_category import get_goal_expected_activity_types
+    goal_ats = parsed.get("goal_activity_types") or get_goal_expected_activity_types(
+        goal.title, getattr(goal, "description", "") or ""
+    )
+
     return ExpandedQuery(
         base_query=base_query,
         expanded_terms=parsed.get("evidence_terms", []),
@@ -534,4 +550,5 @@ def expand_goal_query(
         core_intents=parsed.get("core_intents", []),
         goal_summary=parsed.get("goal_summary", ""),
         mode=mode,
+        goal_activity_types=goal_ats,
     )

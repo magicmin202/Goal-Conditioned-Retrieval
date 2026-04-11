@@ -49,6 +49,13 @@ from app.utils.text_matching import (
 
 logger = logging.getLogger(__name__)
 
+# ── Tier2 semantic gate threshold ─────────────────────────────────────────────
+# Only active when real embeddings are used (use_real_embeddings=True).
+# Skipped entirely for mock embeddings to prevent random hash-based scores
+# from incorrectly rejecting relevant logs.
+# Initial value: 0.50.  Tuning range: 0.45 – 0.55.
+SEMANTIC_GATE_THRESHOLD: float = 0.50
+
 # ── Action/completion signal keywords ────────────────────────────────────────
 _ACTION_KEYWORDS: set[str] = {
     "완료", "완성", "달성", "성공", "해결", "제출", "발표", "합격",
@@ -76,10 +83,14 @@ class GoalConditionedReranker:
         config: RankerConfig | None = None,
         dense_retriever: DenseRetriever | None = None,
         negative_term_penalty: Optional[float] = None,  # back-compat, ignored
+        use_real_embeddings: bool = False,
     ) -> None:
         self.config = config or RankerConfig()
         self._dense = dense_retriever or DenseRetriever(provider=MockEmbeddingProvider())
         self._schema = _schema_mapper   # module-level singleton, stateless
+        # When False, Tier2 semantic gate is skipped (mock embeddings produce
+        # meaningless cosine scores that would incorrectly reject relevant logs).
+        self._use_real_embeddings = use_real_embeddings
 
     # ── Priority phrase score ─────────────────────────────────────────────────
 
@@ -226,14 +237,18 @@ class GoalConditionedReranker:
         # ══════════════════════════════════════════════════════════════════════
         cat_result = self._schema.evaluate(candidate.log, goal)
 
+        # Tier1 gate logging (activity-type included for diagnosis)
+        from app.retrieval.schema_category import classify_log_activity_type
+        _log_at = classify_log_activity_type(
+            candidate.log.title + " " + (candidate.log.content or "")
+        )
+
         if cat_result.relevance == "none":
-            logger.debug(
-                "CATEGORY GATE REJECT  log=%s  cat=%s  domain=%s  goal_domain=%s  [%s]",
-                candidate.log.log_id,
-                cat_result.log_category,
-                cat_result.goal_domain,
-                cat_result.goal_domain,
-                log_title,
+            logger.info(
+                "[TIER1_FAIL] %s  log_type=%s  cat=%s  domain=%s  reason=%s  [%s]",
+                candidate.log.log_id, _log_at,
+                cat_result.log_category, cat_result.goal_domain,
+                cat_result.reason, log_title,
             )
             return RankedLog(
                 log=candidate.log,
@@ -243,12 +258,20 @@ class GoalConditionedReranker:
                 final_score=0.0,
                 rejection_reason=(
                     f"category_mismatch(cat={cat_result.log_category}"
-                    f"  domain={cat_result.goal_domain})"
+                    f"  domain={cat_result.goal_domain}"
+                    f"  reason={cat_result.reason})"
                 ),
                 schema_category=cat_result.log_category,
                 goal_domain=cat_result.goal_domain,
                 category_hit_strength=cat_result.relevance,
             )
+
+        logger.debug(
+            "[TIER1_PASS] %s  log_type=%s  relevance=%s  cat=%s  domain=%s  [%s]",
+            candidate.log.log_id, _log_at,
+            cat_result.relevance, cat_result.log_category,
+            cat_result.goal_domain, log_title,
+        )
 
         # ══════════════════════════════════════════════════════════════════════
         # Compute goal lexical scores (needed for GATE 2 and scoring)
@@ -335,6 +358,44 @@ class GoalConditionedReranker:
             goal, log_text,
             precomputed=candidate.dense_score if candidate.dense_score > 0 else None,
         )
+
+        # ══════════════════════════════════════════════════════════════════════
+        # TIER 2: Semantic Relevance Gate
+        # Only fires when real embeddings are active (use_real_embeddings=True).
+        # With mock (hash-based) embeddings the cosine scores are meaningless
+        # and would incorrectly reject legitimate logs — skip in that case.
+        #
+        # Condition: sem > 0 (dense retrieval was used) AND sem < threshold
+        #   → log is semantically too far from goal even after lexical gates pass
+        # supporting-mode logs are exempt (score_cap already limits their impact)
+        # ══════════════════════════════════════════════════════════════════════
+        if (
+            self._use_real_embeddings
+            and gate_mode != "supporting"
+            and sem > 0.0
+            and sem < SEMANTIC_GATE_THRESHOLD
+        ):
+            logger.info(
+                "[TIER2_FAIL] %s  dense=%.4f < %.2f  reason=semantic_irrelevant  [%s]",
+                candidate.log.log_id, sem, SEMANTIC_GATE_THRESHOLD, log_title,
+            )
+            return RankedLog(
+                log=candidate.log,
+                semantic_relevance=round(sem, 4),
+                goal_focus=0.0,
+                evidence_value=0.0,
+                final_score=0.0,
+                gate_mode="reject",
+                rejection_reason=f"semantic_irrelevant(dense={sem:.4f}<{SEMANTIC_GATE_THRESHOLD})",
+                schema_category=cat_result.log_category,
+                goal_domain=cat_result.goal_domain,
+                category_hit_strength=cat_result.relevance,
+            )
+        else:
+            logger.debug(
+                "[TIER2_PASS] %s  dense=%.4f  real_emb=%s  [%s]",
+                candidate.log.log_id, sem, self._use_real_embeddings, log_title,
+            )
 
         # ── Negative penalty ──────────────────────────────────────────────────
         raw_dm, penalty, neg_matched = self._negative_penalty(candidate, neg_terms)
