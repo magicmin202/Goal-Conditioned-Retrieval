@@ -27,6 +27,27 @@ def precision_at_k(ranked: list[RankedLog], labels: list[GoalLogLabel], k: int) 
     return sum(1 for rid in retrieved if rid in relevant) / k
 
 
+def selected_precision(
+    selected_logs: list,
+    labels: list[GoalLogLabel],
+    relevance_threshold: float = 0.5,
+) -> float:
+    """selected_precision = relevant_selected / selected_count.
+
+    Unlike precision_at_k (denominator = k), this uses the actual number of
+    admitted logs as the denominator.  Useful when selected_count < top_k.
+    """
+    if not selected_logs:
+        return 0.0
+    relevant = _relevant_ids(labels)
+    log_ids = [
+        (r.log_id if hasattr(r, "log_id") else r)
+        for r in selected_logs
+    ]
+    relevant_count = sum(1 for lid in log_ids if lid in relevant)
+    return relevant_count / len(log_ids)
+
+
 def mrr(ranked: list[RankedLog], labels: list[GoalLogLabel]) -> float:
     relevant = _relevant_ids(labels)
     for i, r in enumerate(ranked):

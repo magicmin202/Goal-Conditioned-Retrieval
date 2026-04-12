@@ -57,6 +57,7 @@ Stage 2: Anchor-centered Evidence Consolidation  ← NOT a retrieval stage
    - 둘 다 해당 없으면 reject
 4. **Tier2 Semantic Gate** *(real embeddings 활성 시만 동작)* — dense cosine similarity < 0.50이면 reject
    - `--real_embeddings` 플래그 사용 시에만 활성화 (Mock 임베딩에서는 비활성)
+   - Stage 2 neighbor re-admission 시 `skip_semantic_gate=True` 자동 적용 — 이웃 로그는 temporal locality + lexical gate로 이미 제한되며, raw cosine은 Stage 1의 max-normalized scale과 달라 threshold 오적용을 방지
 5. **Negative Veto** — 도메인 충돌 + positive evidence 없을 때만 reject (keyword blacklist 아님)
 
 **gate_mode 필드:**
@@ -367,9 +368,11 @@ API 호출을 최소화하기 위한 3단계 캐시 구조:
 | 메트릭 | 설명 |
 |---|---|
 | `Recall@k` | 정답 로그 중 top-k에 포함된 비율 |
-| `Precision@k` | top-k 중 정답 비율 |
+| `Precision@k` | top-k 중 정답 비율 (분모=k) |
+| `selected_precision` | admitted 로그 중 정답 비율 (분모=admitted 수) — `selected_count < top_k`일 때 더 정확한 지표 |
 | `MRR` | Mean Reciprocal Rank |
 | `nDCG@k` | Normalized Discounted Cumulative Gain |
+| `diversity_coverage` | selected logs의 activity_type 다양성 |
 
 ### Stage 2
 
@@ -465,3 +468,44 @@ research_goals/{goal_id}
 research_logs/{log_id}
 research_goal_log_labels/{label_id}
 ```
+
+---
+
+## Known Limitations
+
+### Lexical False Positive (Phrase-Level Matching)
+
+BM25 및 lexical gate 기반 시스템에서 priority/evidence term이
+짧은 일반 토큰("완료", "시작", "정리" 등)을 포함할 경우,
+해당 토큰이 무관한 로그에서 hit되어 false positive가 발생할 수 있음.
+
+**예시:**
+- priority term: `"독서 완료"`
+- false positive log: `"숙소 예약 완료"` → `"완료"` 토큰 단독 매칭
+
+**완화 방법 (구현됨):**
+- `score_priority_terms()` / `match_priority_phrase()` (`app/utils/text_matching.py`) — `PriorityTermMatch` 기반 weak-token-filtered phrase matching:
+  - **Exact phrase match** (multi-token) → `mode="exact_phrase"`, score=1.0
+  - **Core token match** (non-weak token 포함) → `mode="core_token"`, score=0.4 (token_weight)
+  - **Weak-only token match** → `mode="weak_token_only"`, score=0.0 (**positive 신호 없음**)
+  - **No match** → `mode="none"`, score=0.0
+- `WEAK_TOKENS` 집합 (`app/utils/text_matching.py`) — 단독 positive 금지 토큰 목록
+- priority / evidence matching 모두 동일한 `score_priority_terms()` 사용 (token_weight=0.4)
+- Tier2 semantic gate — real embeddings 사용 시 cosine similarity < 0.50인 로그 reject
+
+**`WEAK_TOKENS` (현재):**
+```
+완료, 시작, 정리, 계획, 준비, 공부, 하기, 수행, 진행, 실행, 관리, 확인, 검토, 작성
+```
+
+**매칭 예시:**
+
+| term | log text | core hit | weak hit | mode | score |
+|---|---|---|---|---|---|
+| `독서 완료` | `숙소 예약 완료` | ✗ (`독서` miss) | `완료` | `weak_token_only` | **0.0** |
+| `독서 완료` | `독서 완료` | — | — | `exact_phrase` | **1.0** |
+| `포트폴리오 작성` | `포트폴리오 업로드` | `포트폴리오` | — | `core_token` | **0.4** |
+
+**향후 개선 방향:**
+- phrase-level learned reranker 도입
+- BM25 token scoring 시 IDF 기반 일반 토큰 자동 down-weighting

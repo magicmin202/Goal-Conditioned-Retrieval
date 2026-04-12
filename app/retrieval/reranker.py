@@ -41,9 +41,11 @@ from app.retrieval.evidence_quality import _quality_scorer
 from app.retrieval.schema_category import CategoryScore, SchemaMapper, _schema_mapper
 from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
 from app.utils.text_matching import (
+    PriorityTermMatch,
     TermMatch,
     _tok_set,
     penalty_score,
+    score_priority_terms,
     score_terms,
 )
 
@@ -95,23 +97,44 @@ class GoalConditionedReranker:
     # ── Priority phrase score ─────────────────────────────────────────────────
 
     def _priority_phrase_score(
-        self, log_text: str, log_title: str, priority_terms: list[str]
-    ) -> tuple[float, list[TermMatch]]:
-        score, matches = score_terms(
+        self,
+        log_id: str,
+        log_text: str,
+        log_title: str,
+        priority_terms: list[str],
+    ) -> tuple[float, list[PriorityTermMatch]]:
+        """Weak-token-filtered priority matching.
+
+        Uses score_priority_terms so that generic tokens ("완료", "정리", …)
+        cannot trigger a positive match on their own.
+        """
+        score, matches = score_priority_terms(
             priority_terms, log_text, log_title,
-            phrase_weight=1.5, token_weight=1.0,
+            phrase_weight=1.5, token_weight=0.4,
             title_multiplier=self.config.title_weight_multiplier,
         )
+        for m in matches:
+            if m.mode in ("weak_token_only", "none") and m.weak_hits_only:
+                logger.debug(
+                    "[LEXICAL_MATCH]  log_id=%s  term=%r  mode=%s"
+                    "  core_hits=%s  weak_hits=%s  score=%.1f",
+                    log_id, m.term, m.mode, m.core_hits, m.weak_hits_only, m.score,
+                )
         return score, matches
 
     # ── Evidence phrase score ─────────────────────────────────────────────────
 
     def _evidence_phrase_score(
-        self, log_text: str, log_title: str, evidence_terms: list[str]
-    ) -> tuple[float, list[TermMatch]]:
-        score, matches = score_terms(
+        self,
+        log_id: str,
+        log_text: str,
+        log_title: str,
+        evidence_terms: list[str],
+    ) -> tuple[float, list[PriorityTermMatch]]:
+        """Weak-token-filtered evidence matching (same logic as priority)."""
+        score, matches = score_priority_terms(
             evidence_terms, log_text, log_title,
-            phrase_weight=1.5, token_weight=1.0,
+            phrase_weight=1.5, token_weight=0.4,
             title_multiplier=self.config.title_weight_multiplier,
         )
         return score, matches
@@ -219,6 +242,7 @@ class GoalConditionedReranker:
         negative_terms: list[str] | None = None,
         priority_terms: list[str] | None = None,
         related_terms: list[str] | None = None,
+        skip_semantic_gate: bool = False,
     ) -> RankedLog:
         pri_terms = priority_terms or []
         ev_terms = expanded_terms or []
@@ -276,8 +300,12 @@ class GoalConditionedReranker:
         # ══════════════════════════════════════════════════════════════════════
         # Compute goal lexical scores (needed for GATE 2 and scoring)
         # ══════════════════════════════════════════════════════════════════════
-        pri_score, pri_matches = self._priority_phrase_score(log_text, log_title, pri_terms)
-        ev_score, ev_matches = self._evidence_phrase_score(log_text, log_title, ev_terms)
+        pri_score, pri_matches = self._priority_phrase_score(
+            candidate.log.log_id, log_text, log_title, pri_terms
+        )
+        ev_score, ev_matches = self._evidence_phrase_score(
+            candidate.log.log_id, log_text, log_title, ev_terms
+        )
         base = self._base_goal_overlap(goal, log_text)
 
         # ══════════════════════════════════════════════════════════════════════
@@ -361,16 +389,27 @@ class GoalConditionedReranker:
 
         # ══════════════════════════════════════════════════════════════════════
         # TIER 2: Semantic Relevance Gate
-        # Only fires when real embeddings are active (use_real_embeddings=True).
-        # With mock (hash-based) embeddings the cosine scores are meaningless
-        # and would incorrectly reject legitimate logs — skip in that case.
+        # Only fires when real embeddings are active (use_real_embeddings=True)
+        # AND skip_semantic_gate=False.
         #
-        # Condition: sem > 0 (dense retrieval was used) AND sem < threshold
+        # skip_semantic_gate=True is set for Stage2 neighbor re-admission:
+        #   - Neighbors are already gated by temporal locality + lexical gates.
+        #   - dense_score here is raw cosine (not max-normalized like Stage1),
+        #     so the Stage1-calibrated threshold (0.50) would be misapplied.
+        #
+        # Condition: sem > 0 AND sem < threshold
         #   → log is semantically too far from goal even after lexical gates pass
         # supporting-mode logs are exempt (score_cap already limits their impact)
         # ══════════════════════════════════════════════════════════════════════
+        logger.debug(
+            "[STAGE2_SEMANTIC_DEBUG]  log_id=%s  title=%s  "
+            "dense_score_raw=%.4f  threshold=%.2f  skip_semantic_gate=%s",
+            candidate.log.log_id, log_title,
+            sem, SEMANTIC_GATE_THRESHOLD, skip_semantic_gate,
+        )
         if (
-            self._use_real_embeddings
+            not skip_semantic_gate
+            and self._use_real_embeddings
             and gate_mode != "supporting"
             and sem > 0.0
             and sem < SEMANTIC_GATE_THRESHOLD
@@ -479,8 +518,8 @@ class GoalConditionedReranker:
             final = min(final, score_cap)
 
         # ── Explanation trace ─────────────────────────────────────────────────
-        matched_pri = [m.term for m in pri_matches if m.level != "none"]
-        matched_ev = [m.term for m in ev_matches if m.level != "none"]
+        matched_pri = [m.term for m in pri_matches if m.mode not in ("none", "weak_token_only")]
+        matched_ev  = [m.term for m in ev_matches  if m.mode not in ("none", "weak_token_only")]
 
         if final > 0:
             reason_parts = []
@@ -569,11 +608,21 @@ class GoalConditionedReranker:
         negative_terms: list[str] | None = None,
         priority_terms: list[str] | None = None,
         related_terms: list[str] | None = None,
+        skip_semantic_gate: bool = False,
     ) -> RankedLog:
         """Score a single ResearchLog and return full RankedLog (with category trace).
 
         Preferred over score_log() when caller needs category/admission info.
         Used by LocalExpander for neighbor re-admission.
+
+        Parameters
+        ----------
+        skip_semantic_gate:
+            When True, Tier2 semantic gate is skipped regardless of
+            use_real_embeddings.  Set to True for Stage2 neighbor
+            re-admission: neighbors are already gated by temporal locality
+            and lexical filters, and dense_score=0.0 (raw cosine, not
+            max-normalized) would give a misleading scale vs Stage1.
         """
         candidate = CandidateLog(log=log, sparse_score=0.0, dense_score=0.0, hybrid_score=0.0)
         results = self.rank(
@@ -582,6 +631,7 @@ class GoalConditionedReranker:
             negative_terms=negative_terms,
             priority_terms=priority_terms,
             related_terms=related_terms,
+            skip_semantic_gate=skip_semantic_gate,
         )
         return results[0]
 
@@ -611,6 +661,7 @@ class GoalConditionedReranker:
         negative_terms: list[str] | None = None,
         priority_terms: list[str] | None = None,
         related_terms: list[str] | None = None,
+        skip_semantic_gate: bool = False,
     ) -> list[RankedLog]:
         ranked = [
             self.score(
@@ -619,6 +670,7 @@ class GoalConditionedReranker:
                 negative_terms=negative_terms,
                 priority_terms=priority_terms,
                 related_terms=related_terms,
+                skip_semantic_gate=skip_semantic_gate,
             )
             for c in candidates
         ]

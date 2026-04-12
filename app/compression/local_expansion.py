@@ -165,6 +165,7 @@ class LocalExpander:
                         negative_terms=neg_terms,
                         priority_terms=pri_terms,
                         related_terms=rel_terms,
+                        skip_semantic_gate=True,  # Stage2 neighbors: raw cosine ≠ Stage1 max-norm
                     )
                     if ranked.final_score < neighbor_admission_threshold:
                         rejected_ids.append((log.log_id, ranked.rejection_reason or "below_threshold"))

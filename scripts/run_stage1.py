@@ -27,7 +27,7 @@ import logging
 from app.config import DEFAULT_CONFIG
 from app.data_generation.dataset_builder import build_dataset
 from app.data_generation.export_utils import load_dataset_from_json
-from app.evaluation.ranking_metrics import compute_all_metrics
+from app.evaluation.ranking_metrics import compute_all_metrics, selected_precision as calc_selected_precision
 from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline
 from app.schemas import GoalLogLabel, ResearchGoal, ResearchLog
 
@@ -108,9 +108,14 @@ def main() -> None:
     if user_labels:
         all_types = {l.activity_type for l in user_logs}
         metrics = compute_all_metrics(result.selected_logs, user_labels, k=args.top_k, all_activity_types=all_types)
+        s_prec = calc_selected_precision(result.selected_logs, user_labels)
+        s_count = len(result.selected_logs)
+
         print(f"\n[Metrics @ k={args.top_k}]")
         for name, val in metrics.items():
-            print(f"  {name}: {val:.4f}")
+            print(f"  {name:<28} {val:.4f}")
+        print(f"  {'selected_count':<28} {s_count}")
+        print(f"  {'selected_precision':<28} {s_prec:.4f}")
 
         # Label distribution in selected
         label_map = {lb.log_id: lb.label for lb in user_labels}
