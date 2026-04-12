@@ -243,6 +243,7 @@ class GoalConditionedReranker:
         priority_terms: list[str] | None = None,
         related_terms: list[str] | None = None,
         skip_semantic_gate: bool = False,
+        disable_lexical_gate: bool = False,
     ) -> RankedLog:
         pri_terms = priority_terms or []
         ev_terms = expanded_terms or []
@@ -328,7 +329,15 @@ class GoalConditionedReranker:
         score_cap: float | None = None
         support_context_matched: list[str] = []
 
-        if primary_signal:
+        if disable_lexical_gate:
+            # Bypass Gate 2 entirely — used by non-ours baselines.
+            # Activity-type Gate (Gate 1) is still applied above.
+            gate_mode = "direct"
+            logger.debug(
+                "LEXICAL GATE BYPASSED  log=%s  [%s]",
+                candidate.log.log_id, log_title,
+            )
+        elif primary_signal:
             gate_mode = "direct"
         else:
             support_hit, sup_matched = self._schema.support_context_hit(
@@ -662,6 +671,7 @@ class GoalConditionedReranker:
         priority_terms: list[str] | None = None,
         related_terms: list[str] | None = None,
         skip_semantic_gate: bool = False,
+        disable_lexical_gate: bool = False,
     ) -> list[RankedLog]:
         ranked = [
             self.score(
@@ -671,6 +681,7 @@ class GoalConditionedReranker:
                 priority_terms=priority_terms,
                 related_terms=related_terms,
                 skip_semantic_gate=skip_semantic_gate,
+                disable_lexical_gate=disable_lexical_gate,
             )
             for c in candidates
         ]

@@ -1,0 +1,34 @@
+{
+  "goal_id": "G-U0010-02",
+  "baseline": "hybrid_expand",
+  "stage": "stage1",
+  "timestamp": "2026-04-12T07:00:00.265763",
+  "metrics": {
+    "recall@5": 0.4,
+    "precision@5": 0.8,
+    "selected_count": 4,
+    "selected_precision": 0.75,
+    "f1@5": 0.5333333333333333,
+    "false_positive_rate": 0.25,
+    "mrr": 1.0,
+    "ndcg@5": 0.8770838561007163,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0010-0023",
+    "L-U0010-0007",
+    "L-U0010-0017",
+    "L-U0010-0008"
+  ],
+  "selected_titles": [
+    "책 읽기",
+    "독서",
+    "홈 워크아웃",
+    "도서 읽기"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "True",
+    "disable_lexical_gate": "True"
+  }
+}

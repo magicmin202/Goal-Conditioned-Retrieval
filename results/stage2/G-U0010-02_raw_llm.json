@@ -1,0 +1,16 @@
+{
+  "goal_id": "G-U0010-02",
+  "baseline": "raw_llm",
+  "stage": "stage2",
+  "timestamp": "2026-04-12T07:00:12.276334",
+  "metrics": {
+    "coverage@k": 0.0,
+    "token_reduction_rate": 1.0,
+    "redundancy_reduction": 0.0,
+    "goal_alignment_score": 0.0,
+    "actionability_score": 0.0,
+    "llm_judge_score": 0.0,
+    "evidence_unit_count": 0
+  },
+  "elapsed_sec": 0.0
+}

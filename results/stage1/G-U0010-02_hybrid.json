@@ -1,0 +1,36 @@
+{
+  "goal_id": "G-U0010-02",
+  "baseline": "hybrid",
+  "stage": "stage1",
+  "timestamp": "2026-04-12T07:00:00.053551",
+  "metrics": {
+    "recall@5": 0.3,
+    "precision@5": 0.6,
+    "selected_count": 5,
+    "selected_precision": 0.4,
+    "f1@5": 0.4,
+    "false_positive_rate": 0.6,
+    "mrr": 1.0,
+    "ndcg@5": 0.5991478923760607,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0010-0023",
+    "L-U0010-0012",
+    "L-U0010-0049",
+    "L-U0010-0030",
+    "L-U0010-0002"
+  ],
+  "selected_titles": [
+    "책 읽기",
+    "숙소 예약 완료",
+    "운동 루틴 계획",
+    "도서 읽기",
+    "호텔 예약"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

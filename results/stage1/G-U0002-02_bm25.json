@@ -1,0 +1,36 @@
+{
+  "goal_id": "G-U0002-02",
+  "baseline": "bm25",
+  "stage": "stage1",
+  "timestamp": "2026-04-12T06:59:58.599174",
+  "metrics": {
+    "recall@5": 0.4166666666666667,
+    "precision@5": 1.0,
+    "selected_count": 5,
+    "selected_precision": 1.0,
+    "f1@5": 0.5882352941176471,
+    "false_positive_rate": 0.0,
+    "mrr": 1.0,
+    "ndcg@5": 0.9329504585718263,
+    "diversity_coverage": 0.2
+  },
+  "selected_log_ids": [
+    "L-U0002-0025",
+    "L-U0002-0007",
+    "L-U0002-0052",
+    "L-U0002-0008",
+    "L-U0002-0013"
+  ],
+  "selected_titles": [
+    "ETF 투자 학습",
+    "가계부 작성",
+    "인덱스 펀드 공부",
+    "이번 달 지출 정리",
+    "ETF 개념 정리"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.SPARSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

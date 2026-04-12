@@ -1,0 +1,27 @@
+{
+  "goal_id": "G-TEST-01",
+  "baseline": "ours",
+  "stage": "stage1",
+  "timestamp": "2026-04-12T06:52:19.421989",
+  "metrics": {
+    "recall@5": 0.42,
+    "precision@5": 1.0,
+    "selected_precision": 1.0,
+    "f1@5": 0.59,
+    "false_positive_rate": 0.0,
+    "mrr": 1.0,
+    "ndcg@5": 0.96,
+    "diversity_coverage": 0.2,
+    "selected_count": 3
+  },
+  "selected_log_ids": [
+    "L-001",
+    "L-002",
+    "L-003"
+  ],
+  "selected_titles": [
+    "여행 예산 계획",
+    "항공권 비교",
+    "비행 일정 조사"
+  ]
+}

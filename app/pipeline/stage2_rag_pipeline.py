@@ -280,7 +280,65 @@ class Stage2Pipeline:
             },
         )
 
-    def run_with_stage1(self, stage1_result: "Stage1Result") -> Stage2Result:
+    # ── Baseline helpers ──────────────────────────────────────────────────────
+
+    def _anchors_to_ceu(self, anchors: list[RankedLog]) -> list[CompressedEvidenceUnit]:
+        """Wrap each admitted anchor as a 1:1 CompressedEvidenceUnit.
+
+        Used by ours_wo_compression baseline: no clustering or summarization,
+        each anchor becomes its own evidence unit.
+        """
+        units = []
+        for i, anchor in enumerate(anchors):
+            units.append(CompressedEvidenceUnit(
+                unit_id=f"CEU-{i + 1:03d}",
+                anchor_log_ids=[anchor.log.log_id],
+                summary=anchor.log.title,
+                date_range=str(anchor.log.date),
+                activity_cluster=anchor.log.activity_type,
+                log_count=1,
+                temporal_progression="",
+            ))
+        return units
+
+    def _run_raw_llm(self, goal: ResearchGoal, logs: list[ResearchLog]) -> str:
+        """Pass all raw logs directly to LLM without any retrieval or compression.
+
+        raw_llm baseline: tests the LLM's ability to find relevant signal
+        from unstructured log text without any retrieval assistance.
+        """
+        raw_texts = "\n".join(
+            f"[{i + 1}] {log.title}: {log.content or ''}"
+            for i, log in enumerate(logs)
+        )
+        prompt = (
+            f"Goal: {goal.title}\n\n"
+            f"User logs:\n{raw_texts}\n\n"
+            f"Analyze the user's progress toward the goal."
+        )
+        return self._analyzer.llm.generate(prompt)
+
+    def _run_simple_summary(self, goal: ResearchGoal, logs: list[ResearchLog]) -> str:
+        """Summarize all raw logs with LLM without retrieval or compression.
+
+        simple_summary baseline: tests LLM summarization of unfiltered logs.
+        """
+        raw_texts = "\n".join(
+            f"[{i + 1}] {log.title}: {log.content or ''}"
+            for i, log in enumerate(logs)
+        )
+        prompt = (
+            f"Goal: {goal.title}\n\n"
+            f"Please summarize the following user activity logs "
+            f"in relation to the goal:\n{raw_texts}"
+        )
+        return self._analyzer.llm.generate(prompt)
+
+    def run_with_stage1(
+        self,
+        stage1_result: "Stage1Result",
+        skip_compression: bool = False,
+    ) -> Stage2Result:
         """Convenience method: run Stage2 consolidation from a Stage1Result.
 
         This is the canonical chain:
@@ -289,11 +347,46 @@ class Stage2Pipeline:
 
         Stage2 uses stage1_result.selected_logs as fixed anchors.
         Stage2 uses stage1_result.expanded_query for neighbor admission vocabulary.
+
+        Parameters
+        ----------
+        skip_compression:
+            When True, skips temporal expansion and cluster summarization.
+            Each admitted anchor is wrapped as a 1:1 CEU instead.
+            Used by ours_wo_compression baseline.
         """
         logger.info(
-            "Stage2.run_with_stage1()  goal=%s  stage1_anchors=%d",
-            stage1_result.goal.goal_id, len(stage1_result.selected_logs),
+            "Stage2.run_with_stage1()  goal=%s  stage1_anchors=%d  skip_compression=%s",
+            stage1_result.goal.goal_id, len(stage1_result.selected_logs), skip_compression,
         )
+        if skip_compression:
+            anchors = stage1_result.selected_logs
+            for a in anchors:
+                a.anchor_source = "stage1"
+            evidence_units = self._anchors_to_ceu(anchors)
+            logger.info(
+                "Stage2 compression skipped  anchors=%d  ceu=%d  goal=%s",
+                len(anchors), len(evidence_units), stage1_result.goal.goal_id,
+            )
+            exp_q = stage1_result.expanded_query
+            analysis = self._analyzer.analyze(stage1_result.goal, evidence_units)
+            return Stage2Result(
+                goal=stage1_result.goal,
+                anchors=anchors,
+                selected_logs=anchors,
+                evidence_units=evidence_units,
+                llm_analysis=analysis,
+                query_text=exp_q.dense_query if exp_q else stage1_result.goal.query_text,
+                expanded_terms=stage1_result.expanded_terms,
+                negative_terms=stage1_result.negative_terms,
+                priority_terms=stage1_result.priority_terms,
+                metadata={
+                    "skip_compression": True,
+                    "stage1_anchors": len(anchors),
+                    "evidence_units": len(evidence_units),
+                    "source": "anchor_consolidation_no_compression",
+                },
+            )
         return self.run(
             goal=stage1_result.goal,
             anchors=stage1_result.selected_logs,

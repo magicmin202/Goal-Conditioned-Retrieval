@@ -1,0 +1,32 @@
+{
+  "goal_id": "G-U0002-02",
+  "baseline": "dense",
+  "stage": "stage1",
+  "timestamp": "2026-04-12T06:59:58.788591",
+  "metrics": {
+    "recall@5": 0.3333333333333333,
+    "precision@5": 0.8,
+    "selected_count": 3,
+    "selected_precision": 1.0,
+    "f1@5": 0.47058823529411764,
+    "false_positive_rate": 0.0,
+    "mrr": 1.0,
+    "ndcg@5": 0.8607323560787731,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0002-0007",
+    "L-U0002-0052",
+    "L-U0002-0011"
+  ],
+  "selected_titles": [
+    "가계부 작성",
+    "인덱스 펀드 공부",
+    "이번 달 지출 정리"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.DENSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

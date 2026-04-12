@@ -1,0 +1,36 @@
+{
+  "goal_id": "G-U0002-01",
+  "baseline": "hybrid_expand",
+  "stage": "stage1",
+  "timestamp": "2026-04-12T06:59:57.917362",
+  "metrics": {
+    "recall@5": 0.4166666666666667,
+    "precision@5": 1.0,
+    "selected_count": 5,
+    "selected_precision": 1.0,
+    "f1@5": 0.5882352941176471,
+    "false_positive_rate": 0.0,
+    "mrr": 1.0,
+    "ndcg@5": 0.9180496861658064,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0002-0009",
+    "L-U0002-0029",
+    "L-U0002-0002",
+    "L-U0002-0022",
+    "L-U0002-0005"
+  ],
+  "selected_titles": [
+    "여행용품 구매",
+    "여행 비용 정리",
+    "여행 준비물 쇼핑",
+    "여행 예산 계획",
+    "짐 준비"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "True",
+    "disable_lexical_gate": "True"
+  }
+}

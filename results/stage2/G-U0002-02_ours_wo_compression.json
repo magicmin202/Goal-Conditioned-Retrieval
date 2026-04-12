@@ -1,0 +1,16 @@
+{
+  "goal_id": "G-U0002-02",
+  "baseline": "ours_wo_compression",
+  "stage": "stage2",
+  "timestamp": "2026-04-12T07:00:10.863382",
+  "metrics": {
+    "coverage@k": 0.0,
+    "token_reduction_rate": 0.9833948339483395,
+    "redundancy_reduction": 0.05,
+    "goal_alignment_score": 0.07407407407407407,
+    "actionability_score": 0.0,
+    "llm_judge_score": 0.0,
+    "evidence_unit_count": 3
+  },
+  "elapsed_sec": 0.025
+}

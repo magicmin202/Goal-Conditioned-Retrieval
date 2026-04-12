@@ -44,12 +44,15 @@ class Stage1Pipeline:
         self,
         config: Stage1Config | None = None,
         use_real_embeddings: bool = False,
+        retrieval_mode: RetrievalMode = RetrievalMode.HYBRID,
+        disable_lexical_gate: bool = False,
     ) -> None:
         from app.retrieval.embedding_provider import get_embedding_provider
         self.config = config or Stage1Config()
+        self._disable_lexical_gate = disable_lexical_gate
         embed_provider = get_embedding_provider(real=use_real_embeddings)
         self._retriever = CandidateRetriever(
-            mode=RetrievalMode.HYBRID,
+            mode=retrieval_mode,
             config=self.config.retrieval,
             candidate_config=self.config.candidate,
             vocab_boost_config=self.config.vocab_boost,
@@ -61,6 +64,8 @@ class Stage1Pipeline:
         )
         self._selector = DiversitySelector(config=self.config.diversity)
         self._indexed = False
+        if disable_lexical_gate:
+            logger.info("Stage1Pipeline: lexical gate DISABLED (baseline mode)")
 
     def index(self, logs: list[ResearchLog]) -> None:
         self._retriever.index(logs)
@@ -170,6 +175,7 @@ class Stage1Pipeline:
             negative_terms=negative_terms,
             priority_terms=priority_terms,
             related_terms=related_terms,
+            disable_lexical_gate=self._disable_lexical_gate,
         )
 
         # 5. Relevance Filtering — strict admission, no fill-to-k fallback

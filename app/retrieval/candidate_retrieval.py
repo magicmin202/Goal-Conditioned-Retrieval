@@ -30,8 +30,9 @@ logger = logging.getLogger(__name__)
 
 
 class RetrievalMode(str, Enum):
-    DENSE = "dense"
-    HYBRID = "hybrid"
+    SPARSE = "sparse"           # BM25 only (baseline)
+    DENSE = "dense"             # Dense only (baseline)
+    HYBRID = "hybrid"           # BM25 + Dense (default)
     HYBRID_EXPANDED = "hybrid_expanded"
 
 
@@ -185,7 +186,20 @@ class CandidateRetriever:
             bm25_text = query.canonical_text
             dense_text = query.canonical_text
 
-        if self.mode == RetrievalMode.DENSE:
+        if self.mode == RetrievalMode.SPARSE:
+            # BM25-only baseline — no dense scoring
+            candidates = self._hybrid.sparse.retrieve(bm25_text, top_n=n)
+            # Normalise to hybrid_score field so downstream code is uniform
+            candidates = [
+                CandidateLog(
+                    log=c.log,
+                    sparse_score=c.sparse_score,
+                    dense_score=0.0,
+                    hybrid_score=c.sparse_score,
+                )
+                for c in candidates
+            ]
+        elif self.mode == RetrievalMode.DENSE:
             candidates = self._dense.retrieve(dense_text, top_n=n)
         else:
             candidates = self._hybrid.retrieve(bm25_text, top_n=n, dense_query=dense_text)

@@ -1,0 +1,16 @@
+{
+  "goal_id": "G-U0002-01",
+  "baseline": "ours_wo_lexical_gate",
+  "stage": "stage2",
+  "timestamp": "2026-04-12T07:00:10.059898",
+  "metrics": {
+    "coverage@k": 0.0,
+    "token_reduction_rate": 0.8763837638376384,
+    "redundancy_reduction": 0.13333333333333333,
+    "goal_alignment_score": 0.14545454545454545,
+    "actionability_score": 1.0,
+    "llm_judge_score": 0.0,
+    "evidence_unit_count": 5
+  },
+  "elapsed_sec": 0.04
+}
