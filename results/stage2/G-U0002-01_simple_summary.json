@@ -2,7 +2,7 @@
   "goal_id": "G-U0002-01",
   "baseline": "simple_summary",
   "stage": "stage2",
-  "timestamp": "2026-04-12T07:00:10.473773",
+  "timestamp": "2026-04-12T07:34:26.700647",
   "metrics": {
     "coverage@k": 0.0,
     "token_reduction_rate": 1.0,

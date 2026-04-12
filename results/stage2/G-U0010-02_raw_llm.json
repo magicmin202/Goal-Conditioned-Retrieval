@@ -2,7 +2,7 @@
   "goal_id": "G-U0010-02",
   "baseline": "raw_llm",
   "stage": "stage2",
-  "timestamp": "2026-04-12T07:00:12.276334",
+  "timestamp": "2026-04-12T07:34:28.142530",
   "metrics": {
     "coverage@k": 0.0,
     "token_reduction_rate": 1.0,

@@ -119,7 +119,7 @@ def coverage_at_k(
     """
     if not labels:
         return 0.0
-    relevant = {lid for lid, score in labels.items() if score >= 1}
+    relevant = {lid for lid, score in labels.items() if score >= 0.5}
     if not relevant:
         return 0.0
     units = evidence_units[:k] if k is not None else evidence_units

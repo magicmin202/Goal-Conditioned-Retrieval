@@ -2,15 +2,15 @@
   "goal_id": "G-U0010-02",
   "baseline": "ours_wo_lexical_gate",
   "stage": "stage2",
-  "timestamp": "2026-04-12T07:00:12.078985",
+  "timestamp": "2026-04-12T07:34:27.980954",
   "metrics": {
-    "coverage@k": 0.0,
-    "token_reduction_rate": 0.9419642857142857,
-    "redundancy_reduction": 0.0784313725490196,
-    "goal_alignment_score": 0.025,
+    "coverage@k": 0.3125,
+    "token_reduction_rate": 0.8861607142857143,
+    "redundancy_reduction": 0.11764705882352941,
+    "goal_alignment_score": 0.05,
     "actionability_score": 1.0,
     "llm_judge_score": 0.0,
     "evidence_unit_count": 4
   },
-  "elapsed_sec": 0.035
+  "elapsed_sec": 0.024
 }

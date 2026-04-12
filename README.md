@@ -226,18 +226,26 @@ app/
     stage2_rag_pipeline.py         # Stage 2: consolidation only (NO retrieval)
 
   evaluation/
-    ranking_metrics.py             # Recall@k, Precision@k, MRR, nDCG@k
-    rag_metrics.py                 # Goal Alignment, Token Reduction, etc.
+    ranking_metrics.py             # Recall@k, Precision@k, F1@k, MRR, nDCG@k, FPR
+    rag_metrics.py                 # coverage@k, Goal Alignment, Token Reduction, etc.
+    result_writer.py               # JSON 결과 저장 (results/stage1/, results/stage2/)
 
   utils/
     text_matching.py               # Phrase/token/title-aware matching utilities
     logging_utils.py
 
 scripts/
-  run_stage1.py                    # Stage 1 단독 실행
-  run_stage2.py                    # Stage 1 → Stage 2 체인 실행
+  run_stage1.py                    # Stage 1 단독 실행 (6 baselines)
+  run_stage2.py                    # Stage 1 → Stage 2 체인 실행 (5 baselines)
+  aggregate_results.py             # JSON → CSV 집계 (results/*_summary.csv)
   compare_debug_runs.py            # 3-way 비교 디버깅 실험
   generate_synthetic_dataset.py    # 합성 데이터 생성
+
+results/
+  stage1/                          # Stage 1 결과 JSON ({goal_id}_{baseline}.json)
+  stage2/                          # Stage 2 결과 JSON ({goal_id}_{baseline}.json)
+  stage1_summary.csv               # 집계 결과
+  stage2_summary.csv               # 집계 결과
 
 .cache/
   embeddings/                      # 임베딩 영구 디스크 캐시
@@ -370,6 +378,9 @@ API 호출을 최소화하기 위한 3단계 캐시 구조:
 | `Recall@k` | 정답 로그 중 top-k에 포함된 비율 |
 | `Precision@k` | top-k 중 정답 비율 (분모=k) |
 | `selected_precision` | admitted 로그 중 정답 비율 (분모=admitted 수) — `selected_count < top_k`일 때 더 정확한 지표 |
+| `selected_count` | 실제 admitted 로그 수 (top_k 이하) |
+| `F1@k` | Precision@k와 Recall@k의 조화 평균 |
+| `false_positive_rate` | admitted 로그 중 정답이 아닌 비율 (`1 - selected_precision`) |
 | `MRR` | Mean Reciprocal Rank |
 | `nDCG@k` | Normalized Discounted Cumulative Gain |
 | `diversity_coverage` | selected logs의 activity_type 다양성 |
@@ -378,14 +389,122 @@ API 호출을 최소화하기 위한 3단계 캐시 구조:
 
 | 메트릭 | 설명 |
 |---|---|
-| `Goal Alignment` | evidence unit summary가 goal 핵심 어휘와 얼마나 겹치는지 (keyword overlap) |
-| `Token Reduction` | 원본 대비 압축률 |
-| `Coverage` | 정답 로그 중 evidence unit에 포함된 비율 |
+| `coverage@k` | 정답 로그(`relevance_score ≥ 0.5`) 중 evidence unit의 `anchor_log_ids`에 포함된 비율 |
+| `goal_alignment_score` | evidence unit summary가 goal 핵심 어휘와 얼마나 겹치는지 (keyword overlap) |
+| `token_reduction_rate` | 원본 로그 대비 evidence unit 압축률 |
+| `redundancy_reduction` | evidence unit이 커버하는 로그 수 / 전체 로그 수 |
+| `actionability_score` | `temporal_progression`이 있는 evidence unit 비율 |
+| `evidence_unit_count` | 생성된 CompressedEvidenceUnit 수 |
 
 > **Goal Alignment 구현 노트**: 한국어 어형 변화(항공권과→항공권, 숙소를→숙소, 예약하고→예약)를
 > 처리하기 위해 `rag_metrics._extract_goal_keywords()`에서 조사/어미 제거를 적용합니다.
 > 순수 keyword overlap의 이론적 상한은 약 0.3–0.5 수준이며, 의미적 정확도를 높이려면
 > LLM judge (`judge_fn(goal, unit) → float`)로 교체해야 합니다 (TODO 기록됨).
+
+> **coverage@k threshold**: 합성 데이터의 `relevance_score`는 0.0–1.0 사이 실수값이므로
+> threshold를 `>= 0.5`로 설정합니다 (`relevant` + `partial` 레이블 포함).
+
+---
+
+## Baseline Comparison
+
+### Stage 1 Baselines
+
+| Baseline | Retrieval | Expansion | Lexical Gate |
+|---|---|---|---|
+| `bm25` | BM25 only | ✗ | ✗ |
+| `dense` | Dense only | ✗ | ✗ |
+| `hybrid` | BM25 + Dense | ✗ | ✗ |
+| `hybrid_expand` | BM25 + Dense | ✓ | ✗ |
+| `ours` | BM25 + Dense | ✓ | ✓ |
+| `ours_wo_lexical_gate` | BM25 + Dense | ✓ | ✗ |
+
+### Stage 2 Baselines
+
+| Baseline | Stage1 입력 | Compression | LLM |
+|---|---|---|---|
+| `ours` | ours | ✓ (cluster + summarize) | ✓ |
+| `ours_wo_compression` | ours | ✗ (anchor → 1:1 CEU) | ✓ |
+| `ours_wo_lexical_gate` | ours_wo_lexical_gate | ✓ | ✓ |
+| `raw_llm` | — (retrieval 없음) | ✗ | ✓ (raw logs 전체) |
+| `simple_summary` | — (retrieval 없음) | ✗ | ✓ (summarize all) |
+
+### 실행 방법
+
+```bash
+# Stage 1 — 단일 baseline
+.venv/bin/python scripts/run_stage1.py --goal_id G-U0010-02 --top_k 5 --baseline ours --save_result
+
+# Stage 1 — 전체 6 baselines × 1 goal
+for B in bm25 dense hybrid hybrid_expand ours ours_wo_lexical_gate; do
+  .venv/bin/python scripts/run_stage1.py --goal_id G-U0010-02 --top_k 5 --baseline $B --save_result
+done
+
+# Stage 2 — 단일 baseline
+.venv/bin/python scripts/run_stage2.py --goal_id G-U0010-02 --top_k 5 --baseline ours --save_result
+
+# Stage 2 — 전체 5 baselines × 전체 goal (실 LLM 사용, GEMINI_API_KEY 필요)
+for GOAL in $(목표_ID_목록); do
+  for B in ours ours_wo_compression ours_wo_lexical_gate raw_llm simple_summary; do
+    .venv/bin/python scripts/run_stage2.py --goal_id $GOAL --top_k 5 --baseline $B --save_result
+  done
+done
+
+# 결과 집계 → CSV
+.venv/bin/python scripts/aggregate_results.py --stage all
+cat results/stage1_summary.csv
+cat results/stage2_summary.csv
+```
+
+> `--mock` 플래그를 추가하면 Gemini LLM 호출 없이 Stage 2를 테스트할 수 있습니다.
+
+### Stage 1 결과 (3 goals, top_k=5)
+
+| goal_id | baseline | recall@5 | precision@5 | selected_precision | f1@5 | fpr | ndcg@5 |
+|---|---|---|---|---|---|---|---|
+| G-U0002-01 | bm25 | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.906 |
+| G-U0002-01 | dense | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.970 |
+| G-U0002-01 | hybrid | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.947 |
+| G-U0002-01 | hybrid_expand | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.918 |
+| G-U0002-01 | **ours** | **0.417** | **1.000** | **1.000** | **0.588** | **0.000** | **0.918** |
+| G-U0002-01 | ours_wo_lexical_gate | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.918 |
+| G-U0002-02 | bm25 | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.933 |
+| G-U0002-02 | dense | 0.333 | 0.800 | 1.000 | 0.471 | 0.000 | 0.861 |
+| G-U0002-02 | hybrid | 0.417 | 1.000 | 1.000 | 0.588 | 0.000 | 0.945 |
+| G-U0002-02 | hybrid_expand | 0.417 | 1.000 | 0.800 | 0.588 | 0.200 | 0.952 |
+| G-U0002-02 | **ours** | **0.417** | **1.000** | **1.000** | **0.588** | **0.000** | **0.973** |
+| G-U0002-02 | ours_wo_lexical_gate | 0.417 | 1.000 | 0.800 | 0.588 | 0.200 | 0.940 |
+| G-U0010-02 | bm25 | 0.300 | 0.600 | 0.600 | 0.400 | 0.400 | 0.586 |
+| G-U0010-02 | dense | 0.300 | 0.600 | 0.400 | 0.400 | 0.600 | 0.597 |
+| G-U0010-02 | hybrid | 0.300 | 0.600 | 0.400 | 0.400 | 0.600 | 0.599 |
+| G-U0010-02 | hybrid_expand | 0.400 | 0.800 | 0.750 | 0.533 | 0.250 | 0.877 |
+| G-U0010-02 | **ours** | **0.500** | **1.000** | **1.000** | **0.667** | **0.000** | **0.948** |
+| G-U0010-02 | ours_wo_lexical_gate | 0.400 | 0.800 | 0.750 | 0.533 | 0.250 | 0.868 |
+
+> G-U0010-02에서 `ours`가 다른 baselines 대비 precision=1.000, fpr=0.000으로 lexical gate 효과가 명확하게 드러납니다.
+
+### Stage 2 결과 (3 goals, top_k=5)
+
+| goal_id | baseline | coverage@k | token_reduction | goal_alignment | actionability | eu_count |
+|---|---|---|---|---|---|---|
+| G-U0002-01 | **ours** | **0.500** | 0.876 | 0.145 | 1.000 | 5 |
+| G-U0002-01 | ours_wo_compression | 0.313 | 0.976 | 0.091 | 0.000 | 5 |
+| G-U0002-01 | ours_wo_lexical_gate | 0.500 | 0.876 | 0.145 | 1.000 | 5 |
+| G-U0002-01 | raw_llm | 0.000 | 1.000 | 0.000 | 0.000 | 0 |
+| G-U0002-01 | simple_summary | 0.000 | 1.000 | 0.000 | 0.000 | 0 |
+| G-U0002-02 | **ours** | **0.267** | 0.932 | 0.111 | 1.000 | 3 |
+| G-U0002-02 | ours_wo_compression | 0.200 | 0.983 | 0.074 | 0.000 | 3 |
+| G-U0002-02 | ours_wo_lexical_gate | 0.333 | 0.899 | 0.067 | 1.000 | 5 |
+| G-U0002-02 | raw_llm | 0.000 | 1.000 | 0.000 | 0.000 | 0 |
+| G-U0002-02 | simple_summary | 0.000 | 1.000 | 0.000 | 0.000 | 0 |
+| G-U0010-02 | **ours** | **0.313** | 0.904 | 0.100 | 1.000 | 3 |
+| G-U0010-02 | ours_wo_compression | 0.188 | 0.989 | 0.033 | 0.000 | 3 |
+| G-U0010-02 | ours_wo_lexical_gate | 0.313 | 0.886 | 0.050 | 1.000 | 4 |
+| G-U0010-02 | raw_llm | 0.000 | 1.000 | 0.000 | 0.000 | 0 |
+| G-U0010-02 | simple_summary | 0.000 | 1.000 | 0.000 | 0.000 | 0 |
+
+> `raw_llm` / `simple_summary`는 retrieval이 없으므로 evidence_unit이 생성되지 않아 coverage@k=0.
+> `ours`는 compression을 통해 `ours_wo_compression` 대비 coverage가 높고 actionability=1.0을 유지합니다.
 
 ---
 
