@@ -97,14 +97,86 @@ def redundancy_reduction(
     return sum(u.log_count for u in evidence_units) / len(original_logs)
 
 
+def coverage_at_k(
+    evidence_units: list[CompressedEvidenceUnit],
+    labels: dict[str, float],
+    k: int | None = None,
+) -> float:
+    """Coverage@k = |covered_relevant| / |relevant|.
+
+    Measures what fraction of relevant raw logs are referenced by
+    the top-k evidence units via anchor_log_ids.
+
+    Parameters
+    ----------
+    evidence_units:
+        CompressedEvidenceUnit list (already sorted by relevance).
+    labels:
+        {log_id: relevance_score} dict.  Logs with score >= 1 are
+        considered relevant.
+    k:
+        Number of evidence units to consider.  None = all units.
+    """
+    if not labels:
+        return 0.0
+    relevant = {lid for lid, score in labels.items() if score >= 1}
+    if not relevant:
+        return 0.0
+    units = evidence_units[:k] if k is not None else evidence_units
+    covered: set[str] = set()
+    for unit in units:
+        covered.update(getattr(unit, "anchor_log_ids", []))
+    return len(covered & relevant) / len(relevant)
+
+
+def llm_judge_score(
+    goal: ResearchGoal,
+    unit: CompressedEvidenceUnit,
+    judge_fn=None,
+) -> float:
+    """LLM-as-judge: goal–CEU relevance via an external judge function.
+
+    Placeholder implementation — returns 0.0 until judge_fn is wired.
+
+    Parameters
+    ----------
+    goal:      ResearchGoal
+    unit:      CompressedEvidenceUnit
+    judge_fn:  callable(goal, unit) -> float in [1.0, 5.0]
+               None means not yet implemented → returns 0.0.
+
+    Returns
+    -------
+    float: judge score in [1.0, 5.0], or 0.0 if judge_fn is None.
+    """
+    if judge_fn is None:
+        return 0.0
+    return judge_fn(goal, unit)
+
+
 def compute_rag_metrics(
     goal: ResearchGoal,
     original_logs: list[ResearchLog],
     evidence_units: list[CompressedEvidenceUnit],
+    labels: dict[str, float] | None = None,
+    k: int | None = None,
 ) -> dict[str, float]:
+    """Compute all Stage 2 RAG metrics.
+
+    Parameters
+    ----------
+    labels:
+        Optional {log_id: relevance_score} dict for coverage@k.
+        Defaults to {} (coverage will be 0.0).
+    k:
+        Number of evidence units for coverage@k.  None = all.
+    """
+    lbl = labels or {}
     return {
         "goal_alignment_score": goal_alignment_score(goal, evidence_units),
         "actionability_score": actionability_score(evidence_units),
         "token_reduction_rate": token_reduction_rate(original_logs, evidence_units),
         "redundancy_reduction": redundancy_reduction(original_logs, evidence_units),
+        "coverage@k": coverage_at_k(evidence_units, lbl, k),
+        "evidence_unit_count": len(evidence_units),
     }

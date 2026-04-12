@@ -48,6 +48,34 @@ def selected_precision(
     return relevant_count / len(log_ids)
 
 
+def f1_at_k(ranked: list[RankedLog], labels: list[GoalLogLabel], k: int) -> float:
+    """F1@k = 2 * precision@k * recall@k / (precision@k + recall@k).
+
+    Returns 0.0 when both precision and recall are 0.
+    Signature is identical to precision_at_k / recall_at_k.
+    """
+    p = precision_at_k(ranked, labels, k)
+    r = recall_at_k(ranked, labels, k)
+    if p + r == 0.0:
+        return 0.0
+    return 2 * p * r / (p + r)
+
+
+def false_positive_rate(
+    selected_logs: list,
+    labels: list[GoalLogLabel],
+) -> float:
+    """false_positive_rate = irrelevant_selected / selected_count.
+
+    Defined over admitted (selected) logs, not over fixed k.
+    Equivalent to 1 - selected_precision.
+    Returns 0.0 when no logs are selected.
+    """
+    if not selected_logs:
+        return 0.0
+    return 1.0 - selected_precision(selected_logs, labels)
+
+
 def mrr(ranked: list[RankedLog], labels: list[GoalLogLabel]) -> float:
     relevant = _relevant_ids(labels)
     for i, r in enumerate(ranked):
@@ -83,13 +111,29 @@ def compute_all_metrics(
     labels: list[GoalLogLabel],
     k: int = 10,
     all_activity_types: set[str] | None = None,
+    selected_logs: list | None = None,
 ) -> dict[str, float]:
+    """Compute all Stage 1 retrieval metrics.
+
+    Parameters
+    ----------
+    selected_logs:
+        Actual admitted logs (may differ from ranked[:k] when admission
+        gates reduce the count).  Used for selected_precision,
+        false_positive_rate, and selected_count.
+        Defaults to ranked[:k] when not provided.
+    """
+    admitted = selected_logs if selected_logs is not None else ranked[:k]
     return {
         f"recall@{k}": recall_at_k(ranked, labels, k),
         f"precision@{k}": precision_at_k(ranked, labels, k),
+        f"f1@{k}": f1_at_k(ranked, labels, k),
         "mrr": mrr(ranked, labels),
         f"ndcg@{k}": ndcg_at_k(ranked, labels, k),
         "diversity_coverage": diversity_coverage(
             ranked[:k], all_activity_types or set()
         ),
+        "selected_precision": selected_precision(admitted, labels),
+        "false_positive_rate": false_positive_rate(admitted, labels),
+        "selected_count": len(admitted),
     }

@@ -32,6 +32,8 @@ data/
 !data/synthetic/goals.json
 !data/synthetic/logs.json
 !data/synthetic/labels.json
+!results/**/*.json
+!results/*.csv
 *.pem
 *.key
 *.p12
