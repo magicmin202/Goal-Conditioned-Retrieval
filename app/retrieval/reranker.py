@@ -38,7 +38,11 @@ from app.config import RankerConfig
 from app.retrieval.dense_retriever import DenseRetriever, cosine
 from app.retrieval.embedding_provider import MockEmbeddingProvider
 from app.retrieval.evidence_quality import _quality_scorer
-from app.retrieval.schema_category import CategoryScore, SchemaMapper, _schema_mapper
+from app.retrieval.schema_category import (
+    classify_log_activity_type,
+    get_goal_expected_activity_types,
+    is_activity_type_compatible,
+)
 from app.schemas import CandidateLog, RankedLog, ResearchGoal, ResearchLog
 from app.utils.text_matching import (
     PriorityTermMatch,
@@ -89,7 +93,6 @@ class GoalConditionedReranker:
     ) -> None:
         self.config = config or RankerConfig()
         self._dense = dense_retriever or DenseRetriever(provider=MockEmbeddingProvider())
-        self._schema = _schema_mapper   # module-level singleton, stateless
         # When False, Tier2 semantic gate is skipped (mock embeddings produce
         # meaningless cosine scores that would incorrectly reject relevant logs).
         self._use_real_embeddings = use_real_embeddings
@@ -172,18 +175,26 @@ class GoalConditionedReranker:
 
         return min(0.4 * kw_score + 0.4 * act_score + 0.2 * strength_score, 1.0)
 
-    # ── Domain consistency (now GOAL-DOMAIN-AWARE) ────────────────────────────
+    # ── Domain consistency ────────────────────────────────────────────────────
 
     def _domain_consistency(
-        self, candidate: CandidateLog, cat_result: CategoryScore
+        self, candidate: CandidateLog, log_activity_type: str
     ) -> float:
-        """Goal-domain-aware domain consistency.
+        """Activity-type based domain consistency (schema gate removed).
 
-        Uses schema category relevance instead of goal-agnostic _PRODUCTIVE_TYPES.
-        Logs that reach this point passed the category gate, so relevance ∈ {core, supporting}.
+        creative/execution → high (concrete output)
+        learning/planning  → medium
+        lifestyle/unknown  → low
         """
-        base_scores = {"core": 0.80, "supporting": 0.50, "none": 0.05}
-        base = base_scores.get(cat_result.relevance, 0.05)
+        base_scores = {
+            "creative":  0.85,
+            "execution": 0.80,
+            "learning":  0.60,
+            "planning":  0.55,
+            "lifestyle": 0.25,
+            "unknown":   0.40,
+        }
+        base = base_scores.get(log_activity_type, 0.40)
 
         # Specificity bonus: denser logs are more informative
         tokens = _tok_set(candidate.log.full_text)
@@ -255,25 +266,27 @@ class GoalConditionedReranker:
         cfg = self.config
 
         # ══════════════════════════════════════════════════════════════════════
-        # GATE 1: Schema Category Gate
-        # Goal-domain-aware hard filter.
-        # Unrelated categories are rejected before any scoring.
-        # Schema signals are NOT in the scoring formula — category is gate-only.
+        # GATE 1: Activity-Type Gate
+        # Rejects logs whose activity-type is fundamentally incompatible with
+        # the goal's expected activity-types (e.g. lifestyle log for a pure
+        # learning goal).  Open-domain goals (e.g. "친구 관계 넓히기") are
+        # handled correctly because is_activity_type_compatible() only rejects
+        # on explicit _INCOMPATIBLE_PAIRS — unknown/novel types always pass.
         # ══════════════════════════════════════════════════════════════════════
-        cat_result = self._schema.evaluate(candidate.log, goal)
-
-        # Tier1 gate logging (activity-type included for diagnosis)
-        from app.retrieval.schema_category import classify_log_activity_type
-        _log_at = classify_log_activity_type(
+        log_activity_type = classify_log_activity_type(
             candidate.log.title + " " + (candidate.log.content or "")
         )
+        goal_activity_types = get_goal_expected_activity_types(
+            goal.title,
+            getattr(goal, "description", "") or "",
+        )
 
-        if cat_result.relevance == "none":
+        if goal_activity_types and not is_activity_type_compatible(
+            log_activity_type, goal_activity_types
+        ):
             logger.info(
-                "[TIER1_FAIL] %s  log_type=%s  cat=%s  domain=%s  reason=%s  [%s]",
-                candidate.log.log_id, _log_at,
-                cat_result.log_category, cat_result.goal_domain,
-                cat_result.reason, log_title,
+                "[ACTIVITY_GATE_FAIL] %s  log_type=%s  goal_types=%s  [%s]",
+                candidate.log.log_id, log_activity_type, goal_activity_types, log_title,
             )
             return RankedLog(
                 log=candidate.log,
@@ -281,21 +294,15 @@ class GoalConditionedReranker:
                 goal_focus=0.0,
                 evidence_value=0.0,
                 final_score=0.0,
-                rejection_reason=(
-                    f"category_mismatch(cat={cat_result.log_category}"
-                    f"  domain={cat_result.goal_domain}"
-                    f"  reason={cat_result.reason})"
-                ),
-                schema_category=cat_result.log_category,
-                goal_domain=cat_result.goal_domain,
-                category_hit_strength=cat_result.relevance,
+                rejection_reason=f"activity_type_mismatch(log={log_activity_type})",
+                schema_category=log_activity_type,
+                goal_domain="open",
+                category_hit_strength="unknown",
             )
 
         logger.debug(
-            "[TIER1_PASS] %s  log_type=%s  relevance=%s  cat=%s  domain=%s  [%s]",
-            candidate.log.log_id, _log_at,
-            cat_result.relevance, cat_result.log_category,
-            cat_result.goal_domain, log_title,
+            "[ACTIVITY_GATE_PASS] %s  log_type=%s  goal_types=%s  [%s]",
+            candidate.log.log_id, log_activity_type, goal_activity_types, log_title,
         )
 
         # ══════════════════════════════════════════════════════════════════════
@@ -340,57 +347,33 @@ class GoalConditionedReranker:
         elif primary_signal:
             gate_mode = "direct"
         else:
-            support_hit, sup_matched = self._schema.support_context_hit(
-                candidate.log, cat_result.goal_domain
+            # Support path: domain schema removed — always go to reject.
+            # The lexical gate is the only admission path when primary_signal=False.
+            logger.debug(
+                "GOAL LEXICAL GATE REJECT  log=%s  log_type=%s  "
+                "pri=%.3f  ev=%.3f  base=%.3f  [%s]",
+                candidate.log.log_id, log_activity_type,
+                pri_score, ev_score, base, log_title,
             )
-            subdomain_ok = self._schema.is_subdomain_consistent(
-                cat_result.log_category, cat_result.goal_domain
+            return RankedLog(
+                log=candidate.log,
+                semantic_relevance=0.0,
+                goal_focus=0.0,
+                evidence_value=0.0,
+                final_score=0.0,
+                gate_mode="reject",
+                rejection_reason="no_goal_signal(pri=0,ev=0,base<0.04)",
+                schema_category=log_activity_type,
+                goal_domain="open",
+                category_hit_strength="unknown",
             )
-
-            if support_hit and subdomain_ok:
-                gate_mode = "supporting"
-                score_cap = 0.12
-                support_context_matched = sup_matched
-                logger.debug(
-                    "SUPPORT GATE ADMIT  log=%s  cat=%s  domain=%s"
-                    "  matched=%s  score_cap=%.2f  [%s]",
-                    candidate.log.log_id, cat_result.log_category,
-                    cat_result.goal_domain, sup_matched, score_cap, log_title,
-                )
-            else:
-                logger.debug(
-                    "GOAL LEXICAL GATE REJECT  log=%s  cat=%s  relevance=%s  "
-                    "pri=%.3f  ev=%.3f  base=%.3f  "
-                    "support_hit=%s  subdomain_ok=%s  [%s]",
-                    candidate.log.log_id, cat_result.log_category, cat_result.relevance,
-                    pri_score, ev_score, base,
-                    support_hit, subdomain_ok, log_title,
-                )
-                _reason = "no_goal_signal(pri=0,ev=0,base<0.04"
-                if support_hit and not subdomain_ok:
-                    _reason += ",subdomain_mismatch"
-                elif not support_hit and subdomain_ok:
-                    _reason += ",no_support_context"
-                _reason += ")"
-                return RankedLog(
-                    log=candidate.log,
-                    semantic_relevance=0.0,
-                    goal_focus=0.0,
-                    evidence_value=0.0,
-                    final_score=0.0,
-                    gate_mode="reject",
-                    rejection_reason=_reason,
-                    schema_category=cat_result.log_category,
-                    goal_domain=cat_result.goal_domain,
-                    category_hit_strength=cat_result.relevance,
-                )
 
         # ══════════════════════════════════════════════════════════════════════
         # Remaining components
         # ══════════════════════════════════════════════════════════════════════
         rel_score = self._related_score(log_text, log_title, rel_terms)
         action = self._action_signal(candidate)
-        domain = self._domain_consistency(candidate, cat_result)  # goal-domain-aware
+        domain = self._domain_consistency(candidate, log_activity_type)
         sem = self._semantic_similarity(
             goal, log_text,
             precomputed=candidate.dense_score if candidate.dense_score > 0 else None,
@@ -435,9 +418,9 @@ class GoalConditionedReranker:
                 final_score=0.0,
                 gate_mode="reject",
                 rejection_reason=f"semantic_irrelevant(dense={sem:.4f}<{SEMANTIC_GATE_THRESHOLD})",
-                schema_category=cat_result.log_category,
-                goal_domain=cat_result.goal_domain,
-                category_hit_strength=cat_result.relevance,
+                schema_category=log_activity_type,
+                goal_domain="open",
+                category_hit_strength="unknown",
             )
         else:
             logger.debug(
@@ -472,9 +455,9 @@ class GoalConditionedReranker:
                 final_score=0.0,
                 matched_negative=list(neg_matched),
                 rejection_reason=f"domain_conflict_veto(dm={raw_dm:.2f})",
-                schema_category=cat_result.log_category,
-                goal_domain=cat_result.goal_domain,
-                category_hit_strength=cat_result.relevance,
+                schema_category=log_activity_type,
+                goal_domain="open",
+                category_hit_strength="unknown",
             )
 
         # ── Evidence Quality Score ────────────────────────────────────────────
@@ -482,9 +465,7 @@ class GoalConditionedReranker:
         # Components: specificity, actionability, goal_progress, domain_consist
         qs = _quality_scorer.score(
             candidate.log,
-            log_category=cat_result.log_category,
-            goal_domain=cat_result.goal_domain,
-            cat_relevance=cat_result.relevance,
+            activity_type=log_activity_type,
         )
 
         # ── Final score ───────────────────────────────────────────────────────
@@ -541,7 +522,7 @@ class GoalConditionedReranker:
             if base >= 0.04:
                 reason_parts.append(f"base_overlap={base:.3f}")
             reason_parts.append(
-                f"cat={cat_result.log_category}({cat_result.relevance})"
+                f"log_type={log_activity_type}"
             )
             reason_parts.append(
                 f"quality(spec={qs.specificity:.2f},act={qs.actionability:.2f}"
@@ -570,7 +551,7 @@ class GoalConditionedReranker:
             "  neg_penalty:     %.3f  (matched=%s)\n"
             "  → final:         %.4f  [rel=%.4f + qual=%.4f - pen=%.4f]",
             candidate.log.log_id, log_title,
-            cat_result.log_category, cat_result.relevance, cat_result.goal_domain,
+            log_activity_type, "open", "open",
             pri_score, matched_pri,
             ev_score, matched_ev,
             rel_score, sem, base,
@@ -596,9 +577,9 @@ class GoalConditionedReranker:
             matched_evidence=matched_ev,
             matched_negative=list(neg_matched),
             admission_reason=admission_reason,
-            schema_category=cat_result.log_category,
-            goal_domain=cat_result.goal_domain,
-            category_hit_strength=cat_result.relevance,
+            schema_category=log_activity_type,
+            goal_domain="open",
+            category_hit_strength="unknown",
             gate_mode=gate_mode,
             support_context_matched=support_context_matched,
             # Quality trace

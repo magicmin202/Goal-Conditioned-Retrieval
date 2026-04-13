@@ -377,70 +377,15 @@ def get_activity_type_quality_prior(activity_type: str) -> dict:
     return _PRIORS.get(activity_type, _PRIORS["unknown"])
 
 
-# ── Goal-level domains ─────────────────────────────────────────────────────────
+# ── Goal-level domains (DEPRECATED — removed to support open-domain goals) ─────
+# _GOAL_DOMAINS and _DOMAIN_BY_NAME have been removed.
+# Hard-coded domain schema caused all logs to be rejected as cat=unknown
+# for goals outside the 6 predefined domains (e.g. "친구 관계 넓히기").
+# Precision control is now handled by: activity-type gate + lexical gate + negative veto.
 
-@dataclass(frozen=True)
-class _GoalDomainDef:
-    name: str
-    detection_keywords: frozenset[str]       # infer domain from goal text
-    core_categories: frozenset[str]          # direct evidence (strong gate)
-    supporting_categories: frozenset[str]    # contextual evidence (relaxed gate)
-    support_context_signals: frozenset[str] = frozenset()  # phrases that trigger support gate
-
-
-_GOAL_DOMAINS: list[_GoalDomainDef] = [
-    _GoalDomainDef(
-        "fitness_muscle_gain",
-        frozenset(["근육", "벌크", "웨이트", "증량", "체중증가", "헬스장"]),
-        frozenset(["training", "body_metrics"]),
-        frozenset(["nutrition", "recovery"]),
-    ),
-    _GoalDomainDef(
-        "fitness_fat_loss",
-        frozenset(["체중감량", "다이어트", "살빼기", "칼로리", "유산소", "체지방", "감량"]),
-        frozenset(["training", "nutrition", "body_metrics"]),
-        frozenset(["recovery"]),
-    ),
-    _GoalDomainDef(
-        "productivity_development",
-        frozenset(["개발", "취업", "포트폴리오", "프로그래밍", "엔지니어", "개발자", "코딩"]),
-        frozenset(["implementation", "problem_solving", "debugging"]),
-        frozenset(["study_progress", "planning"]),
-    ),
-    _GoalDomainDef(
-        "learning_coding",
-        frozenset(["알고리즘", "코테", "코딩테스트", "학습", "공부", "강의", "스터디"]),
-        frozenset(["study_progress", "problem_solving"]),
-        frozenset(["implementation", "planning"]),
-    ),
-    _GoalDomainDef(
-        "travel_planning",
-        frozenset(["여행", "해외", "여행지", "배낭", "숙소", "항공", "해외여행", "저비용"]),
-        frozenset(["booking", "budgeting"]),
-        # logistics moved from core → supporting: packing/supply-prep is contextual
-        # evidence for a *planning* goal, not direct booking/budget progress.
-        # travel_research and planning remain supporting.
-        frozenset(["logistics", "travel_research", "planning"]),
-    ),
-    _GoalDomainDef(
-        "language_exam",
-        frozenset([
-            "토익", "toeic", "lc", "rc", "리스닝", "리딩",
-            "영어 시험", "영어 자격증", "모의고사", "toefl", "ielts", "teps",
-        ]),
-        # language_exam_study added as core — it captures generic "토익 공부",
-        # "영어 학습" style logs which are direct evidence for this domain.
-        frozenset(["mock_test", "reading_practice", "listening_practice",
-                   "vocab_building", "language_exam_study"]),
-        frozenset(["graduate_admission_prep", "career_support"]),
-        support_context_signals=frozenset([
-            "취업 준비", "대학원 준비", "대학원 지원", "gre", "지도교수",
-            "지원서", "영어 자격증", "대학원 지원서",
-        ]),
-    ),
-]
-
-_DOMAIN_BY_NAME: dict[str, _GoalDomainDef] = {d.name: d for d in _GOAL_DOMAINS}
+# Stub for any remaining internal references
+_GOAL_DOMAINS: list = []
+_DOMAIN_BY_NAME: dict = {}
 
 
 # ── Result ─────────────────────────────────────────────────────────────────────
@@ -514,94 +459,26 @@ class SchemaMapper:
     def support_context_hit(
         self, log: ResearchLog, goal_domain: str
     ) -> tuple[bool, list[str]]:
-        """Check if log text contains any support-context signal for goal_domain.
-
-        Returns (hit, matched_signals).  Phrase-level substring match.
-        """
-        domain_def = _DOMAIN_BY_NAME.get(goal_domain)
-        if not domain_def or not domain_def.support_context_signals:
-            return False, []
-        log_lower = log.full_text.lower()
-        matched = [sig for sig in domain_def.support_context_signals
-                   if sig.lower() in log_lower]
-        return bool(matched), matched
+        """DEPRECATED — domain schema removed. Always returns (False, [])."""
+        return False, []
 
     def is_subdomain_consistent(self, log_category: str, goal_domain: str) -> bool:
-        """Return True if log_category is a supporting_category for goal_domain."""
-        domain_def = _DOMAIN_BY_NAME.get(goal_domain)
-        if not domain_def:
-            return False
-        return log_category in domain_def.supporting_categories
+        """DEPRECATED — domain schema removed. Always returns False."""
+        return False
 
-    def evaluate(self, log: ResearchLog, goal: ResearchGoal) -> CategoryScore:
-        """Evaluate log's evidence category relevance to goal domain.
+    def evaluate(self, log: ResearchGoal, goal: ResearchGoal) -> "CategoryScore":
+        """DEPRECATED — Schema Category Gate has been removed.
 
-        Returns CategoryScore where:
-          .relevance == "none"       → reject (hard gate)
-          .relevance == "core"       → admit with any goal signal
-          .relevance == "supporting" → admit with explicit goal lexical signal
+        Always returns relevance='unknown' so that the old
+        ``cat_result.relevance == 'none'`` branch in reranker.py never fires.
+        Precision control is now handled by the independent activity-type gate,
+        lexical gate, and negative veto inside GoalConditionedReranker.score().
         """
-        goal_domain = self.detect_goal_domain(goal)
-        log_cat = self.detect_log_category(log)
-
-        if log_cat is None:
-            return CategoryScore(
-                log_category="unknown",
-                goal_domain=goal_domain,
-                relevance="none",
-                reason="no_log_category",
-            )
-
-        # ── Activity-type compatibility gate ──────────────────────────────────
-        # Checks *how* the log was done vs *what* the goal expects.
-        # Only fires for fundamentally incompatible pairs (see _INCOMPATIBLE_PAIRS).
-        # Unknown activity types always pass (conservative).
-        log_at = classify_log_activity_type(
-            log.title + " " + (getattr(log, "description", "") or "")
-        )
-        goal_ats = get_goal_expected_activity_types(
-            goal.title,
-            getattr(goal, "description", "") or "",
-        )
-        if not is_activity_type_compatible(log_at, goal_ats):
-            return CategoryScore(
-                log_category=log_cat,
-                goal_domain=goal_domain,
-                relevance="none",
-                reason=f"activity_type_mismatch(log={log_at}, goal={goal_ats})",
-            )
-
-        if goal_domain == "unknown":
-            # Unknown goal domain → cannot determine relevance → allow with "supporting"
-            # (better recall for edge cases; goal lexical gate will still filter)
-            return CategoryScore(
-                log_category=log_cat,
-                goal_domain=goal_domain,
-                relevance="supporting",
-                reason="unknown_goal_domain",
-            )
-
-        domain_def = _DOMAIN_BY_NAME.get(goal_domain)
-        if domain_def is None:
-            return CategoryScore(
-                log_category=log_cat,
-                goal_domain=goal_domain,
-                relevance="supporting",
-                reason="unknown_domain_def",
-            )
-
-        if log_cat in domain_def.core_categories:
-            relevance = "core"
-        elif log_cat in domain_def.supporting_categories:
-            relevance = "supporting"
-        else:
-            relevance = "none"
-
         return CategoryScore(
-            log_category=log_cat,
-            goal_domain=goal_domain,
-            relevance=relevance,
-            reason=f"domain_gate({relevance})",
+            log_category="unknown",
+            goal_domain="open",
+            relevance="unknown",
+            reason="schema_gate_disabled",
         )
 
 

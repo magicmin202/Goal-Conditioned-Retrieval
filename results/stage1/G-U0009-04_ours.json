@@ -1,0 +1,30 @@
+{
+  "goal_id": "G-U0009-04",
+  "baseline": "ours",
+  "stage": "stage1",
+  "timestamp": "2026-04-13T17:22:54.458562",
+  "metrics": {
+    "recall@5": 0.2222222222222222,
+    "precision@5": 0.4,
+    "selected_count": 2,
+    "selected_precision": 1.0,
+    "f1@5": 0.2857142857142857,
+    "false_positive_rate": 0.0,
+    "mrr": 1.0,
+    "ndcg@5": 0.5073823142549956,
+    "diversity_coverage": 0.3333333333333333
+  },
+  "selected_log_ids": [
+    "L-U0009-0043",
+    "L-U0009-0058"
+  ],
+  "selected_titles": [
+    "친구 약속",
+    "친구들과 만남"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "True",
+    "disable_lexical_gate": "False"
+  }
+}

@@ -2,24 +2,26 @@
   "goal_id": "G-U0002-02",
   "baseline": "ours",
   "stage": "stage1",
-  "timestamp": "2026-04-12T06:59:59.387072",
+  "timestamp": "2026-04-13T17:23:16.256351",
   "metrics": {
     "recall@5": 0.4166666666666667,
     "precision@5": 1.0,
-    "selected_count": 3,
+    "selected_count": 4,
     "selected_precision": 1.0,
     "f1@5": 0.5882352941176471,
     "false_positive_rate": 0.0,
     "mrr": 1.0,
-    "ndcg@5": 0.9726150996884179,
-    "diversity_coverage": 0.2
+    "ndcg@5": 0.9814353700203353,
+    "diversity_coverage": 0.4
   },
   "selected_log_ids": [
+    "L-U0002-0039",
     "L-U0002-0025",
     "L-U0002-0052",
     "L-U0002-0013"
   ],
   "selected_titles": [
+    "소액 투자 시작",
     "ETF 투자 학습",
     "인덱스 펀드 공부",
     "ETF 개념 정리"

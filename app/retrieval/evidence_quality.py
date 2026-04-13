@@ -72,55 +72,9 @@ _METRIC_RE = re.compile(
 )
 _NUMBER_RE = re.compile(r"\d{2,}")   # 2+ digit numbers = likely meaningful
 
-# ── Category value priors (domain → category → prior ∈ [0, 1]) ───────────────
-#
-# Higher = more goal-progress value relative to the domain.
-# Example: booking an apartment is core travel progress; "research" is soft.
-
-_CATEGORY_VALUE_PRIORS: dict[str, dict[str, float]] = {
-    "travel_planning": {
-        "booking":    1.00,
-        "budgeting":  0.80,
-        "logistics":  0.60,
-        "planning":   0.45,
-        "research":   0.25,
-        "unknown":    0.30,
-    },
-    "fitness_muscle_gain": {
-        "training":     1.00,
-        "body_metrics": 0.90,
-        "nutrition":    0.70,
-        "recovery":     0.40,
-        "planning":     0.20,
-        "unknown":      0.30,
-    },
-    "fitness_fat_loss": {
-        "nutrition":    1.00,
-        "body_metrics": 0.90,
-        "training":     0.85,
-        "recovery":     0.40,
-        "planning":     0.20,
-        "unknown":      0.30,
-    },
-    "productivity_development": {
-        "implementation": 1.00,
-        "debugging":      0.85,
-        "problem_solving": 0.85,
-        "documentation":  0.60,
-        "study_progress": 0.45,
-        "planning":       0.30,
-        "unknown":        0.35,
-    },
-    "learning_coding": {
-        "problem_solving": 1.00,
-        "study_progress":  0.80,
-        "implementation":  0.70,
-        "debugging":       0.65,
-        "planning":        0.30,
-        "unknown":         0.35,
-    },
-}
-_DEFAULT_PRIOR = 0.40   # fallback for unknown domain or category
+# _CATEGORY_VALUE_PRIORS removed — domain schema deprecated.
+# Evidence quality is now derived from activity-type priors only.
+# See get_activity_type_quality_prior() in schema_category.py.
 
 
 # ── Result dataclass ──────────────────────────────────────────────────────────
@@ -160,15 +114,12 @@ class EvidenceQualityScorer:
     def score(
         self,
         log: ResearchLog,
-        log_category: str,
-        goal_domain: str,
-        cat_relevance: str = "supporting",   # "core" | "supporting" | "none"
+        activity_type: str = "unknown",   # inferred from log text, replaces cat_relevance
     ) -> EvidenceQualityScore:
         spec, spec_trace = self._specificity(log)
         action, action_trace = self._actionability(log)
-        # Pass log directly; _goal_progress uses activity-type based prior
-        progress = self._goal_progress(log, cat_relevance)
-        domain = self._domain_consistency(log, cat_relevance)
+        progress = self._goal_progress(log, activity_type)
+        domain = self._domain_consistency(activity_type)
 
         total = round(
             self._W_SPEC   * spec
@@ -265,33 +216,28 @@ class EvidenceQualityScorer:
             "browse": browse_hits,
         }
 
-    def _goal_progress(self, log: ResearchLog, cat_relevance: str) -> float:
+    def _goal_progress(self, log: ResearchLog, activity_type: str) -> float:
         """Activity-type based goal progress prior.
 
-        Replaces the category/domain lookup with an activity-type classification
-        so that evidence value is tied to *how* the log was done, not domain taxonomy.
-        cat_relevance correction is preserved: core logs get a 20% bonus.
+        Evidence value is tied to *how* the log was done (activity_type),
+        not domain taxonomy.  creative/execution types score highest (concrete
+        output), lifestyle types score lowest.
         """
-        log_text = log.title + " " + (log.content or "")
-        activity_type = classify_log_activity_type(log_text)
         weights = get_activity_type_quality_prior(activity_type)
-        base_prior = weights["progression"]
+        return weights["progression"]
 
-        if cat_relevance == "core":
-            return min(base_prior * 1.2, 1.0)
-        elif cat_relevance == "supporting":
-            return base_prior
-        else:
-            return base_prior * 0.5
+    def _domain_consistency(self, activity_type: str) -> float:
+        """Activity-type based domain consistency.
 
-    def _domain_consistency(self, log: ResearchLog, cat_relevance: str) -> float:
-        """Simplified domain consistency based on schema relevance tier.
-
-        Separates relevance (already captured by category gate + lexical gate)
-        from quality (this component).  No redundant specificity bonus needed
-        here — specificity has its own sub-score.
+        Domain schema removed — consistency is now measured by how
+        'productive' the activity type is, independent of goal domain.
+        creative and execution types indicate concrete progress (high score);
+        lifestyle indicates routine activity (low score).
         """
-        return {"core": 1.0, "supporting": 0.6, "none": 0.0}.get(cat_relevance, 0.0)
+        weights = get_activity_type_quality_prior(activity_type)
+        # Use actionability as a proxy for domain consistency:
+        # high actionability types (execution/creative) map to high consistency.
+        return weights["actionability"]
 
 
 # ── Redundancy (applied in Stage1Pipeline, not inside reranker) ───────────────
