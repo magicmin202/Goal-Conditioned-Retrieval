@@ -109,10 +109,10 @@ class DenseRetriever:
     def index(self, logs: list[ResearchLog]) -> None:
         self._corpus = logs
         self._embeddings = self._doc_provider.encode_batch(
-            [log.full_text for log in logs]
+            [log.embedding_text for log in logs]
         )
         logger.info(
-            "DenseRetriever indexed %d docs [provider=%s]",
+            "DenseRetriever indexed %d docs [provider=%s  text=embedding_text]",
             len(logs), self._doc_provider.name,
         )
 

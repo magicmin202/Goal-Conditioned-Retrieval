@@ -42,7 +42,29 @@ class ResearchLog:
 
     @property
     def full_text(self) -> str:
+        """BM25 / lexical matching용 plain text."""
         return f"{self.title} {self.content}".strip()
+
+    @property
+    def embedding_text(self) -> str:
+        """Dense embedding 전용 구조화 텍스트.
+
+        필드별 의미를 명시해 embedding model이 domain/context를 구분하도록 한다.
+        title을 앞에 두어 모델의 앞쪽 토큰 집중 경향을 활용한다.
+        """
+        topic = self.metadata.get("topic", "")
+        parts: dict[str, str] = {
+            "title": self.title,
+            "type": self.activity_type,
+            "date": self.date,
+        }
+        if topic:
+            parts["topic"] = topic
+        if self.content:
+            parts["content"] = self.content
+
+        import json
+        return json.dumps(parts, ensure_ascii=False)
 
 
 @dataclass
