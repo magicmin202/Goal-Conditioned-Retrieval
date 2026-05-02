@@ -47,24 +47,32 @@ class ResearchLog:
 
     @property
     def embedding_text(self) -> str:
-        """Dense embedding 전용 구조화 텍스트.
+        """Dense embedding 전용 field-labeled text.
 
-        필드별 의미를 명시해 embedding model이 domain/context를 구분하도록 한다.
-        title을 앞에 두어 모델의 앞쪽 토큰 집중 경향을 활용한다.
+        JSON 구조가 아니라 자연어형 필드 라벨을 사용한다.
+        embedding 모델은 JSON 특수문자를 의미 있는 구조로
+        이해하지 않으므로 plain text가 더 적합하다.
+
+        date는 의미 유사도 계산에 노이즈가 될 수 있으므로 제외한다.
+        temporal 정보는 local_expansion 등에서 별도로 처리한다.
+
+        activity_type이 unknown인 경우 포함하지 않는다.
+        keyword 기반 분류의 오분류가 embedding에 영향을 주는 것을 방지한다.
         """
         topic = self.metadata.get("topic", "")
-        parts: dict[str, str] = {
-            "title": self.title,
-            "type": self.activity_type,
-            "date": self.date,
-        }
-        if topic:
-            parts["topic"] = topic
-        if self.content:
-            parts["content"] = self.content
 
-        import json
-        return json.dumps(parts, ensure_ascii=False)
+        parts = [f"title: {self.title}"]
+
+        if self.activity_type and self.activity_type != "unknown":
+            parts.append(f"activity_type: {self.activity_type}")
+
+        if topic:
+            parts.append(f"topic: {topic}")
+
+        if self.content:
+            parts.append(f"content: {self.content}")
+
+        return "\n".join(parts).strip()
 
 
 @dataclass
