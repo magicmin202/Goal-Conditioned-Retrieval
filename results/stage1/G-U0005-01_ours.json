@@ -1,0 +1,28 @@
+{
+  "goal_id": "G-U0005-01",
+  "baseline": "ours",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:48.330738",
+  "metrics": {
+    "recall@5": 0.0,
+    "precision@5": 0.0,
+    "selected_count": 1,
+    "selected_precision": 0.0,
+    "f1@5": 0.0,
+    "false_positive_rate": 1.0,
+    "mrr": 0.07692307692307693,
+    "ndcg@5": 0.0,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0005-0049"
+  ],
+  "selected_titles": [
+    "지출 기록"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "True",
+    "disable_lexical_gate": "False"
+  }
+}

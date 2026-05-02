@@ -92,7 +92,7 @@ class GoalConditionedReranker:
         use_real_embeddings: bool = False,
     ) -> None:
         self.config = config or RankerConfig()
-        self._dense = dense_retriever or DenseRetriever(provider=MockEmbeddingProvider())
+        self._dense = dense_retriever or DenseRetriever(doc_provider=MockEmbeddingProvider())
         # When False, Tier2 semantic gate is skipped (mock embeddings produce
         # meaningless cosine scores that would incorrectly reject relevant logs).
         self._use_real_embeddings = use_real_embeddings

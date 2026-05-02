@@ -146,7 +146,7 @@ class CandidateRetriever:
             config=self.config,
             embedding_provider=embedding_provider,
         )
-        self._dense = DenseRetriever(provider=embedding_provider)
+        self._dense = DenseRetriever(doc_provider=embedding_provider)
         self._indexed = False
 
     def index(self, logs: list[ResearchLog]) -> None:

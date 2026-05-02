@@ -1,0 +1,32 @@
+{
+  "goal_id": "G-U0001-01",
+  "baseline": "hybrid",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:47:44.347131",
+  "metrics": {
+    "recall@5": 0.2857142857142857,
+    "precision@5": 0.8,
+    "selected_count": 3,
+    "selected_precision": 0.6666666666666666,
+    "f1@5": 0.4210526315789473,
+    "false_positive_rate": 0.33333333333333337,
+    "mrr": 1.0,
+    "ndcg@5": 0.775416117260419,
+    "diversity_coverage": 0.5
+  },
+  "selected_log_ids": [
+    "L-U0001-0064",
+    "L-U0001-0067",
+    "L-U0001-0050"
+  ],
+  "selected_titles": [
+    "포트폴리오 작업",
+    "프로젝트 구현",
+    "러닝 운동"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

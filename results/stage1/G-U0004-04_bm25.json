@@ -1,0 +1,30 @@
+{
+  "goal_id": "G-U0004-04",
+  "baseline": "bm25",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:47:59.866122",
+  "metrics": {
+    "recall@5": 0.375,
+    "precision@5": 0.6,
+    "selected_count": 2,
+    "selected_precision": 0.5,
+    "f1@5": 0.4615384615384615,
+    "false_positive_rate": 0.5,
+    "mrr": 1.0,
+    "ndcg@5": 0.7592254557429202,
+    "diversity_coverage": 0.5
+  },
+  "selected_log_ids": [
+    "L-U0004-0029",
+    "L-U0004-0008"
+  ],
+  "selected_titles": [
+    "알고리즘 연습",
+    "논문 리뷰"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.SPARSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

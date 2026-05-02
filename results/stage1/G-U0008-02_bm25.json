@@ -1,0 +1,34 @@
+{
+  "goal_id": "G-U0008-02",
+  "baseline": "bm25",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:12.756341",
+  "metrics": {
+    "recall@5": 0.23076923076923078,
+    "precision@5": 0.6,
+    "selected_count": 4,
+    "selected_precision": 0.75,
+    "f1@5": 0.33333333333333337,
+    "false_positive_rate": 0.25,
+    "mrr": 1.0,
+    "ndcg@5": 0.7242928221120901,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0008-0021",
+    "L-U0008-0015",
+    "L-U0008-0009",
+    "L-U0008-0003"
+  ],
+  "selected_titles": [
+    "영어 단어 학습",
+    "소액 투자 시작",
+    "GRE 수학 섹션 학습",
+    "GRE 대비"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.SPARSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

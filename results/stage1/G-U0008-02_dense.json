@@ -1,0 +1,36 @@
+{
+  "goal_id": "G-U0008-02",
+  "baseline": "dense",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:14.976295",
+  "metrics": {
+    "recall@5": 0.3076923076923077,
+    "precision@5": 0.8,
+    "selected_count": 5,
+    "selected_precision": 0.8,
+    "f1@5": 0.4444444444444444,
+    "false_positive_rate": 0.19999999999999996,
+    "mrr": 1.0,
+    "ndcg@5": 0.8784832914582869,
+    "diversity_coverage": 0.2
+  },
+  "selected_log_ids": [
+    "L-U0008-0021",
+    "L-U0008-0009",
+    "L-U0008-0060",
+    "L-U0008-0002",
+    "L-U0008-0037"
+  ],
+  "selected_titles": [
+    "영어 단어 학습",
+    "GRE 수학 섹션 학습",
+    "연구 논문 읽기",
+    "CS 기초 정리",
+    "대학원 연구실 리서치"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.DENSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

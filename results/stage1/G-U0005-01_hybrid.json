@@ -1,0 +1,36 @@
+{
+  "goal_id": "G-U0005-01",
+  "baseline": "hybrid",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:46.202117",
+  "metrics": {
+    "recall@5": 0.2222222222222222,
+    "precision@5": 0.4,
+    "selected_count": 5,
+    "selected_precision": 0.4,
+    "f1@5": 0.2857142857142857,
+    "false_positive_rate": 0.6,
+    "mrr": 0.5,
+    "ndcg@5": 0.36114666114884336,
+    "diversity_coverage": 0.6
+  },
+  "selected_log_ids": [
+    "L-U0005-0037",
+    "L-U0005-0044",
+    "L-U0005-0002",
+    "L-U0005-0061",
+    "L-U0005-0014"
+  ],
+  "selected_titles": [
+    "소액 투자 시작",
+    "웨이트 트레이닝",
+    "GRE 연습 문제 풀기",
+    "스트레칭 루틴",
+    "취업 계획 세우기"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

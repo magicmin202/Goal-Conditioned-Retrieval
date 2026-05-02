@@ -1,0 +1,36 @@
+{
+  "goal_id": "G-U0006-04",
+  "baseline": "dense",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:52.540617",
+  "metrics": {
+    "recall@5": 0.5,
+    "precision@5": 0.8,
+    "selected_count": 5,
+    "selected_precision": 0.6,
+    "f1@5": 0.6153846153846154,
+    "false_positive_rate": 0.4,
+    "mrr": 1.0,
+    "ndcg@5": 0.914074619282942,
+    "diversity_coverage": 0.5
+  },
+  "selected_log_ids": [
+    "L-U0006-0047",
+    "L-U0006-0026",
+    "L-U0006-0029",
+    "L-U0006-0011",
+    "L-U0006-0020"
+  ],
+  "selected_titles": [
+    "교수님 논문 정리",
+    "지도교수 탐색",
+    "개인 프로젝트 개발",
+    "알고리즘 테스트 연습",
+    "대학원 연구실 리서치"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.DENSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

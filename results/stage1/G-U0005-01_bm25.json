@@ -1,0 +1,30 @@
+{
+  "goal_id": "G-U0005-01",
+  "baseline": "bm25",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:33.136730",
+  "metrics": {
+    "recall@5": 0.0,
+    "precision@5": 0.0,
+    "selected_count": 2,
+    "selected_precision": 0.0,
+    "f1@5": 0.0,
+    "false_positive_rate": 1.0,
+    "mrr": 0.14285714285714285,
+    "ndcg@5": 0.0,
+    "diversity_coverage": 0.4
+  },
+  "selected_log_ids": [
+    "L-U0005-0002",
+    "L-U0005-0012"
+  ],
+  "selected_titles": [
+    "GRE 연습 문제 풀기",
+    "GRE 수학 섹션 학습"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.SPARSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

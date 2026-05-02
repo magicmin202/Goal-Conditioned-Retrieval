@@ -38,7 +38,7 @@ class HybridRetriever:
     ) -> None:
         self.config = config or RetrievalConfig()
         self.sparse = SparseRetriever()
-        self.dense = DenseRetriever(provider=embedding_provider)
+        self.dense = DenseRetriever(doc_provider=embedding_provider)
 
     def index(self, logs: list[ResearchLog]) -> None:
         self.sparse.index(logs)

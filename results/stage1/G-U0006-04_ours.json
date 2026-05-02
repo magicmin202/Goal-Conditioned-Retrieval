@@ -1,0 +1,34 @@
+{
+  "goal_id": "G-U0006-04",
+  "baseline": "ours",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:56.967702",
+  "metrics": {
+    "recall@5": 0.625,
+    "precision@5": 1.0,
+    "selected_count": 4,
+    "selected_precision": 0.75,
+    "f1@5": 0.7692307692307693,
+    "false_positive_rate": 0.25,
+    "mrr": 1.0,
+    "ndcg@5": 0.9780380782725734,
+    "diversity_coverage": 0.3333333333333333
+  },
+  "selected_log_ids": [
+    "L-U0006-0039",
+    "L-U0006-0044",
+    "L-U0006-0047",
+    "L-U0006-0036"
+  ],
+  "selected_titles": [
+    "대학원 연구실 리서치",
+    "요리 블로그 탐색",
+    "교수님 논문 정리",
+    "지도교수 탐색"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.HYBRID",
+    "use_expansion": "True",
+    "disable_lexical_gate": "False"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "goal_id": "G-U0006-04",
+  "baseline": "bm25",
+  "stage": "stage1",
+  "timestamp": "2026-05-02T03:48:50.207174",
+  "metrics": {
+    "recall@5": 0.375,
+    "precision@5": 0.6,
+    "selected_count": 2,
+    "selected_precision": 0.5,
+    "f1@5": 0.4615384615384615,
+    "false_positive_rate": 0.5,
+    "mrr": 1.0,
+    "ndcg@5": 0.6480925735741997,
+    "diversity_coverage": 0.3333333333333333
+  },
+  "selected_log_ids": [
+    "L-U0006-0026",
+    "L-U0006-0001"
+  ],
+  "selected_titles": [
+    "지도교수 탐색",
+    "포토 산책"
+  ],
+  "baseline_config": {
+    "retrieval_mode": "RetrievalMode.SPARSE",
+    "use_expansion": "False",
+    "disable_lexical_gate": "True"
+  }
+}

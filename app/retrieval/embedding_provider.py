@@ -43,9 +43,10 @@ def _text_key(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
-def _get_cache_path(cache_dir: str, model: str) -> Path:
+def _get_cache_path(cache_dir: str, model: str, task_type: str = "") -> Path:
     safe = model.replace("/", "_").replace(":", "_")
-    path = Path(cache_dir) / f"{safe}.json"
+    suffix = f"_{task_type.lower()}" if task_type else ""
+    path = Path(cache_dir) / f"{safe}{suffix}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -208,8 +209,8 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         self._task_type = task_type
         self._dim_size: int | None = None
 
-        # Persistent disk cache: survives between runs
-        self._cache_path = _get_cache_path(cache_dir, model)
+        # Persistent disk cache: survives between runs (separated by task_type)
+        self._cache_path = _get_cache_path(cache_dir, model, task_type)
         self._cache: dict[str, list[float]] = _load_disk_cache(self._cache_path)
         self._dirty = False   # track unsaved changes
 
