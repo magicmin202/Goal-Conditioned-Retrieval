@@ -396,8 +396,8 @@ def _heuristic_expansion(goal: ResearchGoal, max_terms: int) -> dict:
                 "goal_summary": key,
                 "goal_activity_types": activity_types,
             }
-    # Last resort: use embedding text tokens
-    tokens = goal.goal_embedding_text.split()
+    # Last resort: use title + description tokens
+    tokens = (goal.title + " " + goal.description).split()
     evidence = _postprocess(tokens, 0, max_terms)
     return {
         "evidence_terms": evidence,
@@ -417,7 +417,7 @@ def _call_gemini(goal: ResearchGoal, max_terms: int, gemini_config=None) -> dict
     llm = get_llm_client(mock=False, config=gemini_config)
     prompt = _EXPANSION_PROMPT.format(
         title=goal.title,
-        description=goal.description or goal.goal_embedding_text,
+        description=goal.description or goal.title,
     )
     response_text = llm.generate(prompt)
 

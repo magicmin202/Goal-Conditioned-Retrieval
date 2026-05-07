@@ -421,7 +421,7 @@ class SchemaMapper:
 
     def detect_goal_domain(self, goal: ResearchGoal) -> str:
         """Infer goal domain from title + description. Returns domain name or 'unknown'."""
-        goal_text = (goal.query_text + " " + goal.goal_embedding_text).lower()
+        goal_text = goal.query_text.lower()
         goal_toks = _tok(goal_text)
 
         best_domain = "unknown"

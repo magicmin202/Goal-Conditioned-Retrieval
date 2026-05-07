@@ -216,7 +216,7 @@ class GoalConditionedReranker:
     # ── Base goal overlap ─────────────────────────────────────────────────────
 
     def _base_goal_overlap(self, goal: ResearchGoal, log_text: str) -> float:
-        goal_tokens = _tok_set(goal.query_text + " " + goal.goal_embedding_text)
+        goal_tokens = _tok_set(goal.query_text)
         log_tokens = _tok_set(log_text)
         if not goal_tokens:
             return 0.0

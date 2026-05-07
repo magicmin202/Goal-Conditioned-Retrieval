@@ -80,7 +80,7 @@ def _raw_prompt(goal: ResearchGoal, logs: list[ResearchLog]) -> str:
 def _expansion_prompt(goal: ResearchGoal) -> str:
     return _EXPANSION_PROMPT.format(
         title=goal.title,
-        description=goal.description or goal.goal_embedding_text,
+        description=goal.description or goal.title,
     )
 
 

@@ -15,7 +15,6 @@ def _mock_data() -> tuple[ResearchGoal, list[ResearchLog], list[GoalLogLabel]]:
         goal_id="G0001", user_id="U0001",
         title="AI 개발 역량 강화",
         description="수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
-        goal_embedding_text="AI 개발 역량 강화 수학 머신러닝 딥러닝 논문 구현",
     )
     logs = [
         ResearchLog("L0001", "U0001", "2026-03-01", "선형대수 개념 복습", "행렬 연산과 고유값 분해를 정리했다.", "study"),

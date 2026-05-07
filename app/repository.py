@@ -32,7 +32,6 @@ def _to_research_goal(data: dict[str, Any]) -> ResearchGoal:
         description=data.get("description", ""),
         time_horizon=data.get("time_horizon", "mid_term"),
         status=data.get("status", "active"),
-        goal_embedding_text=data.get("goal_embedding_text", ""),
         created_at=data.get("created_at", ""),
     )
 

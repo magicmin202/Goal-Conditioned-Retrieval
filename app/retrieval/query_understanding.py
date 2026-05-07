@@ -23,7 +23,5 @@ def build_query(goal: ResearchGoal) -> QueryObject:
     Stage 1 core: uses raw goal text, no expansion.
     """
     raw = goal.query_text
-    canonical = _normalize(
-        goal.goal_embedding_text if goal.goal_embedding_text else raw
-    )
+    canonical = _normalize(raw)
     return QueryObject(raw_text=raw, canonical_text=canonical, goal_id=goal.goal_id)

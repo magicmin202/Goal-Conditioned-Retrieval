@@ -20,7 +20,6 @@ class ResearchGoal:
     description: str = ""
     time_horizon: str = "mid_term"
     status: str = "active"
-    goal_embedding_text: str = ""
     created_at: str = ""
 
     @property
