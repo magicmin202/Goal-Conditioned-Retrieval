@@ -1,8 +1,21 @@
-"""Stage 1 evaluation metrics: Recall@k, Precision@k, MRR, nDCG@k, Diversity Coverage."""
+"""Stage 1 evaluation metrics: Recall@k, Precision@k, MRR, nDCG@k, Diversity Coverage.
+
+Two evaluation layers:
+  1. Candidate layer  — measures recall/precision of the top-N candidate pool
+                        (before reranking).  Tells you whether retrieval missed
+                        any relevant logs at all.
+  2. Selected layer   — measures recall/precision of the final top-K selection
+                        (after reranking + diversity).  Tells you whether
+                        ranking/filtering made the right precision decisions.
+
+Compare the two to locate the bottleneck:
+  - candidate_recall low  → retrieval problem (BM25/dense/boost)
+  - selected_precision low → reranker/filter problem
+"""
 from __future__ import annotations
 import logging
 import math
-from app.schemas import GoalLogLabel, RankedLog
+from app.schemas import CandidateLog, GoalLogLabel, RankedLog
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +117,84 @@ def diversity_coverage(selected: list[RankedLog], total_activity_types: set[str]
         return 0.0
     selected_types = {r.log.activity_type for r in selected}
     return len(selected_types & total_activity_types) / len(total_activity_types)
+
+
+def candidate_recall(
+    candidates: list[CandidateLog],
+    labels: list[GoalLogLabel],
+) -> float:
+    """Fraction of relevant logs that made it into the candidate pool.
+
+    candidate_recall = |relevant ∩ candidates| / |relevant|
+
+    A low value means retrieval itself dropped relevant logs before
+    reranking even had a chance to see them.
+    """
+    relevant = _relevant_ids(labels)
+    if not relevant:
+        return 0.0
+    cand_ids = {c.log_id for c in candidates}
+    return len(cand_ids & relevant) / len(relevant)
+
+
+def candidate_precision(
+    candidates: list[CandidateLog],
+    labels: list[GoalLogLabel],
+) -> float:
+    """Fraction of candidate pool that is relevant.
+
+    candidate_precision = |relevant ∩ candidates| / |candidates|
+
+    A low value means many irrelevant logs entered the pool.
+    """
+    if not candidates:
+        return 0.0
+    relevant = _relevant_ids(labels)
+    cand_ids = [c.log_id for c in candidates]
+    return sum(1 for lid in cand_ids if lid in relevant) / len(cand_ids)
+
+
+def candidate_f1(
+    candidates: list[CandidateLog],
+    labels: list[GoalLogLabel],
+) -> float:
+    cr = candidate_recall(candidates, labels)
+    cp = candidate_precision(candidates, labels)
+    if cr + cp == 0.0:
+        return 0.0
+    return 2 * cr * cp / (cr + cp)
+
+
+def compute_candidate_metrics(
+    candidates: list[CandidateLog],
+    labels: list[GoalLogLabel],
+) -> dict[str, float]:
+    """Metrics for the candidate retrieval pool (before reranking).
+
+    Returns
+    -------
+    dict with keys:
+        candidate_recall    – recall over relevant set
+        candidate_precision – precision over candidate pool
+        candidate_f1        – harmonic mean of the two
+        candidate_size      – number of candidates
+        relevant_in_pool    – count of relevant logs in pool
+        relevant_total      – total relevant logs in label set
+    """
+    relevant = _relevant_ids(labels)
+    cand_ids = {c.log_id for c in candidates}
+    hit = len(cand_ids & relevant)
+    cr = hit / len(relevant) if relevant else 0.0
+    cp = hit / len(candidates) if candidates else 0.0
+    cf1 = 2 * cr * cp / (cr + cp) if (cr + cp) > 0 else 0.0
+    return {
+        "candidate_recall":    round(cr, 4),
+        "candidate_precision": round(cp, 4),
+        "candidate_f1":        round(cf1, 4),
+        "candidate_size":      len(candidates),
+        "relevant_in_pool":    hit,
+        "relevant_total":      len(relevant),
+    }
 
 
 def compute_all_metrics(

@@ -44,25 +44,29 @@ def build_dataset(
     end_date: date = date(2026, 3, 31),
     seed: int = 42,
     small_mode: bool = False,
+    large_mode: bool = False,
 ) -> SyntheticDataset:
     """Build a complete synthetic dataset.
 
     Args:
-        num_users: Total number of users (overridden to 3 in small_mode).
+        num_users: Total number of users (overridden by mode flags).
         start_date: Start of the log period.
         end_date: End of the log period.
         seed: Master random seed.
-        small_mode: If True, generate a small dataset for quick testing
-                    (3 users, 3 goals each, 25-40 logs each).
+        small_mode: 3 users, 25-40 logs, 1 month.
+        large_mode: 15 users, 60-80 logs, 3 months, 15 domains, max 5 goals/domain.
     """
-    if small_mode:
+    if large_mode:
+        num_users = 15
+        start_date = date(2026, 1, 1)
+        end_date = date(2026, 3, 31)
+        min_logs, max_logs = 60, 80
+        min_goals, max_goals = 3, 4
+    elif small_mode:
         num_users = 3
-
-    if small_mode:
         min_logs, max_logs = 25, 40
         min_goals, max_goals = 3, 3
     elif num_users <= 15:
-        # medium range: enough logs for realistic retrieval experiments
         min_logs, max_logs = 50, 70
         min_goals, max_goals = 3, 4
     else:
@@ -73,6 +77,9 @@ def build_dataset(
     users = generate_users(num_users, seed=seed)
     dataset.users = users
 
+    # Domain cap tracker (only enforced in large_mode)
+    domain_counter: dict[str, int] = {}
+
     for i, user in enumerate(users):
         goals = generate_goals_for_user(
             user.user_id,
@@ -80,6 +87,7 @@ def build_dataset(
             min_goals=min_goals,
             max_goals=max_goals,
             seed=seed,
+            domain_counter=domain_counter if large_mode else None,
         )
         dataset.goals.extend(goals)
 

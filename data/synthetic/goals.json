@@ -6,52 +6,52 @@
     "description": "소프트웨어 개발 역량을 쌓아 IT 기업에 취업한다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0001-02",
     "user_id": "U0001",
-    "title": "월 저축 50만원 달성하기",
-    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
-    "time_horizon": "mid_term",
+    "title": "기술 블로그 꾸준히 운영하기",
+    "description": "배운 개발 지식을 주 1회 이상 블로그에 정리하여 공유한다.",
+    "time_horizon": "long_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0001-03",
     "user_id": "U0001",
-    "title": "규칙적으로 운동하기",
-    "description": "매주 4회 이상 운동하여 체력을 키우고 건강을 관리한다.",
-    "time_horizon": "long_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0002-01",
-    "user_id": "U0002",
     "title": "저비용 해외여행 계획하기",
     "description": "항공권과 숙소를 미리 예약하고 여행 예산을 관리하여 저비용으로 해외여행을 다녀온다.",
     "time_horizon": "short_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0002-01",
+    "user_id": "U0002",
+    "title": "단편 소설 완성하기",
+    "description": "아이디어를 구체화하여 5000자 이상의 단편 소설을 완성한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0002-02",
     "user_id": "U0002",
-    "title": "투자 공부 시작하기",
-    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
-    "time_horizon": "long_term",
+    "title": "우쿨렐레 독학하기",
+    "description": "유튜브를 통해 우쿨렐레를 독학하며 3곡을 연주할 수 있게 된다.",
+    "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0002-03",
     "user_id": "U0002",
-    "title": "요리 레퍼토리 늘리기",
-    "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
+    "title": "영어 회화 실력 높이기",
+    "description": "원어민과 자유롭게 대화할 수 있도록 스피킹과 리스닝을 강화한다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0003-01",
@@ -60,34 +60,34 @@
     "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0003-02",
+    "user_id": "U0003",
+    "title": "단편 소설 완성하기",
+    "description": "아이디어를 구체화하여 5000자 이상의 단편 소설을 완성한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0003-03",
     "user_id": "U0003",
     "title": "월 저축 50만원 달성하기",
     "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0003-03",
-    "user_id": "U0003",
-    "title": "식단 관리하기",
-    "description": "건강한 식습관을 유지하고 불필요한 외식을 줄인다.",
-    "time_horizon": "mid_term",
-    "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0003-04",
     "user_id": "U0003",
-    "title": "개발자로 취업하기",
-    "description": "소프트웨어 개발 역량을 쌓아 IT 기업에 취업한다.",
-    "time_horizon": "mid_term",
+    "title": "공무원 시험 준비",
+    "description": "9급 행정직 공무원 시험을 위해 과목별 학습 계획을 수립하고 실행한다.",
+    "time_horizon": "long_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0004-01",
@@ -96,106 +96,106 @@
     "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
     "time_horizon": "long_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0004-02",
-    "user_id": "U0004",
-    "title": "토익 900점 달성",
-    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
-    "time_horizon": "short_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0004-03",
     "user_id": "U0004",
     "title": "친구 관계 넓히기",
     "description": "다양한 모임과 활동을 통해 인맥을 넓히고 사회성을 키운다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0004-03",
+    "user_id": "U0004",
+    "title": "일찍 일어나는 습관 만들기",
+    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0004-04",
     "user_id": "U0004",
-    "title": "AI 엔지니어 역량 강화",
-    "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
-    "time_horizon": "mid_term",
+    "title": "토익 900점 달성",
+    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
+    "time_horizon": "short_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0005-01",
+    "user_id": "U0005",
+    "title": "수채화 기초 익히기",
+    "description": "수채화 도구 사용법과 기초 기법을 익혀 풍경화를 그릴 수 있게 된다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0005-02",
     "user_id": "U0005",
     "title": "식단 관리하기",
     "description": "건강한 식습관을 유지하고 불필요한 외식을 줄인다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
-    "goal_id": "G-U0005-02",
+    "goal_id": "G-U0005-03",
     "user_id": "U0005",
     "title": "AI 엔지니어 역량 강화",
     "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0005-03",
-    "user_id": "U0005",
-    "title": "토익 900점 달성",
-    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
-    "time_horizon": "short_term",
-    "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0005-04",
     "user_id": "U0005",
-    "title": "월 저축 50만원 달성하기",
-    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
+    "title": "수영 자유형 마스터하기",
+    "description": "25m 자유형을 쉬지 않고 완주하며 기초 영법을 완성한다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0006-01",
+    "user_id": "U0006",
+    "title": "클라이밍 5급 달성하기",
+    "description": "실내 클라이밍 센터에서 꾸준히 훈련하여 5급 루트를 완등한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0006-02",
     "user_id": "U0006",
     "title": "투자 공부 시작하기",
     "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
     "time_horizon": "long_term",
     "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0006-02",
-    "user_id": "U0006",
-    "title": "사진 촬영 실력 키우기",
-    "description": "카메라 사용법을 익히고 매주 외출하여 사진을 찍고 편집한다.",
-    "time_horizon": "long_term",
-    "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0006-03",
     "user_id": "U0006",
-    "title": "일찍 일어나는 습관 만들기",
-    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "title": "수채화 기초 익히기",
+    "description": "수채화 도구 사용법과 기초 기법을 익혀 풍경화를 그릴 수 있게 된다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0006-04",
     "user_id": "U0006",
-    "title": "대학원 진학 준비",
-    "description": "석사 과정 입학을 위해 연구실 탐색, 연구계획서 작성, 영어 공부를 한다.",
+    "title": "독서 기록 일기 쓰기",
+    "description": "읽은 책마다 독후감을 써서 생각을 정리하고 지식을 내면화한다.",
     "time_horizon": "long_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0007-01",
@@ -204,114 +204,285 @@
     "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
     "goal_id": "G-U0007-02",
     "user_id": "U0007",
-    "title": "토익 900점 달성",
-    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
-    "time_horizon": "short_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0007-03",
-    "user_id": "U0007",
-    "title": "일찍 일어나는 습관 만들기",
-    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
-    "time_horizon": "mid_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0008-01",
-    "user_id": "U0008",
-    "title": "일찍 일어나는 습관 만들기",
-    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
-    "time_horizon": "mid_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0008-02",
-    "user_id": "U0008",
-    "title": "토익 900점 달성",
-    "description": "취업과 대학원 지원을 위해 토익 900점을 목표로 공부한다.",
-    "time_horizon": "short_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0008-03",
-    "user_id": "U0008",
-    "title": "투자 공부 시작하기",
-    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
-    "time_horizon": "long_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0009-01",
-    "user_id": "U0009",
-    "title": "월 저축 50만원 달성하기",
-    "description": "지출을 줄이고 수입을 관리하여 매달 50만원 이상 저축한다.",
-    "time_horizon": "mid_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0009-02",
-    "user_id": "U0009",
-    "title": "일찍 일어나는 습관 만들기",
-    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
-    "time_horizon": "mid_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0009-03",
-    "user_id": "U0009",
-    "title": "저비용 해외여행 계획하기",
-    "description": "항공권과 숙소를 미리 예약하고 여행 예산을 관리하여 저비용으로 해외여행을 다녀온다.",
-    "time_horizon": "short_term",
-    "status": "active",
-    "created_at": "2026-03-01"
-  },
-  {
-    "goal_id": "G-U0009-04",
-    "user_id": "U0009",
     "title": "친구 관계 넓히기",
     "description": "다양한 모임과 활동을 통해 인맥을 넓히고 사회성을 키운다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
-    "goal_id": "G-U0010-01",
-    "user_id": "U0010",
-    "title": "국내 여행 루틴 만들기",
-    "description": "매달 1회 국내 여행을 다니며 새로운 장소를 경험한다.",
-    "time_horizon": "long_term",
+    "goal_id": "G-U0007-03",
+    "user_id": "U0007",
+    "title": "수영 자유형 마스터하기",
+    "description": "25m 자유형을 쉬지 않고 완주하며 기초 영법을 완성한다.",
+    "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
-    "goal_id": "G-U0010-02",
-    "user_id": "U0010",
-    "title": "독서 습관 만들기",
-    "description": "매일 30분 이상 독서를 하여 지식을 넓히고 사고력을 키운다.",
-    "time_horizon": "long_term",
+    "goal_id": "G-U0008-01",
+    "user_id": "U0008",
+    "title": "단편 소설 완성하기",
+    "description": "아이디어를 구체화하여 5000자 이상의 단편 소설을 완성한다.",
+    "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
   },
   {
-    "goal_id": "G-U0010-03",
-    "user_id": "U0010",
+    "goal_id": "G-U0008-02",
+    "user_id": "U0008",
+    "title": "일찍 일어나는 습관 만들기",
+    "description": "오전 6시 기상을 목표로 수면 패턴을 개선한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0008-03",
+    "user_id": "U0008",
     "title": "식단 관리하기",
     "description": "건강한 식습관을 유지하고 불필요한 외식을 줄인다.",
     "time_horizon": "mid_term",
     "status": "active",
-    "created_at": "2026-03-01"
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0009-01",
+    "user_id": "U0009",
+    "title": "일본어 JLPT N3 취득하기",
+    "description": "히라가나, 가타카나, 문법, 어휘를 학습하여 JLPT N3를 합격한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0009-02",
+    "user_id": "U0009",
+    "title": "투자 공부 시작하기",
+    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0009-03",
+    "user_id": "U0009",
+    "title": "정보처리기사 취득하기",
+    "description": "필기와 실기 시험을 준비하여 정보처리기사 자격증을 취득한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0009-04",
+    "user_id": "U0009",
+    "title": "요리 레퍼토리 늘리기",
+    "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0010-01",
+    "user_id": "U0010",
+    "title": "저비용 해외여행 계획하기",
+    "description": "항공권과 숙소를 미리 예약하고 여행 예산을 관리하여 저비용으로 해외여행을 다녀온다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0010-02",
+    "user_id": "U0010",
+    "title": "투자 공부 시작하기",
+    "description": "주식, ETF, 부동산 등 기본 투자 지식을 익히고 소액 투자를 시작한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0010-03",
+    "user_id": "U0010",
+    "title": "요리 레퍼토리 늘리기",
+    "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0011-01",
+    "user_id": "U0011",
+    "title": "10km 달리기 완주하기",
+    "description": "3개월 안에 10km 달리기를 완주할 수 있는 체력을 만든다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0011-02",
+    "user_id": "U0011",
+    "title": "정보처리기사 취득하기",
+    "description": "필기와 실기 시험을 준비하여 정보처리기사 자격증을 취득한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0011-03",
+    "user_id": "U0011",
+    "title": "요리 레퍼토리 늘리기",
+    "description": "매주 새로운 요리를 시도하여 요리 실력을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0011-04",
+    "user_id": "U0011",
+    "title": "친구 관계 넓히기",
+    "description": "다양한 모임과 활동을 통해 인맥을 넓히고 사회성을 키운다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0012-01",
+    "user_id": "U0012",
+    "title": "대학원 진학 준비",
+    "description": "석사 과정 입학을 위해 연구실 탐색, 연구계획서 작성, 영어 공부를 한다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0012-02",
+    "user_id": "U0012",
+    "title": "스페인어 기초 마스터하기",
+    "description": "스페인어 알파벳부터 기초 회화까지 독학으로 익힌다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0012-03",
+    "user_id": "U0012",
+    "title": "정보처리기사 취득하기",
+    "description": "필기와 실기 시험을 준비하여 정보처리기사 자격증을 취득한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0012-04",
+    "user_id": "U0012",
+    "title": "기타 코드 마스터하기",
+    "description": "기초 코드 10가지를 완벽히 익히고 좋아하는 곡을 연주할 수 있게 된다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0013-01",
+    "user_id": "U0013",
+    "title": "스페인어 기초 마스터하기",
+    "description": "스페인어 알파벳부터 기초 회화까지 독학으로 익힌다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0013-02",
+    "user_id": "U0013",
+    "title": "저비용 해외여행 계획하기",
+    "description": "항공권과 숙소를 미리 예약하고 여행 예산을 관리하여 저비용으로 해외여행을 다녀온다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0013-03",
+    "user_id": "U0013",
+    "title": "클라이밍 5급 달성하기",
+    "description": "실내 클라이밍 센터에서 꾸준히 훈련하여 5급 루트를 완등한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0013-04",
+    "user_id": "U0013",
+    "title": "AI 엔지니어 역량 강화",
+    "description": "수학, 머신러닝, 논문 읽기, 구현 역량을 강화한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0014-01",
+    "user_id": "U0014",
+    "title": "일본 배낭여행 준비하기",
+    "description": "오사카, 도쿄, 교토를 배낭여행으로 여행하기 위한 모든 준비를 한다.",
+    "time_horizon": "short_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0014-02",
+    "user_id": "U0014",
+    "title": "수채화 기초 익히기",
+    "description": "수채화 도구 사용법과 기초 기법을 익혀 풍경화를 그릴 수 있게 된다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0014-03",
+    "user_id": "U0014",
+    "title": "클라이밍 5급 달성하기",
+    "description": "실내 클라이밍 센터에서 꾸준히 훈련하여 5급 루트를 완등한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0014-04",
+    "user_id": "U0014",
+    "title": "정보처리기사 취득하기",
+    "description": "필기와 실기 시험을 준비하여 정보처리기사 자격증을 취득한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0015-01",
+    "user_id": "U0015",
+    "title": "AWS 자격증 취득하기",
+    "description": "AWS Solutions Architect Associate 자격증을 취득하여 클라우드 역량을 증명한다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0015-02",
+    "user_id": "U0015",
+    "title": "기타 코드 마스터하기",
+    "description": "기초 코드 10가지를 완벽히 익히고 좋아하는 곡을 연주할 수 있게 된다.",
+    "time_horizon": "mid_term",
+    "status": "active",
+    "created_at": "2026-01-01"
+  },
+  {
+    "goal_id": "G-U0015-03",
+    "user_id": "U0015",
+    "title": "명상과 마음챙김 루틴 만들기",
+    "description": "매일 10분 명상을 통해 집중력과 정서 안정을 기른다.",
+    "time_horizon": "long_term",
+    "status": "active",
+    "created_at": "2026-01-01"
   }
 ]

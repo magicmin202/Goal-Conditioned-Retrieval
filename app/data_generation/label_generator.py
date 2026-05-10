@@ -17,14 +17,20 @@ from app.schemas import GoalLogLabel, ResearchGoal
 
 # Domain similarity matrix — categories that can create partial relevance
 _PARTIAL_OVERLAP: dict[str, set[str]] = {
-    "career":       {"education"},
-    "education":    {"career", "habit"},
-    "health":       {"habit"},
-    "habit":        {"health", "education"},
-    "relationship": set(),
-    "travel":       {"finance"},
-    "finance":      {"travel", "career"},
-    "hobby":        {"habit"},
+    "career":        {"education", "certification", "writing"},
+    "education":     {"career", "habit", "language", "certification"},
+    "health":        {"habit", "sports"},
+    "habit":         {"health", "education", "writing"},
+    "relationship":  {"travel"},
+    "travel":        {"finance", "relationship", "language"},
+    "finance":       {"travel", "career"},
+    "hobby":         {"habit", "art", "writing"},
+    "language":      {"education", "travel"},
+    "music":         {"art", "hobby"},
+    "art":           {"music", "hobby", "writing"},
+    "writing":       {"habit", "career", "art"},
+    "sports":        {"health"},
+    "certification": {"career", "education"},
 }
 
 

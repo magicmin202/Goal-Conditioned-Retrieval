@@ -34,31 +34,43 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate synthetic research dataset")
     parser.add_argument("--small",  action="store_true", help="Small  mode: 3 users, 25-40 logs, 1 month")
     parser.add_argument("--medium", action="store_true", help="Medium mode: 10 users, 50-70 logs, 2 months")
+    parser.add_argument("--large",  action="store_true",
+                        help="Large mode: 15 users, 60-80 logs, 3 months, 15 domains, max 5 goals/domain")
     parser.add_argument("--num_users", type=int, default=100)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output_dir", default="data/synthetic")
     parser.add_argument("--upload", action="store_true", help="Upload to Firestore after export")
     args = parser.parse_args()
 
-    if args.medium:
-        num_users = 10
+    large_mode = False
+    if args.large:
+        num_users  = 15
+        start_date = date(2026, 1, 1)
+        end_date   = date(2026, 3, 31)
+        small_mode = False
+        large_mode = True
+        mode_label = "large"
+    elif args.medium:
+        num_users  = 10
         start_date = date(2026, 2, 1)
         end_date   = date(2026, 3, 31)
         small_mode = False
+        mode_label = "medium"
     elif args.small:
         num_users  = 3
         start_date = date(2026, 3, 1)
         end_date   = date(2026, 3, 31)
         small_mode = True
+        mode_label = "small"
     else:
         num_users  = args.num_users
         start_date = date(2026, 3, 1)
         end_date   = date(2026, 3, 31)
         small_mode = False
+        mode_label = "full"
 
     logger.info("Building dataset (mode=%s, num_users=%d, seed=%d)",
-                "medium" if args.medium else ("small" if args.small else "full"),
-                num_users, args.seed)
+                mode_label, num_users, args.seed)
 
     dataset = build_dataset(
         num_users=num_users,
@@ -66,6 +78,7 @@ def main() -> None:
         end_date=end_date,
         seed=args.seed,
         small_mode=small_mode,
+        large_mode=large_mode,
     )
 
     stats = dataset.stats()

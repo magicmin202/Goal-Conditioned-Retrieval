@@ -36,6 +36,7 @@ from app.data_generation.dataset_builder import build_dataset
 from app.data_generation.export_utils import load_dataset_from_json
 from app.evaluation.ranking_metrics import (
     compute_all_metrics,
+    compute_candidate_metrics,
     f1_at_k,
     false_positive_rate,
     selected_precision as calc_selected_precision,
@@ -192,6 +193,17 @@ def main() -> None:
 
     if user_labels:
         all_types = {l.activity_type for l in user_logs}
+
+        # ── Layer 1: Candidate pool metrics ───────────────────────────────────
+        cand_metrics = compute_candidate_metrics(result.candidates, user_labels)
+
+        print(f"\n[Layer 1: Candidate Pool  (top-{cand_metrics['candidate_size']})]")
+        print(f"  {'relevant_in_pool':<28} {cand_metrics['relevant_in_pool']} / {cand_metrics['relevant_total']}")
+        print(f"  {'candidate_recall':<28} {cand_metrics['candidate_recall']:.4f}  ← retrieval이 관련 로그를 담았나?")
+        print(f"  {'candidate_precision':<28} {cand_metrics['candidate_precision']:.4f}  ← 후보 중 관련 로그 비율")
+        print(f"  {'candidate_f1':<28} {cand_metrics['candidate_f1']:.4f}")
+
+        # ── Layer 2: Selected (final top-K) metrics ───────────────────────────
         metrics = compute_all_metrics(
             result.ranked_logs, user_labels,
             k=k,
@@ -203,17 +215,33 @@ def main() -> None:
         fpr = metrics["false_positive_rate"]
         f1 = metrics[f"f1@{k}"]
 
-        print(f"\n[Metrics @ k={k}]")
-        print(f"  {'recall@'+str(k):<28} {metrics[f'recall@{k}']:.4f}")
+        print(f"\n[Layer 2: Final Selected  (top-{k})]")
+        print(f"  {'recall@'+str(k):<28} {metrics[f'recall@{k}']:.4f}  ← 최종 선택에서 관련 로그 회수율")
         print(f"  {'precision@'+str(k):<28} {metrics[f'precision@{k}']:.4f}")
         print(f"  {'selected_count':<28} {s_count}")
-        print(f"  {'selected_precision':<28} {s_prec:.4f}")
+        print(f"  {'selected_precision':<28} {s_prec:.4f}  ← 최종 선택의 정확도")
         print(f"  {'f1@'+str(k):<28} {f1:.4f}")
         print(f"  {'false_positive_rate':<28} {fpr:.4f}")
         print(f"  {'mrr':<28} {metrics['mrr']:.4f}")
         print(f"  {'ndcg@'+str(k):<28} {metrics[f'ndcg@{k}']:.4f}")
         print(f"  {'diversity_coverage':<28} {metrics['diversity_coverage']:.4f}")
 
+        # ── Bottleneck diagnosis ──────────────────────────────────────────────
+        cr = cand_metrics["candidate_recall"]
+        sp = s_prec
+        print(f"\n[Bottleneck Diagnosis]")
+        if cr < 0.70:
+            print(f"  ⚠ candidate_recall={cr:.2f} — retrieval 단계에서 관련 로그를 놓치고 있음")
+            print(f"     → BM25/dense weight, vocab boost 점검 필요")
+        else:
+            print(f"  ✓ candidate_recall={cr:.2f} — retrieval 충분히 recall 확보")
+        if sp < 0.60:
+            print(f"  ⚠ selected_precision={sp:.2f} — reranker/filter 단계에서 노이즈 제거 부족")
+            print(f"     → reranker weights, negative penalty, relevance threshold 점검 필요")
+        else:
+            print(f"  ✓ selected_precision={sp:.2f} — reranker precision 양호")
+
+        # ── Label distribution ────────────────────────────────────────────────
         label_map = {lb.log_id: lb.label for lb in user_labels}
         dist: dict[str, int] = {}
         for r in result.selected_logs:
