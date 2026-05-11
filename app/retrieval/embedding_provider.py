@@ -230,27 +230,59 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         return list(result.embeddings[0].values)
 
     def encode(self, text: str) -> list[float]:
+        import time
         key = _text_key(text)
         if key not in self._cache:
-            vec = self._api_encode(text)
+            # Retry loop: on 429 wait 60s and retry (up to 3 times)
+            for attempt in range(3):
+                try:
+                    vec = self._api_encode(text)
+                    break
+                except Exception as exc:
+                    if "429" in str(exc) and attempt < 2:
+                        wait = 60 * (attempt + 1)
+                        print(f"\n  [Rate limit] 429 hit — waiting {wait}s before retry "
+                              f"(attempt {attempt+1}/3) ...", flush=True)
+                        self.save_cache()   # save progress before waiting
+                        time.sleep(wait)
+                    else:
+                        raise
             self._cache[key] = vec
             self._dirty = True
             if self._dim_size is None:
                 self._dim_size = len(vec)
-            # Auto-save every 10 new embeddings
-            if sum(1 for _ in self._cache) % 10 == 0:
+            # 0.5s between calls (~120 req/min, safe for free-tier limit)
+            time.sleep(0.5)
+            # Auto-save every 20 new embeddings
+            new_count = sum(1 for v in self._cache.values() if v)
+            if new_count % 20 == 0:
                 self.save_cache()
         return self._cache[key]
 
     def encode_batch(self, texts: list[str]) -> list[list[float]]:
-        """Encode batch, skipping texts already in cache."""
+        """Encode batch, skipping texts already in cache.
+
+        Prints progress for large batches so the user can track API calls.
+        """
         missing = [t for t in texts if _text_key(t) not in self._cache]
+        total = len(texts)
+        cached_count = total - len(missing)
         if missing:
             logger.info(
                 "GeminiEmbed: %d new texts to embed (%d already cached)",
-                len(missing), len(texts) - len(missing),
+                len(missing), cached_count,
             )
-        results = [self.encode(t) for t in texts]
+            print(f"  Embedding {len(missing)} new texts (skipping {cached_count} cached) ...",
+                  flush=True)
+
+        results = []
+        for i, t in enumerate(texts):
+            results.append(self.encode(t))
+            # Progress every 50 new embeddings
+            if missing and (i + 1) % 50 == 0:
+                pct = (i + 1) / total * 100
+                print(f"  ... {i+1}/{total} ({pct:.0f}%)", flush=True)
+
         if self._dirty:
             self.save_cache()
         return results

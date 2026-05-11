@@ -148,5 +148,855 @@
     },
     "dataset_version": "v1",
     "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0016",
+    "profile": {
+      "role": "researcher",
+      "domain": "biology",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0017",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "design",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0018",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0019",
+    "profile": {
+      "role": "developer",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0020",
+    "profile": {
+      "role": "developer",
+      "domain": "design",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0021",
+    "profile": {
+      "role": "college_student",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0022",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "biology",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0023",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "ai_engineering",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0024",
+    "profile": {
+      "role": "developer",
+      "domain": "finance",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0025",
+    "profile": {
+      "role": "developer",
+      "domain": "software",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0026",
+    "profile": {
+      "role": "developer",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0027",
+    "profile": {
+      "role": "developer",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0028",
+    "profile": {
+      "role": "college_student",
+      "domain": "design",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0029",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "design",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0030",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "software",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0031",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "biology",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0032",
+    "profile": {
+      "role": "researcher",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0033",
+    "profile": {
+      "role": "developer",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0034",
+    "profile": {
+      "role": "college_student",
+      "domain": "biology",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0035",
+    "profile": {
+      "role": "developer",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0036",
+    "profile": {
+      "role": "researcher",
+      "domain": "education",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0037",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "education",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0038",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "education",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0039",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "biology",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0040",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0041",
+    "profile": {
+      "role": "researcher",
+      "domain": "biology",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0042",
+    "profile": {
+      "role": "researcher",
+      "domain": "finance",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0043",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "biology",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0044",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "design",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0045",
+    "profile": {
+      "role": "college_student",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0046",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "education",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0047",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "design",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0048",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "finance",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0049",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "design",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0050",
+    "profile": {
+      "role": "researcher",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0051",
+    "profile": {
+      "role": "college_student",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0052",
+    "profile": {
+      "role": "developer",
+      "domain": "education",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0053",
+    "profile": {
+      "role": "college_student",
+      "domain": "biology",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0054",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "finance",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0055",
+    "profile": {
+      "role": "developer",
+      "domain": "design",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0056",
+    "profile": {
+      "role": "researcher",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0057",
+    "profile": {
+      "role": "developer",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0058",
+    "profile": {
+      "role": "researcher",
+      "domain": "software",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0059",
+    "profile": {
+      "role": "developer",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0060",
+    "profile": {
+      "role": "researcher",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0061",
+    "profile": {
+      "role": "developer",
+      "domain": "finance",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0062",
+    "profile": {
+      "role": "college_student",
+      "domain": "biology",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0063",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0064",
+    "profile": {
+      "role": "researcher",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0065",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0066",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0067",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "design",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0068",
+    "profile": {
+      "role": "developer",
+      "domain": "design",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0069",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0070",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "education",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0071",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0072",
+    "profile": {
+      "role": "developer",
+      "domain": "finance",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0073",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0074",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "ai_engineering",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0075",
+    "profile": {
+      "role": "college_student",
+      "domain": "design",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0076",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "design",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0077",
+    "profile": {
+      "role": "college_student",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0078",
+    "profile": {
+      "role": "college_student",
+      "domain": "software",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0079",
+    "profile": {
+      "role": "college_student",
+      "domain": "biology",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0080",
+    "profile": {
+      "role": "researcher",
+      "domain": "software",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0081",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0082",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0083",
+    "profile": {
+      "role": "researcher",
+      "domain": "finance",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0084",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "finance",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0085",
+    "profile": {
+      "role": "college_student",
+      "domain": "ai_engineering",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0086",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "biology",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0087",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "finance",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0088",
+    "profile": {
+      "role": "college_student",
+      "domain": "education",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0089",
+    "profile": {
+      "role": "college_student",
+      "domain": "ai_engineering",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0090",
+    "profile": {
+      "role": "developer",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0091",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "software",
+      "planning_style": "reactive"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0092",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "software",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0093",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "biology",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0094",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "ai_engineering",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0095",
+    "profile": {
+      "role": "researcher",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0096",
+    "profile": {
+      "role": "researcher",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0097",
+    "profile": {
+      "role": "graduate_student",
+      "domain": "software",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0098",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "finance",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0099",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "ai_engineering",
+      "planning_style": "structured"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
+  },
+  {
+    "user_id": "U0100",
+    "profile": {
+      "role": "job_seeker",
+      "domain": "ai_engineering",
+      "planning_style": "flexible"
+    },
+    "dataset_version": "v1",
+    "created_at": "2026-03-01"
   }
 ]

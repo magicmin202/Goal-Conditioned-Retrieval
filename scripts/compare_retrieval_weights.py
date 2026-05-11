@@ -9,21 +9,28 @@ Experiments (vocab_boost contribution fixed at 0.15):
   E: BM25=0.35  Dense=0.50
   F: BM25=0.25  Dense=0.60
 
+Candidate size is dynamic (scales with corpus size):
+  ≤ 20 logs  → 80 %  of corpus
+  ≤ 50 logs  → 60 %
+  ≤ 100 logs → 50 %
+  > 100 logs → 40 %
+  (always ≥ top_k)
+
+This ensures the "top-N" pool is proportional to corpus, not hardcoded at 30.
+
 --mode candidate (default):
   Evaluates at the candidate level (before reranking).
-  This is the correct mode to compare BM25/Dense weight effects.
-  Reranker re-scores all candidates identically regardless of weights,
-  so end-to-end comparison only reflects candidate-level differences.
+  Reports both candidate_recall (how many relevant logs entered the pool)
+  and selected_precision (precision of the pool itself).
 
 --mode rerank:
-  Full pipeline evaluation after reranking.
-  Only meaningful when candidate_size < corpus size (tight recall setting).
+  Full pipeline evaluation after reranking + diversity selection.
 
 Usage:
     python scripts/compare_retrieval_weights.py
-    python scripts/compare_retrieval_weights.py --mode rerank --candidate_ratio 0.4
-    python scripts/compare_retrieval_weights.py --goal_id G-U0001-01
     python scripts/compare_retrieval_weights.py --real_embeddings
+    python scripts/compare_retrieval_weights.py --mode rerank
+    python scripts/compare_retrieval_weights.py --goal_id G-U0001-01
 """
 from __future__ import annotations
 
@@ -43,10 +50,33 @@ import logging
 from app.config import DEFAULT_CONFIG
 from app.data_generation.dataset_builder import build_dataset
 from app.data_generation.export_utils import load_dataset_from_json
-from app.evaluation.ranking_metrics import compute_all_metrics
+from app.evaluation.ranking_metrics import compute_all_metrics, compute_candidate_metrics
 from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline
 from app.retrieval.candidate_retrieval import RetrievalMode
 from app.schemas import ResearchGoal, ResearchLog, GoalLogLabel
+
+
+def dynamic_candidate_size(corpus_size: int, top_k: int) -> int:
+    """Scale candidate pool proportionally to corpus size.
+
+    Corpus size   Ratio   Example (top_k=10)
+    ──────────────────────────────────────────
+    ≤  20         80 %    16
+    ≤  50         60 %    30
+    ≤ 100         50 %    50
+    > 100         40 %    40+ (corpus-dependent)
+
+    Always returns at least top_k so the pipeline never starves.
+    """
+    if corpus_size <= 20:
+        ratio = 0.80
+    elif corpus_size <= 50:
+        ratio = 0.60
+    elif corpus_size <= 100:
+        ratio = 0.50
+    else:
+        ratio = 0.40
+    return max(top_k, int(corpus_size * ratio))
 
 logger = logging.getLogger(__name__)
 
@@ -54,12 +84,13 @@ _DEFAULT_DATA_DIR = "data/synthetic"
 
 # ── Experiment definitions ─────────────────────────────────────────────────────
 EXPERIMENTS: list[dict] = [
-    {"name": "A", "bm25": 0.55, "dense": 0.30, "note": "BM25 우세"},
-    {"name": "B", "bm25": 0.50, "dense": 0.35, "note": "BM25 중간 우세"},
-    {"name": "C", "bm25": 0.45, "dense": 0.40, "note": "균형 (현재)"},
-    {"name": "D", "bm25": 0.40, "dense": 0.45, "note": "Dense 중간 우세"},
-    {"name": "E", "bm25": 0.35, "dense": 0.50, "note": "Dense 우세"},
-    {"name": "F", "bm25": 0.25, "dense": 0.60, "note": "Dense 강세"},
+    {"name": "A",    "bm25": 0.55, "dense": 0.30, "note": "BM25 우세"},
+    {"name": "B",    "bm25": 0.50, "dense": 0.35, "note": "BM25 중간 우세"},
+    {"name": "C",    "bm25": 0.45, "dense": 0.40, "note": "균형 (현재)"},
+    {"name": "D",    "bm25": 0.40, "dense": 0.45, "note": "Dense 중간 우세"},
+    {"name": "E",    "bm25": 0.35, "dense": 0.50, "note": "Dense 우세"},
+    {"name": "F",    "bm25": 0.25, "dense": 0.60, "note": "Dense 강세"},
+    {"name": "DENSE","bm25": 0.00, "dense": 1.00, "note": "Dense only (no BM25)"},
 ]
 
 
@@ -93,6 +124,8 @@ def run_experiment(
     goal_filter: str | None,
     mode: str = "candidate",
     candidate_ratio: float | None = None,
+    shared_provider=None,   # pre-warmed provider shared across all experiments
+    vocab_boost: bool = False,  # apply vocab boost on top of hybrid score
 ) -> dict:
     """Run one weight configuration across all (or one) goal(s).
 
@@ -100,10 +133,13 @@ def run_experiment(
                       This is the correct mode to compare BM25/Dense weights
                       since reranker re-scores identically regardless of weights.
     mode='rerank':    full pipeline evaluation after reranking.
+    vocab_boost:      when True (candidate mode only), apply CandidateRetriever
+                      vocab boost using heuristic-expanded query terms.
     """
     from app.retrieval.hybrid_retriever import HybridRetriever
+    from app.retrieval.candidate_retrieval import CandidateRetriever, RetrievalMode, _weak_vocab_boost as _apply_vocab_boost
     from app.retrieval.query_understanding import build_query
-    from app.retrieval.query_expansion import _heuristic_expansion
+    from app.retrieval.query_expansion import _heuristic_expansion, ExpandedQuery
     from app.schemas import RankedLog
 
     cfg = copy.deepcopy(DEFAULT_CONFIG.stage1)
@@ -127,27 +163,41 @@ def run_experiment(
 
         if candidate_ratio is not None:
             cand_size = max(top_k, int(n_corpus * candidate_ratio))
-        elif mode == "candidate":
-            # Tight: top_k only — forces the retriever to make real choices
-            cand_size = top_k
         else:
-            cand_size = max(top_k * 3, min(n_corpus * 6 // 10, 30))
+            cand_size = dynamic_candidate_size(n_corpus, top_k)
 
         cfg.retrieval.candidate_size = cand_size
 
         if mode == "candidate":
             # Direct hybrid retrieval — no reranker, no gate
-            # This shows the raw effect of BM25/Dense weight balance
+            # Shows the raw effect of BM25/Dense weight balance at recall level
             from app.retrieval.embedding_provider import get_embedding_provider
-            provider = get_embedding_provider(real=use_real_embeddings)
+            provider = shared_provider or get_embedding_provider(real=use_real_embeddings)
             retriever = HybridRetriever(cfg.retrieval, embedding_provider=provider)
             retriever.index(user_logs)
 
             query_obj = build_query(goal)
             candidates = retriever.retrieve(query_obj.canonical_text, top_n=cand_size)
 
-            # Convert CandidateLog → RankedLog-like for metrics
-            label_map = {lb.log_id: lb for lb in user_labels}
+            # Optional vocab boost: apply CandidateRetriever-style lexicon boost
+            if vocab_boost:
+                from app.config import CandidateConfig
+                heuristic = _heuristic_expansion(goal, max_terms=15)
+                expanded = ExpandedQuery(
+                    base_query=query_obj,
+                    expanded_terms=heuristic.get("evidence_terms", []),
+                    priority_terms=heuristic.get("priority_terms", []),
+                    related_terms=heuristic.get("related_terms", []),
+                    negative_terms=heuristic.get("negative_terms", []),
+                )
+                candidates = _apply_vocab_boost(
+                    candidates, expanded, cfg.vocab_boost, CandidateConfig()
+                )
+
+            # Candidate-level metrics (the primary signal for this mode)
+            cand_m = compute_candidate_metrics(candidates, user_labels)
+
+            # Also build RankedLog list so compute_all_metrics can run
             ranked_as_ranked = [
                 RankedLog(
                     log=c.log,
@@ -159,7 +209,7 @@ def run_experiment(
                 )
                 for i, c in enumerate(candidates)
             ]
-            selected = ranked_as_ranked  # candidate mode: all retrieved = selected
+            selected = ranked_as_ranked
         else:
             # Full pipeline (rerank mode)
             pipeline = Stage1Pipeline(
@@ -172,6 +222,8 @@ def run_experiment(
             result = pipeline.run(goal, use_expansion=True)
             ranked_as_ranked = result.ranked_logs
             selected = result.selected_logs
+            candidates = result.candidates
+            cand_m = compute_candidate_metrics(candidates, user_labels)
 
         all_types = {l.activity_type for l in user_logs}
         m = compute_all_metrics(
@@ -180,6 +232,11 @@ def run_experiment(
             all_activity_types=all_types,
             selected_logs=selected,
         )
+        # Merge candidate metrics into result dict
+        m["candidate_recall"]    = cand_m["candidate_recall"]
+        m["candidate_precision"] = cand_m["candidate_precision"]
+        m["relevant_in_pool"]    = cand_m["relevant_in_pool"]
+
         per_goal.append({
             "goal_id": goal.goal_id,
             "goal_title": goal.title,
@@ -211,36 +268,46 @@ def run_experiment(
 # ── Display helpers ────────────────────────────────────────────────────────────
 def print_comparison_table(results: list[dict], top_k: int) -> None:
     k = top_k
+    # candidate_recall first — this is what we're tuning retrieval weights for
     metrics_to_show = [
+        "candidate_recall",
+        "candidate_precision",
         f"recall@{k}",
         f"precision@{k}",
         f"f1@{k}",
         "selected_precision",
         "false_positive_rate",
         "mrr",
-        f"ndcg@{k}",
     ]
 
     col_w = 14
 
-    print("\n" + "=" * 90)
+    print("\n" + "=" * 110)
     print("  Retrieval Weight Sweep — Stage 1 Averaged Metrics")
-    print("=" * 90)
+    print("  [candidate_recall] = 관련 로그가 pool에 들어왔나?  (retrieval 품질 핵심 지표)")
+    print("=" * 110)
 
     # Header
-    header = f"  {'Exp':<4} {'BM25':>5} {'Dense':>5} {'VocabB':>6} | "
+    header = f"  {'Exp':<4} {'BM25':>5} {'Dense':>5} {'cand_n':>6} | "
     header += " ".join(f"{m[:col_w]:>{col_w}}" for m in metrics_to_show)
     print(header)
-    print("-" * 90)
+    print("-" * 110)
 
     best: dict[str, tuple[str, float]] = {}  # metric → (exp_name, value)
+
+    # Compute avg candidate_size for display
+    exp_cand_sizes: dict[str, float] = {}
+    for exp, res in results:
+        sizes = [g["cand_size"] for g in res["per_goal"]]
+        exp_cand_sizes[exp["name"]] = round(sum(sizes) / len(sizes), 1) if sizes else 0
 
     for exp, res in results:
         avg = res["metrics_avg"]
         if not avg:
             continue
 
-        row = f"  {exp['name']:<4} {exp['bm25']:>5.2f} {exp['dense']:>5.2f} {'0.15':>6} | "
+        avg_n = exp_cand_sizes.get(exp["name"], 0)
+        row = f"  {exp['name']:<4} {exp['bm25']:>5.2f} {exp['dense']:>5.2f} {avg_n:>6.0f} | "
         vals = []
         for m in metrics_to_show:
             v = avg.get(m, 0.0)
@@ -256,13 +323,13 @@ def print_comparison_table(results: list[dict], top_k: int) -> None:
         row += f"  ({exp['note']})"
         print(row)
 
-    print("-" * 90)
+    print("-" * 110)
 
     # Best row
     best_row = f"  {'Best':<4} {'':>5} {'':>5} {'':>6} | "
     best_row += " ".join(f"{best.get(m, ('-',''))[0]:>{col_w}}" for m in metrics_to_show)
     print(best_row)
-    print("=" * 90)
+    print("=" * 110)
 
 
 def print_per_goal_breakdown(results: list[dict], top_k: int) -> None:
@@ -326,6 +393,14 @@ def main() -> None:
             "Default: top_k (tight) for candidate mode, top_k*3 for rerank mode."
         ),
     )
+    parser.add_argument(
+        "--vocab_boost", action="store_true",
+        help=(
+            "candidate mode only: apply vocab boost (priority/evidence/negative lexicon) "
+            "on top of the hybrid score using heuristic expansion terms. "
+            "Lets you compare F vs F+VocabBoost without running the full reranker."
+        ),
+    )
     args = parser.parse_args()
 
     print(f"Loading data from {args.data_dir} ...")
@@ -346,11 +421,23 @@ def main() -> None:
     if args.mode == "candidate":
         print("[candidate mode] Evaluating at retriever output level (before reranking)")
         print("  → candidate_size = top_k (tight) — weight differences are visible here")
+        if args.vocab_boost:
+            print("  [vocab_boost=True] Heuristic lexicon boost applied on top of hybrid score")
     else:
         print("[rerank mode] Full pipeline evaluation")
         if args.candidate_ratio is None:
             print("  ⚠  candidate_size may cover full corpus → all exps will look identical")
             print("  → use --candidate_ratio 0.3 to tighten recall and expose weight differences")
+
+    # ── Pre-warm embedding cache (one shared provider for all experiments) ────
+    shared_provider = None
+    if args.real_embeddings:
+        from app.retrieval.embedding_provider import get_embedding_provider
+        shared_provider = get_embedding_provider(real=True)
+        all_texts = list({log.full_text for log in logs} | {g.query_text for g in goals})
+        print(f"Pre-warming embeddings: {len(all_texts)} unique texts ...", flush=True)
+        shared_provider.encode_batch(all_texts)
+        print(f"  → done (cache has {len(shared_provider._cache)} entries)")
 
     results: list[tuple[dict, dict]] = []
     for exp in exps:
@@ -362,6 +449,8 @@ def main() -> None:
             goal_filter=args.goal_id,
             mode=args.mode,
             candidate_ratio=args.candidate_ratio,
+            shared_provider=shared_provider,
+            vocab_boost=args.vocab_boost,
         )
         n_goals = len(res["per_goal"])
         print(f" done ({n_goals} goals)")

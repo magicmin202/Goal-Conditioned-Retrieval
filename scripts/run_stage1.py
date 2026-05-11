@@ -49,6 +49,28 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_DATA_DIR = "data/synthetic"
 
+
+def _dynamic_candidate_size(corpus_size: int, top_k: int) -> int:
+    """Candidate pool size scales with corpus — not hardcoded at 30.
+
+    Corpus size   Ratio   Example (top_k=10)
+    ──────────────────────────────────────────
+    ≤  20         80 %    16
+    ≤  50         60 %    30
+    ≤ 100         50 %    50
+    > 100         40 %    40+
+    Always ≥ top_k.
+    """
+    if corpus_size <= 20:
+        ratio = 0.80
+    elif corpus_size <= 50:
+        ratio = 0.60
+    elif corpus_size <= 100:
+        ratio = 0.50
+    else:
+        ratio = 0.40
+    return max(top_k, int(corpus_size * ratio))
+
 # ── Baseline configuration table ──────────────────────────────────────────────
 
 STAGE1_BASELINE_CONFIGS: dict[str, dict] = {
@@ -163,7 +185,7 @@ def main() -> None:
 
     cfg = DEFAULT_CONFIG.stage1
     cfg.retrieval.top_k = args.top_k
-    cfg.retrieval.candidate_size = max(args.top_k * 3, min(len(user_logs) * 6 // 10, 30))
+    cfg.retrieval.candidate_size = _dynamic_candidate_size(len(user_logs), args.top_k)
 
     pipeline = Stage1Pipeline(
         config=cfg,

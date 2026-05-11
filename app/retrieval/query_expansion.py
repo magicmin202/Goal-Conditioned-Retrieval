@@ -359,6 +359,11 @@ class ExpandedQuery:
         BM25 is a lexical matcher — injecting many terms broadens recall without
         the semantic drift risk. But keep it focused: priority first, evidence second.
         NO related_terms, NO negative_terms in BM25 query.
+
+        Note: priority × repeat is intentionally avoided here.
+        When Gemini generates wrong expansion (e.g., reading terms for a climbing goal),
+        repeating priority amplifies the error and overwhelms the base signal.
+        The base canonical text must dominate — expansion terms are supplementary only.
         """
         terms = self.priority_terms[:3] + self.expanded_terms[:4]
         return f"{self.base_query.canonical_text} {' '.join(terms)}".strip()

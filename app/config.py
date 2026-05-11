@@ -54,8 +54,8 @@ class RetrievalConfig:
     top_k: int = 10
     # Dual-space weights for HybridRetriever (BM25 + Dense).
     # Sum to 0.85 — the remaining 0.15 is the vocab_boost_weight in CandidateConfig.
-    sparse_weight: float = 0.40   # BM25 weight
-    dense_weight: float = 0.45    # Dense embedding weight
+    sparse_weight: float = 0.45   # BM25 weight
+    dense_weight: float = 0.40    # Dense embedding weight
     rrf_k: int = 60               # kept for backward compat (not used in score-based mode)
     random_seed: int = 42
 
