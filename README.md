@@ -446,6 +446,8 @@ cat results/stage2_summary.csv
 | G-U0010-02 | ours_wo_compression | 0.188 | 0.989 | 0.033 | 0.000 | 3 |
 | G-U0010-02 | ours_wo_lexical_gate | 0.313 | 0.886 | 0.050 | 1.000 | 4 |
 
+<img width="1089" height="434" alt="image" src="https://github.com/user-attachments/assets/6ead7c1d-5be2-4fa7-bdd0-e05494249ee2" />
+
 ---
 
 ## Key Design Decisions
