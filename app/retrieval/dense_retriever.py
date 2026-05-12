@@ -139,13 +139,37 @@ class DenseRetriever:
 
     # ── Retrieval ─────────────────────────────────────────────────────────────
 
-    def retrieve(self, query: str, top_n: int = 30) -> list[CandidateLog]:
-        """Return top-N candidates by dense similarity (normalized to [0,1])."""
+    def retrieve(
+        self,
+        query: str,
+        top_n: int = 30,
+        threshold: float | None = None,
+    ) -> list[CandidateLog]:
+        """Return candidates by dense similarity (normalized to [0,1]).
+
+        When *threshold* is set, only logs with normalized dense_score >=
+        threshold are admitted (score-gate mode).  When None, the top-N
+        count-based selection is used (legacy behaviour).
+        """
         pairs = self.score_all(query)
         if not pairs:
             return []
-        ranked = sorted(pairs, key=lambda x: x[1], reverse=True)[:top_n]
+        sorted_pairs = sorted(pairs, key=lambda x: x[1], reverse=True)
+
+        if threshold is not None:
+            admitted = [
+                (log, score) for log, score in sorted_pairs
+                if score >= threshold
+            ]
+            logger.info(
+                "DenseRetriever threshold=%.3f  admitted=%d/%d",
+                threshold, len(admitted), len(sorted_pairs),
+            )
+            candidates = admitted
+        else:
+            candidates = sorted_pairs[:top_n]
+
         return [
             CandidateLog(log=log, dense_score=round(score, 6))
-            for log, score in ranked
+            for log, score in candidates
         ]

@@ -92,7 +92,15 @@ class GoalConditionedReranker:
         use_real_embeddings: bool = False,
     ) -> None:
         self.config = config or RankerConfig()
-        self._dense = dense_retriever or DenseRetriever(doc_provider=MockEmbeddingProvider())
+        if dense_retriever is not None:
+            self._dense = dense_retriever
+        elif use_real_embeddings:
+            # Use the same Gemini provider path as the retriever so semantic
+            # scores in the reranker have real meaning.
+            from app.retrieval.embedding_provider import get_embedding_provider
+            self._dense = DenseRetriever(doc_provider=get_embedding_provider(real=True))
+        else:
+            self._dense = DenseRetriever(doc_provider=MockEmbeddingProvider())
         # When False, Tier2 semantic gate is skipped (mock embeddings produce
         # meaningless cosine scores that would incorrectly reject relevant logs).
         self._use_real_embeddings = use_real_embeddings

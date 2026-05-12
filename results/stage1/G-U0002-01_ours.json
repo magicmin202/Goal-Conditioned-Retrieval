@@ -2,31 +2,35 @@
   "goal_id": "G-U0002-01",
   "baseline": "ours",
   "stage": "stage1",
-  "timestamp": "2026-05-11T11:37:45.239517",
+  "timestamp": "2026-05-12T17:23:17.481935",
   "metrics": {
     "recall@5": 0.5,
     "precision@5": 1.0,
-    "selected_count": 3,
-    "selected_precision": 1.0,
+    "selected_count": 4,
+    "selected_precision": 0.75,
     "f1@5": 0.6666666666666666,
-    "false_positive_rate": 0.0,
+    "false_positive_rate": 0.25,
     "mrr": 1.0,
     "ndcg@5": 0.945622655619636,
-    "diversity_coverage": 0.5
+    "diversity_coverage": 0.5,
+    "candidate_count": 61,
+    "admitted_count": 4
   },
   "selected_log_ids": [
     "L-U0002-0006",
     "L-U0002-0051",
-    "L-U0002-0054"
+    "L-U0002-0054",
+    "L-U0002-0039"
   ],
   "selected_titles": [
     "오늘의 포스팅",
     "퇴고 작업",
-    "초고 수정"
+    "초고 수정",
+    "단어 재암기"
   ],
   "baseline_config": {
-    "retrieval_mode": "RetrievalMode.HYBRID",
     "use_expansion": "True",
     "disable_lexical_gate": "False"
-  }
+  },
+  "dense_threshold": 0.9
 }

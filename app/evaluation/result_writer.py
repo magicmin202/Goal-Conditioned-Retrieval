@@ -20,11 +20,20 @@ def save_stage1_result(
     selected_log_ids: list[str],
     selected_titles: list[str],
     extra: dict | None = None,
+    result_path: str | None = None,
 ) -> Path:
-    """Write Stage 1 result to results/stage1/{goal_id}_{baseline}.json."""
-    out_dir = RESULTS_DIR / "stage1"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{goal_id}_{baseline}.json"
+    """Write Stage 1 result JSON.
+
+    result_path overrides the default results/stage1/{goal_id}_{baseline}.json
+    location.  Use this for experiment scripts that manage their own directory.
+    """
+    if result_path:
+        out_path = Path(result_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        out_dir = RESULTS_DIR / "stage1"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{goal_id}_{baseline}.json"
 
     payload: dict = {
         "goal_id": goal_id,

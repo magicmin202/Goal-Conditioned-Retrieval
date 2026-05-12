@@ -53,6 +53,7 @@ class RetrievalConfig:
     candidate_size: int = 20
     top_k: int = 10
     random_seed: int = 42
+    dense_threshold: float = 0.92   # optimal from threshold experiment (case3, F1=0.5172)
 
 
 @dataclass
