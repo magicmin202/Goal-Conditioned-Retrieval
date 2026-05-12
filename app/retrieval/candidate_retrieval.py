@@ -15,6 +15,7 @@ Boost values are normalized [0, 1] internally, then scaled by vocab_weight.
 from __future__ import annotations
 
 import logging
+import re
 from enum import Enum
 
 from app.config import CandidateConfig, RetrievalConfig, VocabularyBoostConfig
@@ -27,6 +28,54 @@ from app.schemas import CandidateLog, ResearchLog
 from app.utils.text_matching import match_term, _tok_set
 
 logger = logging.getLogger(__name__)
+
+_TOKENIZE_RE = re.compile(r"[\w가-힣]+")
+
+
+def _build_expanded_bm25_query(query: ExpandedQuery) -> str:
+    """BM25 recall 확대용 쿼리 구성.
+
+    순서: canonical → priority (전체) → evidence (전체) → related (전체)
+    negative_terms 제외 — BM25는 감점을 지원하지 않으므로 포함 시
+    irrelevant 로그에 점수를 부여하게 됨.
+
+    중복 토큰을 set으로 제거하여 특정 토큰의
+    과도한 가중치(BM25 IDF 왜곡) 방지.
+    """
+    seen: set[str] = set()
+    parts: list[str] = []
+
+    def add_terms(terms: list[str]) -> None:
+        for term in terms:
+            tokens = _TOKENIZE_RE.findall(term.lower())
+            new_tokens = [t for t in tokens if t not in seen]
+            if new_tokens:
+                parts.append(" ".join(new_tokens))
+                seen.update(new_tokens)
+
+    add_terms([query.canonical_text])
+    add_terms(query.priority_terms)       # 핵심 positive signal
+    add_terms(query.expanded_terms)       # evidence_terms: 직접 관련 활동
+    add_terms(query.related_terms)        # 간접 표현: recall 확대
+    # negative_terms는 포함하지 않음
+
+    result = " ".join(parts).strip()
+    logger.debug("expanded_bm25_q (%d tokens): %s", len(seen), result[:120])
+    return result
+
+
+def _dynamic_candidate_size(corpus_size: int) -> int:
+    """Corpus 크기에 비례한 candidate_size 동적 계산.
+
+    corpus_size   candidate_size
+    ────────────────────────────
+    ≤  60         30  (최소 보장)
+       70         35
+      100         50
+      200        100  (상한 적용)
+     1000        100  (상한 적용)
+    """
+    return min(max(30, int(corpus_size * 0.50)), 100)
 
 
 class RetrievalMode(str, Enum):
@@ -153,6 +202,7 @@ class CandidateRetriever:
         self._hybrid.index(logs)
         # Dense is indexed inside hybrid; also expose for reranker semantic scoring
         self._dense = self._hybrid.dense
+        self._corpus_size = len(logs)
         self._indexed = True
         logger.info(
             "CandidateRetriever indexed %d logs [mode=%s  bm25=%.2f  dense=%.2f  vocab=%.2f]",
@@ -169,18 +219,22 @@ class CandidateRetriever:
         if not self._indexed:
             raise RuntimeError("Call index() before retrieve().")
 
-        n = top_n or self.config.candidate_size
+        # top_n 우선 사용; 없으면 corpus 크기 기반 동적 산정
+        if top_n is not None:
+            n = top_n
+        else:
+            corpus_size = getattr(self, "_corpus_size", None) or self.config.candidate_size
+            n = _dynamic_candidate_size(corpus_size)
 
         if isinstance(query, ExpandedQuery):
-            # BM25: canonical + top priority/evidence terms (lexical recall)
-            bm25_text = query.bm25_query
-            # Dense: minimal semantic core only (goal_summary + first core_intent)
-            # Using full lexical expansion for dense causes semantic drift — the
-            # embedding centroid moves away from the goal, admitting unrelated logs.
+            # BM25: canonical + priority(전체) + evidence(전체) + related(전체)
+            # Dense가 못 잡는 keyword-sparse 로그를 BM25로 보완 (recall 확대)
+            bm25_text = _build_expanded_bm25_query(query)
+            # Dense: 최소 semantic core만 사용 (semantic drift 방지)
             dense_text = query.dense_query
             logger.debug(
                 "CandidateRetriever  bm25_q=%s  dense_q=%s",
-                bm25_text[:60], dense_text[:60],
+                bm25_text[:80], dense_text[:60],
             )
         else:
             bm25_text = query.canonical_text

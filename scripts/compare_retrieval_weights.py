@@ -172,24 +172,31 @@ def run_experiment(
             # Direct hybrid retrieval — no reranker, no gate
             # Shows the raw effect of BM25/Dense weight balance at recall level
             from app.retrieval.embedding_provider import get_embedding_provider
+            from app.retrieval.candidate_retrieval import _build_expanded_bm25_query
             provider = shared_provider or get_embedding_provider(real=use_real_embeddings)
             retriever = HybridRetriever(cfg.retrieval, embedding_provider=provider)
             retriever.index(user_logs)
 
             query_obj = build_query(goal)
-            candidates = retriever.retrieve(query_obj.canonical_text, top_n=cand_size)
 
-            # Optional vocab boost: apply CandidateRetriever-style lexicon boost
+            # Always build expanded BM25 query (heuristic expansion) so the
+            # weight sweep tests the real pipeline BM25 query, not just canonical text.
+            # canonical-only BM25 hits <10% of logs → all exps look identical to Dense.
+            from app.config import CandidateConfig
+            heuristic = _heuristic_expansion(goal, max_terms=15)
+            expanded = ExpandedQuery(
+                base_query=query_obj,
+                expanded_terms=heuristic.get("evidence_terms", []),
+                priority_terms=heuristic.get("priority_terms", []),
+                related_terms=heuristic.get("related_terms", []),
+                negative_terms=heuristic.get("negative_terms", []),
+            )
+            bm25_q = _build_expanded_bm25_query(expanded)
+            dense_q = expanded.dense_query   # minimal semantic core (no drift)
+            candidates = retriever.retrieve(bm25_q, top_n=cand_size, dense_query=dense_q)
+
+            # Optional vocab boost on top of hybrid score
             if vocab_boost:
-                from app.config import CandidateConfig
-                heuristic = _heuristic_expansion(goal, max_terms=15)
-                expanded = ExpandedQuery(
-                    base_query=query_obj,
-                    expanded_terms=heuristic.get("evidence_terms", []),
-                    priority_terms=heuristic.get("priority_terms", []),
-                    related_terms=heuristic.get("related_terms", []),
-                    negative_terms=heuristic.get("negative_terms", []),
-                )
                 candidates = _apply_vocab_boost(
                     candidates, expanded, cfg.vocab_boost, CandidateConfig()
                 )
@@ -362,6 +369,25 @@ def print_per_goal_breakdown(results: list[dict], top_k: int) -> None:
                 f"{m.get('false_positive_rate', 0):>6.3f}  "
                 f"{neg if neg else '(none)'}"
             )
+
+        # ── Full candidate list per experiment ──────────────────────────────
+        print()
+        for exp, res in results:
+            goal_data = next((g for g in res["per_goal"] if g["goal_id"] == goal_id), None)
+            if goal_data is None:
+                continue
+
+            # Rebuild label map for this goal from first experiment's data
+            # (labels are the same across experiments)
+            selected_logs = goal_data["selected_logs"]   # [(title, score), ...]
+            neg_set = set(goal_data["neg_in_selected"])
+
+            print(f"  [{exp['name']}] 전체 후보 {len(selected_logs)}개 "
+                  f"(corpus={goal_data['corpus_size']}, pool={goal_data['cand_size']}):")
+            for rank, (title, score) in enumerate(selected_logs, 1):
+                tag = " ✗NEG" if title in neg_set else ""
+                print(f"    {rank:>2}. [{score:.4f}] {title}{tag}")
+        print()
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────

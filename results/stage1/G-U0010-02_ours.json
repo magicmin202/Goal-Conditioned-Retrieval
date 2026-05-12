@@ -2,27 +2,25 @@
   "goal_id": "G-U0010-02",
   "baseline": "ours",
   "stage": "stage1",
-  "timestamp": "2026-04-13T17:23:51.940547",
+  "timestamp": "2026-05-11T11:38:04.638200",
   "metrics": {
-    "recall@5": 0.5,
-    "precision@5": 1.0,
-    "selected_count": 3,
-    "selected_precision": 1.0,
-    "f1@5": 0.6666666666666666,
-    "false_positive_rate": 0.0,
+    "recall@5": 0.2,
+    "precision@5": 0.4,
+    "selected_count": 2,
+    "selected_precision": 0.5,
+    "f1@5": 0.26666666666666666,
+    "false_positive_rate": 0.5,
     "mrr": 1.0,
-    "ndcg@5": 0.9384026033085833,
-    "diversity_coverage": 0.2
+    "ndcg@5": 0.39676527443044984,
+    "diversity_coverage": 0.4
   },
   "selected_log_ids": [
-    "L-U0010-0023",
-    "L-U0010-0019",
-    "L-U0010-0001"
+    "L-U0010-0059",
+    "L-U0010-0027"
   ],
   "selected_titles": [
-    "책 읽기",
-    "독서",
-    "도서 읽기"
+    "코치와 훈련",
+    "루트 짜는 중"
   ],
   "baseline_config": {
     "retrieval_mode": "RetrievalMode.HYBRID",

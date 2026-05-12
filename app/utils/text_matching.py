@@ -24,15 +24,55 @@ logger = logging.getLogger(__name__)
 
 MatchLevel = Literal["phrase", "token", "none"]
 
-# ── Weak/generic tokens ───────────────────────────────────────────────────────
+# ── Weak Token 구성 ──────────────────────────────────────────────────────────
+#
+# 출처 1: stopwords-iso/stopwords-ko 및
+#         길호현(2018) "텍스트마이닝을 위한 한국어 불용어 목록 연구"
+#         우리말글 78권, 국립국어원 대규모 말뭉치 기반
+#         실질 형태소이면서 의미적으로 도메인 특정이 불가한 단어
+_BASE_WEAK_TOKENS: frozenset[str] = frozenset({
+    "하다", "되다", "있다", "없다", "보다",
+    "오다", "가다", "받다", "주다", "알다",
+    "만들다", "나오다", "말하다", "같다", "크다",
+    "따르다", "통하다", "위하다", "인하다",
+    "통해", "위해", "인해", "따라", "관한",
+    "것", "수", "등", "및", "즉", "또",
+    "이후", "이전", "현재", "기준", "관련",
+    "해당", "기타", "전반", "전체", "일부",
+    "매우", "더욱", "가장", "항상", "자주",
+})
+
+# 출처 2: 초기 설계
+#         도메인 무관 고빈도 동사명사 — 어떤 goal에서도 단독 매칭 시
+#         goal을 특정할 수 없는 토큰
+_INITIAL_WEAK_TOKENS: frozenset[str] = frozenset({
+    "완료", "시작", "정리", "계획", "준비", "공부",
+    "하기", "수행", "진행", "실행", "관리", "확인",
+    "검토", "작성",
+})
+
+# 출처 3: Error-driven refinement
+#         합성 데이터를 62개 → 7,030개(100 users, 393 goals)로
+#         확장하는 과정에서 발견된 cross-domain false positive 케이스
+#         예: "글쓰기 연습" priority term → "악기 연습" 로그 오매칭
+#             "소설 완성"   priority term → "포스팅 완성" 로그 오매칭
+_DOMAIN_EXPANSION_WEAK_TOKENS: frozenset[str] = frozenset({
+    "연습",   # "글쓰기 연습" → "악기 연습" 오매칭 방지
+    "완성",   # "소설 완성"   → "포스팅 완성" 오매칭 방지
+    "세션",   # "글쓰기 세션" → "악기 세션" 오매칭 방지
+    "활동",   # cross-domain 오매칭 방지
+    "작업",   # "퇴고 작업"   → "기타 작업" 오매칭 방지
+})
+
+# ── 최종 WEAK_TOKENS: 세 출처의 합집합 ───────────────────────────────────────
 # These tokens must NOT trigger a positive match on their own for priority /
 # evidence terms.  They are only allowed as *part* of an exact phrase match,
 # or when at least one non-weak core token also matches.
-WEAK_TOKENS: frozenset[str] = frozenset({
-    "완료", "시작", "정리", "계획", "준비",
-    "공부", "하기", "수행", "진행", "실행",
-    "관리", "확인", "검토", "작성",
-})
+WEAK_TOKENS: frozenset[str] = (
+    _BASE_WEAK_TOKENS
+    | _INITIAL_WEAK_TOKENS
+    | _DOMAIN_EXPANSION_WEAK_TOKENS
+)
 
 
 @dataclass

@@ -2,31 +2,27 @@
   "goal_id": "G-U0002-01",
   "baseline": "ours",
   "stage": "stage1",
-  "timestamp": "2026-04-13T17:23:13.787726",
+  "timestamp": "2026-05-11T11:37:45.239517",
   "metrics": {
-    "recall@5": 0.4166666666666667,
+    "recall@5": 0.5,
     "precision@5": 1.0,
-    "selected_count": 5,
+    "selected_count": 3,
     "selected_precision": 1.0,
-    "f1@5": 0.5882352941176471,
+    "f1@5": 0.6666666666666666,
     "false_positive_rate": 0.0,
     "mrr": 1.0,
-    "ndcg@5": 0.9062916997457606,
-    "diversity_coverage": 0.4
+    "ndcg@5": 0.945622655619636,
+    "diversity_coverage": 0.5
   },
   "selected_log_ids": [
-    "L-U0002-0002",
-    "L-U0002-0029",
-    "L-U0002-0009",
+    "L-U0002-0006",
     "L-U0002-0051",
-    "L-U0002-0005"
+    "L-U0002-0054"
   ],
   "selected_titles": [
-    "여행 준비물 쇼핑",
-    "여행 비용 정리",
-    "여행용품 구매",
-    "여행 예산 계획",
-    "짐 준비"
+    "오늘의 포스팅",
+    "퇴고 작업",
+    "초고 수정"
   ],
   "baseline_config": {
     "retrieval_mode": "RetrievalMode.HYBRID",
