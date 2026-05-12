@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass, field
 
 from app.config import Stage1Config
-from app.retrieval.candidate_retrieval import CandidateRetriever, RetrievalMode
+from app.retrieval.candidate_retrieval import CandidateRetriever
 from app.retrieval.diversity_selector import DiversitySelector
 from app.retrieval.evidence_quality import compute_redundancy_penalty
 from app.retrieval.query_expansion import ExpandedQuery, expand_goal_query
@@ -44,18 +44,15 @@ class Stage1Pipeline:
         self,
         config: Stage1Config | None = None,
         use_real_embeddings: bool = False,
-        retrieval_mode: RetrievalMode = RetrievalMode.HYBRID,
         disable_lexical_gate: bool = False,
+        **kwargs,  # absorb removed params (retrieval_mode)
     ) -> None:
         from app.retrieval.embedding_provider import get_embedding_provider
         self.config = config or Stage1Config()
         self._disable_lexical_gate = disable_lexical_gate
         embed_provider = get_embedding_provider(real=use_real_embeddings)
         self._retriever = CandidateRetriever(
-            mode=retrieval_mode,
             config=self.config.retrieval,
-            candidate_config=self.config.candidate,
-            vocab_boost_config=self.config.vocab_boost,
             embedding_provider=embed_provider,
         )
         self._reranker = GoalConditionedReranker(
@@ -140,10 +137,8 @@ class Stage1Pipeline:
         if expand and expanded_query_obj:
             logger.info(
                 "[Stage1 Query]  goal=%s  label=%s\n"
-                "  bm25_q (first 80): %s\n"
                 "  dense_q (first 80): %s",
                 goal.goal_id, run_label,
-                expanded_query_obj.bm25_query[:80],
                 expanded_query_obj.dense_query[:80],
             )
         else:
@@ -164,8 +159,8 @@ class Stage1Pipeline:
         logger.info("[Stage1 Candidates top-10]  goal=%s  label=%s", goal.goal_id, run_label)
         for c in candidates[:10]:
             logger.info(
-                "  %s  bm25=%.4f  dense=%.4f  hybrid=%.4f  [%s]",
-                c.log_id, c.sparse_score, c.dense_score, c.hybrid_score, c.log.title,
+                "  %s  dense=%.4f  [%s]",
+                c.log_id, c.dense_score, c.log.title,
             )
 
         # 4. Goal-Conditioned Reranking (3-tier goal_focus)

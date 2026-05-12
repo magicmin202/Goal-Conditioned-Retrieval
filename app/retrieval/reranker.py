@@ -1,7 +1,7 @@
 """Lexical-Control Reranker with Category-First Admission.
 
-Dual-space architecture:
-  Stage 1 (candidate) = recall  → semantic 45%, BM25 40%, vocab 15%
+Retrieval architecture:
+  Stage 1 (candidate) = recall  → Dense embedding retrieval (Gemini embedding-001)
   Stage 2 (reranker)  = precision → lexical 90%, semantic 5–10%
 
 Admission gates (applied IN ORDER before scoring):
@@ -26,7 +26,7 @@ Scoring formula (only reached after all gates pass):
 Schema signals:
   - Used ONLY in category mapper (gate logic)
   - NOT injected into reranker scoring terms
-  - Small additive boost stays at candidate stage (VocabularyBoostConfig)
+  - Candidate stage uses Dense retrieval only (no additive boost)
 """
 from __future__ import annotations
 
@@ -614,7 +614,7 @@ class GoalConditionedReranker:
             and lexical filters, and dense_score=0.0 (raw cosine, not
             max-normalized) would give a misleading scale vs Stage1.
         """
-        candidate = CandidateLog(log=log, sparse_score=0.0, dense_score=0.0, hybrid_score=0.0)
+        candidate = CandidateLog(log=log, dense_score=0.0)
         results = self.rank(
             goal, [candidate],
             expanded_terms=expanded_terms,

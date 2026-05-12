@@ -6,14 +6,12 @@ Falls back to generating a fresh small dataset if JSON not found.
 
 Usage:
     python scripts/run_stage1.py --goal_id G-U0001-01 --baseline ours
-    python scripts/run_stage1.py --goal_id G-U0001-01 --baseline bm25 --save_result
+    python scripts/run_stage1.py --goal_id G-U0001-01 --baseline dense --save_result
     python scripts/run_stage1.py --auto --baseline ours_wo_lexical_gate
 
 Baselines:
-  bm25               BM25 only, no gate, no expansion
   dense              Dense only, no gate, no expansion
-  hybrid             BM25+Dense, no gate, no expansion
-  hybrid_expand      BM25+Dense+expansion, no gate
+  dense_expand       Dense + query expansion, no gate
   ours               Full pipeline (default)
   ours_wo_lexical_gate  Full pipeline minus Goal Lexical Gate
 """
@@ -42,7 +40,6 @@ from app.evaluation.ranking_metrics import (
     selected_precision as calc_selected_precision,
 )
 from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline
-from app.retrieval.candidate_retrieval import RetrievalMode
 from app.schemas import GoalLogLabel, ResearchGoal, ResearchLog
 
 logger = logging.getLogger(__name__)
@@ -74,33 +71,19 @@ def _dynamic_candidate_size(corpus_size: int, top_k: int) -> int:
 # ── Baseline configuration table ──────────────────────────────────────────────
 
 STAGE1_BASELINE_CONFIGS: dict[str, dict] = {
-    "bm25": {
-        "retrieval_mode": RetrievalMode.SPARSE,
-        "use_expansion": False,
-        "disable_lexical_gate": True,
-    },
     "dense": {
-        "retrieval_mode": RetrievalMode.DENSE,
         "use_expansion": False,
         "disable_lexical_gate": True,
     },
-    "hybrid": {
-        "retrieval_mode": RetrievalMode.HYBRID,
-        "use_expansion": False,
-        "disable_lexical_gate": True,
-    },
-    "hybrid_expand": {
-        "retrieval_mode": RetrievalMode.HYBRID,
+    "dense_expand": {
         "use_expansion": True,
         "disable_lexical_gate": True,
     },
     "ours": {
-        "retrieval_mode": RetrievalMode.HYBRID,
         "use_expansion": True,
         "disable_lexical_gate": False,
     },
     "ours_wo_lexical_gate": {
-        "retrieval_mode": RetrievalMode.HYBRID,
         "use_expansion": True,
         "disable_lexical_gate": True,
     },
@@ -139,7 +122,7 @@ def main() -> None:
         "--baseline",
         choices=list(STAGE1_BASELINE_CONFIGS.keys()),
         default="ours",
-        help="Baseline mode (default: ours)",
+        help="Baseline: dense | dense_expand | ours | ours_wo_lexical_gate (default: ours)",
     )
     parser.add_argument(
         "--save_result", action="store_true",
@@ -190,7 +173,6 @@ def main() -> None:
     pipeline = Stage1Pipeline(
         config=cfg,
         use_real_embeddings=args.real_embeddings,
-        retrieval_mode=bcfg["retrieval_mode"],
         disable_lexical_gate=bcfg["disable_lexical_gate"],
     )
     pipeline.index(user_logs)
@@ -254,12 +236,12 @@ def main() -> None:
         print(f"\n[Bottleneck Diagnosis]")
         if cr < 0.70:
             print(f"  ⚠ candidate_recall={cr:.2f} — retrieval 단계에서 관련 로그를 놓치고 있음")
-            print(f"     → BM25/dense weight, vocab boost 점검 필요")
+            print(f"     → dense query (goal summary / core_intents) 점검 필요")
         else:
             print(f"  ✓ candidate_recall={cr:.2f} — retrieval 충분히 recall 확보")
         if sp < 0.60:
             print(f"  ⚠ selected_precision={sp:.2f} — reranker/filter 단계에서 노이즈 제거 부족")
-            print(f"     → reranker weights, negative penalty, relevance threshold 점검 필요")
+            print(f"     → reranker weights, negative veto, relevance threshold 점검 필요")
         else:
             print(f"  ✓ selected_precision={sp:.2f} — reranker precision 양호")
 

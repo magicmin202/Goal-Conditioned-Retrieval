@@ -88,9 +88,7 @@ class GoalLogLabel:
 @dataclass
 class CandidateLog:
     log: ResearchLog
-    sparse_score: float = 0.0
     dense_score: float = 0.0
-    hybrid_score: float = 0.0
 
     @property
     def log_id(self) -> str:

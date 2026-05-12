@@ -41,7 +41,6 @@ from app.data_generation.export_utils import load_dataset_from_json
 from app.evaluation.rag_metrics import compute_rag_metrics, coverage_at_k
 from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline, Stage1Result
 from app.pipeline.stage2_rag_pipeline import Stage2Pipeline, Stage2Result
-from app.retrieval.candidate_retrieval import RetrievalMode
 from app.schemas import GoalLogLabel, ResearchGoal, ResearchLog, CompressedEvidenceUnit
 
 logger = logging.getLogger(__name__)
@@ -76,7 +75,6 @@ def _run_stage1(
     s1_pipeline = Stage1Pipeline(
         config=s1_cfg,
         use_real_embeddings=args.real_embeddings,
-        retrieval_mode=RetrievalMode.HYBRID,
         disable_lexical_gate=disable_lexical_gate,
     )
     s1_pipeline.index(user_logs)

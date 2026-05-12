@@ -52,33 +52,15 @@ class RetrievalConfig:
     # candidate_size is set dynamically in scripts relative to corpus size
     candidate_size: int = 20
     top_k: int = 10
-    # Dual-space weights for HybridRetriever (BM25 + Dense).
-    # Sum to 0.85 — the remaining 0.15 is the vocab_boost_weight in CandidateConfig.
-    sparse_weight: float = 0.45   # BM25 weight
-    dense_weight: float = 0.40    # Dense embedding weight
-    rrf_k: int = 60               # kept for backward compat (not used in score-based mode)
     random_seed: int = 42
-
-
-@dataclass
-class CandidateConfig:
-    """Dual-space candidate retrieval weights.
-
-    candidate_score = sparse_weight * bm25
-                    + dense_weight  * dense
-                    + vocab_weight  * weak_vocab_boost
-
-    Weights should sum to ~1.0.
-    """
-    vocab_boost_weight: float = 0.15   # how much lexicon can shift candidate score
 
 
 @dataclass
 class RankerConfig:
     """Lexical-control reranker weights.
 
-    Dual-space retrieval architecture:
-      Stage 1 (candidate) = recall   → semantic 45%, BM25 40%, vocab 15%
+    Retrieval architecture:
+      Stage 1 (candidate) = recall   → Dense embedding retrieval
       Stage 2 (reranker)  = precision → lexical 90%, semantic 5-10%
 
     final_score =
@@ -142,43 +124,6 @@ class RankerConfig:
     def goal_focus_weight(self) -> float:
         return self.priority_weight + self.evidence_weight + self.related_weight
 
-
-@dataclass
-class VocabularyBoostConfig:
-    """Weak vocabulary boost at candidate retrieval level (recall-focused).
-
-    Applied as additive offsets on the hybrid (BM25+Dense) score.
-    Intentionally mild — just nudges direction, does not override semantic recall.
-    Strong precision control happens in the reranker (see RankerConfig).
-
-    Total vocab_boost ∈ [−1, +1], then scaled by CandidateConfig.vocab_boost_weight.
-    """
-    # Priority terms (strongest, but still mild at candidate stage)
-    priority_phrase_boost: float = 0.50   # phrase hit in full text  → normalized [0,1]
-    priority_token_boost: float = 0.30    # token hit in full text
-    priority_title_bonus: float = 0.20    # extra if token hit in title
-
-    # Evidence terms
-    evidence_phrase_boost: float = 0.30   # phrase match
-    evidence_token_boost: float = 0.15    # token match
-
-    # Related terms
-    related_token_boost: float = 0.08     # token match (weak)
-
-    # Negative terms (mild penalty — don't over-suppress at recall stage)
-    negative_phrase_penalty: float = 0.40  # phrase match
-    negative_token_penalty: float = 0.20   # token match
-
-    remove_generic_terms: bool = True
-
-    # Back-compat
-    @property
-    def priority_term_boost(self) -> float:
-        return self.priority_phrase_boost
-
-    @property
-    def evidence_term_boost(self) -> float:
-        return self.evidence_phrase_boost
 
 
 @dataclass
@@ -259,7 +204,6 @@ class ConsolidationConfig:
 @dataclass
 class Stage1Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
-    candidate: CandidateConfig = field(default_factory=CandidateConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
     diversity: DiversityConfig = field(
         default_factory=lambda: DiversityConfig(relevance_threshold=0.08)
@@ -267,14 +211,12 @@ class Stage1Config:
     query_expansion: QueryExpansionConfig = field(
         default_factory=lambda: QueryExpansionConfig(enabled=False)
     )
-    vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
     schema_category: SchemaCategoryConfig = field(default_factory=SchemaCategoryConfig)
 
 
 @dataclass
 class Stage2Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
-    candidate: CandidateConfig = field(default_factory=CandidateConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
     diversity: DiversityConfig = field(
         default_factory=lambda: DiversityConfig(relevance_threshold=0.10)
@@ -284,7 +226,6 @@ class Stage2Config:
     )
     compression: CompressionConfig = field(default_factory=CompressionConfig)
     consolidation: ConsolidationConfig = field(default_factory=ConsolidationConfig)
-    vocab_boost: VocabularyBoostConfig = field(default_factory=VocabularyBoostConfig)
     schema_category: SchemaCategoryConfig = field(default_factory=SchemaCategoryConfig)
 
 

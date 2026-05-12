@@ -28,15 +28,14 @@ from app.config import DEFAULT_CONFIG
 from app.data_generation.export_utils import load_dataset_from_json
 from app.evaluation.ranking_metrics import compute_all_metrics
 from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline
-from app.retrieval.candidate_retrieval import RetrievalMode
 from app.schemas import ResearchGoal, ResearchLog
 
 logger = logging.getLogger(__name__)
 
 _DATA_DIR = "data/synthetic"
 _BASELINES = {
-    "dense":  {"retrieval_mode": RetrievalMode.DENSE,  "use_expansion": False, "disable_lexical_gate": True},
-    "hybrid": {"retrieval_mode": RetrievalMode.HYBRID, "use_expansion": False, "disable_lexical_gate": True},
+    "dense":       {"use_expansion": False, "disable_lexical_gate": True},
+    "dense_ours":  {"use_expansion": True,  "disable_lexical_gate": False},
 }
 
 
@@ -67,7 +66,6 @@ def run_baseline(
     pipeline = Stage1Pipeline(
         config=cfg,
         use_real_embeddings=True,
-        retrieval_mode=bcfg["retrieval_mode"],
         disable_lexical_gate=bcfg["disable_lexical_gate"],
     )
     pipeline.index(user_logs)
@@ -124,22 +122,21 @@ def print_comparison(
     ]
 
     print(f"\n{'─'*64}")
-    print(f"  {'지표':<24} {'dense':>10} {'hybrid':>10}  {'winner':>8}")
-    print(f"  {'─'*56}")
+    bl_keys = list(metrics_per_bl.keys())
+    col_headers = "  ".join(f"{bl:>12}" for bl in bl_keys)
+    print(f"  {'지표':<24} {col_headers}  {'winner':>10}")
+    print(f"  {'─'*60}")
 
     lower_is_better = {"false_positive_rate"}
 
     for mk in metric_keys:
-        d_val = metrics_per_bl["dense"].get(mk, 0.0)
-        h_val = metrics_per_bl["hybrid"].get(mk, 0.0)
-
+        vals = {bl: metrics_per_bl[bl].get(mk, 0.0) for bl in bl_keys}
         if mk in lower_is_better:
-            winner = "dense" if d_val < h_val else ("hybrid" if h_val < d_val else "tie")
+            winner = min(vals, key=vals.get)
         else:
-            winner = "dense" if d_val > h_val else ("hybrid" if h_val > d_val else "tie")
-
-        mark = "◀" if winner != "tie" else "="
-        print(f"  {mk:<24} {d_val:>10.4f} {h_val:>10.4f}  {winner:>6} {mark}")
+            winner = max(vals, key=vals.get)
+        val_str = "  ".join(f"{vals[bl]:>12.4f}" for bl in bl_keys)
+        print(f"  {mk:<24} {val_str}  {winner:>10}")
 
     print(f"\n  ✓=relevant  △=partial  ✗=irrelevant")
     print("=" * 64 + "\n")

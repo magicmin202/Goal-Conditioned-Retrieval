@@ -80,9 +80,7 @@ def _candidate_row(c) -> dict:
     return {
         "log_id": c.log_id,
         "title": c.log.title[:40],
-        "bm25": round(c.sparse_score, 4),
         "dense": round(c.dense_score, 4),
-        "hybrid": round(c.hybrid_score, 4),
     }
 
 
@@ -124,23 +122,23 @@ def print_comparison(
         print(f"    negative_terms : {res.negative_terms[:4]}")
 
     print(f"\n{'─'*40}")
-    print("CANDIDATE POOL (top-10, by hybrid_score)")
+    print("CANDIDATE POOL (top-10, by dense_score)")
     print(f"{'─'*40}")
-    header = f"  {'log_id':16s} {'bm25':>6} {'dense':>6} {'hybrid':>7}  title"
+    header = f"  {'log_id':16s} {'dense':>6}  title"
     print(f"  [{label_a}]")
     print(header)
     for c in result_a.candidates[:10]:
-        print(f"  {c.log_id:16s} {c.sparse_score:6.4f} {c.dense_score:6.4f} {c.hybrid_score:7.4f}  {c.log.title[:35]}")
+        print(f"  {c.log_id:16s} {c.dense_score:6.4f}  {c.log.title[:35]}")
 
     print(f"\n  [{label_b}]")
     print(header)
     for c in result_b.candidates[:10]:
-        print(f"  {c.log_id:16s} {c.sparse_score:6.4f} {c.dense_score:6.4f} {c.hybrid_score:7.4f}  {c.log.title[:35]}")
+        print(f"  {c.log_id:16s} {c.dense_score:6.4f}  {c.log.title[:35]}")
 
     print(f"\n  [{label_c}]")
     print(header)
     for c in result_c.candidates[:10]:
-        print(f"  {c.log_id:16s} {c.sparse_score:6.4f} {c.dense_score:6.4f} {c.hybrid_score:7.4f}  {c.log.title[:35]}")
+        print(f"  {c.log_id:16s} {c.dense_score:6.4f}  {c.log.title[:35]}")
 
     # Candidate pool diff
     ids_a = {c.log_id for c in result_a.candidates}

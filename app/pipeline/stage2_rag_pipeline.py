@@ -4,7 +4,7 @@ CONTRACT — Stage 2 is NOT a retrieval stage.
 ============================================================
 FORBIDDEN in Stage 2:
   ✗ CandidateRetriever / global corpus retrieval
-  ✗ RetrievalMode.HYBRID_EXPANDED
+  ✗ global corpus retrieval / CandidateRetriever
   ✗ expanded query → broad retrieval
   ✗ re-selecting anchors from corpus
   ✗ DiversitySelector (Stage 1 already did this)
