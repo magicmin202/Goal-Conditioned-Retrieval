@@ -1,14 +1,19 @@
-"""LLM-based query expansion.
+"""LLM 기반 검색어 확장(Query Expansion) 모듈.
 
-Default path: Gemini API → structured JSON with 6 fields:
-  goal_summary, core_intents, evidence_terms, priority_terms, related_terms, negative_terms
+기본 동작 방식: Gemini API를 호출하여 목표(Goal)를 6개의 필드를 가진 구조화된 JSON으로 변환합니다:
+  - goal_summary (목표 요약)
+  - core_intents (핵심 하위 의도/액션)
+  - evidence_terms (구체적 증거 어휘)
+  - priority_terms (최우선순위 핵심 어휘)
+  - related_terms (연관/유사 어휘)
+  - negative_terms (무관한/부정 어휘)
 
-Fallback: domain-specific heuristic table.
+대체 방식(Fallback): API 호출 실패 시 도메인별 휴리스틱(규칙 기반) 테이블을 사용합니다.
 
-Post-processing:
-- Remove generic/vague terms (학습, 실행, 정리, 계획, ...)
-- Deduplicate, normalize, length-cap
-- Phrase-level terms preserved for phrase-match scoring in reranker/retrieval
+후처리(Post-processing) 작업:
+- 지나치게 일반적이거나 모호한 단어 제거 (예: 학습, 실행, 정리, 계획 등)
+- 중복 제거, 정규화, 최대 단어 수 제한
+- Reranker 및 Retrieval 단계에서의 구문 매칭(Phrase-match) 점수를 위해 구문(Phrase) 수준의 어휘 보존
 """
 from __future__ import annotations
 
@@ -37,7 +42,7 @@ def _normalize_term(term: str) -> str:
 
 
 def _remove_generic(terms: list[str]) -> list[str]:
-    """Drop terms whose every token is in the generic set."""
+    """주어진 어휘(term)를 구성하는 모든 토큰이 일반적인 단어(_GENERIC_TERMS) 집합에 속해 있다면 해당 어휘를 제거합니다."""
     result = []
     for term in terms:
         tokens = set(re.findall(r"[\w가-힣]+", term.lower()))
@@ -332,13 +337,13 @@ class ExpandedQuery:
 
     @property
     def dense_query(self) -> str:
-        """Minimal semantic core for dense embedding — NO lexical expansion.
+        """Dense 임베딩 모델을 위한 최소한의 의미론적 핵심 쿼리입니다. (어휘적 확장 키워드는 포함하지 않음)
 
-        Including related_terms or full vocab in the dense query causes semantic
-        drift: the embedding centroid moves away from the goal, pulling in
-        tangentially related logs (exercise, cooking, etc.) via cosine similarity.
+        dense_query에 related_terms나 전체 확장 어휘를 포함시키면 '의미적 표류(Semantic Drift)' 현상이 발생합니다.
+        즉, 임베딩 벡터의 중심(Centroid)이 원래 목표에서 벗어나, 코사인 유사도로 인해 
+        약간만 관련된 엉뚱한 일상 로그(예: 운동, 요리 등)를 잘못 끌어오게 됩니다.
 
-        Dense query = goal_summary + first core_intent only.
+        따라서 Dense Query는 '목표 요약(goal_summary) + 첫 번째 핵심 의도(core_intents[0])'만으로 구성하여 간결하게 유지합니다.
         """
         parts = []
         if self.goal_summary:
@@ -354,16 +359,17 @@ class ExpandedQuery:
 
     @property
     def bm25_query(self) -> str:
-        """BM25 query: canonical text + top priority + top evidence terms.
+        """BM25 알고리즘(어휘 기반 매칭)을 위한 쿼리입니다.
+        구성: 원본 텍스트(canonical text) + 최상위 우선순위 어휘(priority) + 최상위 증거 어휘(evidence)
 
-        BM25 is a lexical matcher — injecting many terms broadens recall without
-        the semantic drift risk. But keep it focused: priority first, evidence second.
-        NO related_terms, NO negative_terms in BM25 query.
+        BM25는 어휘 기반 매칭이므로, 여러 단어를 주입하면 '의미적 표류(Semantic Drift)' 위험 없이 
+        재현율(Recall)을 넓힐 수 있습니다. 단, 초점을 유지하기 위해 우선순위 어휘와 증거 어휘만 사용하며,
+        관련어(related_terms)나 부정어(negative_terms)는 절대 포함하지 않습니다.
 
-        Note: priority × repeat is intentionally avoided here.
-        When Gemini generates wrong expansion (e.g., reading terms for a climbing goal),
-        repeating priority amplifies the error and overwhelms the base signal.
-        The base canonical text must dominate — expansion terms are supplementary only.
+        참고: 여기서 최우선순위 단어들을 반복(repeat)해서 가중치를 주는 방식은 의도적으로 피했습니다.
+        만약 Gemini가 잘못된 확장을 생성했을 경우(예: 클라이밍 목표인데 독서 관련 단어를 생성), 
+        단어를 반복하면 오류가 증폭되어 원래의 목표 텍스트 신호를 완전히 압도해 버리기 때문입니다.
+        원본 텍스트(base canonical text)가 검색을 주도해야 하며, 확장 어휘는 보조 역할만 해야 합니다.
         """
         terms = self.priority_terms[:3] + self.expanded_terms[:4]
         return f"{self.base_query.canonical_text} {' '.join(terms)}".strip()
@@ -425,6 +431,9 @@ def _call_gemini(goal: ResearchGoal, max_terms: int, gemini_config=None) -> dict
         description=goal.description or goal.title,
     )
     response_text = llm.generate(prompt)
+    
+    # 디버깅용: Gemini가 반환한 원본 텍스트 출력
+    print(f"\n{'='*60}\n[Gemini Raw Response for: {goal.title}]\n{response_text}\n{'='*60}\n", flush=True)
 
     match = re.search(r"\{.*\}", response_text, re.DOTALL)
     if not match:
@@ -498,13 +507,14 @@ def expand_goal_query(
     gemini_config=None,
     use_cache: bool = True,
 ) -> ExpandedQuery:
-    """Expand goal into structured retrieval vocabulary via Gemini API.
+    """Gemini API를 사용하여 사용자의 목표(Goal)를 구조화된 검색용 어휘 집합으로 확장(Expansion)합니다.
 
-    Caches result to .cache/expansions/{goal_id}.json to avoid repeated
-    Gemini API calls for the same goal across runs.
+    동일한 목표에 대해 여러 번 코드를 실행할 때 발생하는 중복 API 호출을 방지하기 위해,
+    결과를 `.cache/expansions/{goal_id}.json` 파일에 캐싱(저장)합니다.
 
-    Returns ExpandedQuery with priority_terms / evidence_terms / related_terms
-    / negative_terms for use in candidate retrieval and reranking.
+    1차 검색(Candidate Retrieval) 및 2차 필터링(Reranking) 단계에서 사용할 
+    우선순위 어휘(priority_terms), 증거 어휘(evidence_terms), 관련 어휘(related_terms), 부정 어휘(negative_terms)가 
+    모두 담긴 `ExpandedQuery` 객체를 반환합니다.
     """
     parsed: dict | None = None
 

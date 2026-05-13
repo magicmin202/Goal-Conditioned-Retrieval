@@ -235,15 +235,15 @@ def main() -> None:
         sp = s_prec
         print(f"\n[Bottleneck Diagnosis]")
         if cr < 0.70:
-            print(f"  ⚠ candidate_recall={cr:.2f} — retrieval 단계에서 관련 로그를 놓치고 있음")
+            print(f"  [!] candidate_recall={cr:.2f} — retrieval 단계에서 관련 로그를 놓치고 있음")
             print(f"     → dense query (goal summary / core_intents) 점검 필요")
         else:
-            print(f"  ✓ candidate_recall={cr:.2f} — retrieval 충분히 recall 확보")
+            print(f"  [v] candidate_recall={cr:.2f} — retrieval 충분히 recall 확보")
         if sp < 0.60:
-            print(f"  ⚠ selected_precision={sp:.2f} — reranker/filter 단계에서 노이즈 제거 부족")
+            print(f"  [!] selected_precision={sp:.2f} — reranker/filter 단계에서 노이즈 제거 부족")
             print(f"     → reranker weights, negative veto, relevance threshold 점검 필요")
         else:
-            print(f"  ✓ selected_precision={sp:.2f} — reranker precision 양호")
+            print(f"  [v] selected_precision={sp:.2f} — reranker precision 양호")
 
         # ── Label distribution ────────────────────────────────────────────────
         label_map = {lb.log_id: lb.label for lb in user_labels}

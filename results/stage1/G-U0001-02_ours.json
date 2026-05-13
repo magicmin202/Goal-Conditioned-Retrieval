@@ -1,0 +1,37 @@
+{
+  "goal_id": "G-U0001-02",
+  "baseline": "ours",
+  "stage": "stage1",
+  "timestamp": "2026-05-13T02:57:02.164381",
+  "metrics": {
+    "recall@10": 0.4,
+    "precision@10": 0.4,
+    "selected_count": 6,
+    "selected_precision": 0.6666666666666666,
+    "f1@10": 0.4000000000000001,
+    "false_positive_rate": 0.33333333333333337,
+    "mrr": 1.0,
+    "ndcg@10": 0.7002132283213617,
+    "diversity_coverage": 0.5
+  },
+  "selected_log_ids": [
+    "L-U0001-0067",
+    "L-U0001-0017",
+    "L-U0001-0058",
+    "L-U0001-0028",
+    "L-U0001-0065",
+    "L-U0001-0042"
+  ],
+  "selected_titles": [
+    "사이드 프로젝트 구현",
+    "알고리즘 풀이 세션",
+    "GRE 연습 문제 풀기",
+    "백준 오늘의 문제",
+    "프로젝트 구현",
+    "GRE 모의시험"
+  ],
+  "baseline_config": {
+    "use_expansion": "True",
+    "disable_lexical_gate": "False"
+  }
+}

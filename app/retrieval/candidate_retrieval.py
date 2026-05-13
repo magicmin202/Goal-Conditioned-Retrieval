@@ -76,6 +76,11 @@ class CandidateRetriever:
         else:
             dense_text = query.canonical_text
 
+        #임시
+        dense_text="석사 과정 진학을 위한 연구실 리스트업 및 컨택 메일 작성법, 교수님 면담 준비, 연구계획서 및 학업계획서 초안 수정, TOEFL/TEPS 영어 성적 확보 전략 및 2026학년도 대학원 입학 모집요강 전형 일정 관리 통합 검색"
+        # 디버깅용: 실제 임베딩 모델(Dense Retrieval)에 들어가는 텍스트 출력
+        print(f"\n[ACTUAL DENSE QUERY FED TO EMBEDDING MODEL]\n{dense_text}\n", flush=True)
+
         logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
 
         candidates = self._dense.retrieve(dense_text, top_n=n)

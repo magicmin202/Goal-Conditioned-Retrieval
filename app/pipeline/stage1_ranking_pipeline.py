@@ -50,7 +50,11 @@ class Stage1Pipeline:
         from app.retrieval.embedding_provider import get_embedding_provider
         self.config = config or Stage1Config()
         self._disable_lexical_gate = disable_lexical_gate
-        embed_provider = get_embedding_provider(real=use_real_embeddings)
+        
+        # 버그 수정: use_real_embeddings가 True일 때는 None을 넘겨 
+        # 하위 모듈(DenseRetriever)이 문서용/쿼리용 투트랙을 스스로 생성하도록 위임합니다.
+        embed_provider = None if use_real_embeddings else get_embedding_provider(real=False)
+        
         self._retriever = CandidateRetriever(
             config=self.config.retrieval,
             embedding_provider=embed_provider,

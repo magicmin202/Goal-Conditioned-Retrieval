@@ -49,7 +49,7 @@ class GeminiLLMClient(BaseLLMClient):
     def __init__(
         self,
         api_key: str | None = None,
-        model_name: str = "gemini-2.0-flash",
+        model_name: str = "gemini-3.1-flash-lite",
         temperature: float = 0.2,
         max_output_tokens: int = 512,
     ) -> None:
@@ -76,13 +76,26 @@ class GeminiLLMClient(BaseLLMClient):
         logger.info("GeminiLLMClient initialized (model=%s)", model_name)
 
     def generate(self, prompt: str, **kwargs: Any) -> str:
+        import time
         from google.genai import types
-        resp = self._client.models.generate_content(
-            model=self._model_name,
-            contents=prompt,
-            config=self._config,
-        )
-        return resp.text
+        
+        for attempt in range(3):
+            try:
+                resp = self._client.models.generate_content(
+                    model=self._model_name,
+                    contents=prompt,
+                    config=self._config,
+                )
+                return resp.text
+            except Exception as exc:
+                if "429" in str(exc) and attempt < 2:
+                    wait = 60 * (attempt + 1)  # 60s, then 120s
+                    logger.warning("LLM 429 Rate limit hit — waiting %ds before retry (attempt %d/3)", wait, attempt+1)
+                    print(f"\n  [Rate limit] LLM 429 hit — waiting {wait}s before retry...", flush=True)
+                    time.sleep(wait)
+                else:
+                    raise
+        return ""  # Should not be reached
 
 
 def get_llm_client(mock: bool = False, config=None) -> BaseLLMClient:

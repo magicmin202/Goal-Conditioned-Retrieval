@@ -1,32 +1,32 @@
-"""Lexical-Control Reranker with Category-First Admission.
+"""카테고리 우선 심사를 포함하는 어휘 제어(Lexical-Control) 기반 Reranker.
 
-Retrieval architecture:
-  Stage 1 (candidate) = recall  → Dense embedding retrieval (Gemini embedding-001)
-  Stage 2 (reranker)  = precision → lexical 90%, semantic 5–10%
+검색 아키텍처:
+  Stage 1 (후보군) = 재현율(Recall)  → Dense 임베딩 검색 (Gemini embedding-001)
+  Stage 2 (재정렬) = 정밀도(Precision) → 어휘 매칭 90%, 의미 일치 5–10%
 
-Admission gates (applied IN ORDER before scoring):
-  1. Schema category gate  — log must belong to a category relevant to goal domain
-       "none" → immediate reject (category_mismatch)
-  2. Goal lexical gate     — log must have at least ONE direct goal signal
-       pri=0 AND ev=0 AND base<threshold → reject (no_goal_signal)
-  3. Negative veto         — domain conflict + no positive evidence
-       dm≥veto_threshold AND pri<veto_min → reject (domain_conflict_veto)
+입장 관문 (점수 계산 전 순서대로 적용됨):
+  1. 행동 카테고리 관문  — 로그가 목표 도메인과 관련된 카테고리에 속해야 함
+       "none" → 즉시 불합격 (category_mismatch)
+  2. 목표 핵심어 관문    — 로그에 목표를 나타내는 직접적인 신호가 최소 1개 있어야 함
+       pri=0 AND ev=0 AND base<커트라인 → 불합격 (no_goal_signal)
+  3. 부정어 거부 관문    — 도메인이 충돌하면서 긍정적인 증거마저 없는 경우
+       dm≥veto_threshold AND pri<veto_min → 불합격 (domain_conflict_veto)
 
-Scoring formula (only reached after all gates pass):
-  final_score =
-      priority_weight   * priority_phrase_score   (0.35)
-    + evidence_weight   * evidence_phrase_score    (0.20)
-    + related_weight    * related_score            (0.10)
-    + action_weight     * action_signal            (0.15)
-    + domain_weight     * domain_consistency       (0.10)  ← now goal-domain-aware
-    + semantic_weight   * semantic_similarity      (0.05)
-    + base_weight       * base_goal_overlap        (0.05)
-    − negative_penalty
+점수 계산 공식 (모든 관문을 통과한 경우에만 계산):
+  최종 점수 =
+      우선순위_가중치   * 우선순위_구문_점수       (0.35)
+    + 증거_가중치       * 증거_구문_점수           (0.20)
+    + 연관_가중치       * 연관어_점수              (0.10)
+    + 실행_가중치       * 실행_신호_점수           (0.15)
+    + 도메인_가중치     * 도메인_일치도            (0.10)  ← 목표 도메인 반영
+    + 의미_가중치       * 의미_유사도(Dense)       (0.05)
+    + 기본_가중치       * 기본_목표문_일치도       (0.05)
+    − 부정어_감점
 
-Schema signals:
-  - Used ONLY in category mapper (gate logic)
-  - NOT injected into reranker scoring terms
-  - Candidate stage uses Dense retrieval only (no additive boost)
+스키마 신호:
+  - 카테고리 매퍼(관문 로직)에서만 단독으로 사용됨
+  - Reranker의 세부 채점 항목에는 주입되지 않음
+  - 초기 후보 검색(Candidate) 단계는 Dense 검색만 사용함 (어휘 가중치 보정 없음)
 """
 from __future__ import annotations
 
@@ -55,11 +55,11 @@ from app.utils.text_matching import (
 
 logger = logging.getLogger(__name__)
 
-# ── Tier2 semantic gate threshold ─────────────────────────────────────────────
-# Only active when real embeddings are used (use_real_embeddings=True).
-# Skipped entirely for mock embeddings to prevent random hash-based scores
-# from incorrectly rejecting relevant logs.
-# Initial value: 0.50.  Tuning range: 0.45 – 0.55.
+# ── Tier2 의미론적(Semantic) 관문 커트라인 ─────────────────────────────────────────────
+# 실제 API(use_real_embeddings=True)를 사용할 때만 활성화됩니다.
+# Mock 임베딩 환경에서는 무의미한 해시 기반 점수 때문에 정상적인 로그가
+# 억울하게 탈락하는 것을 막기 위해 이 관문을 완전히 건너뜁니다.
+# 기본값: 0.50.  튜닝 권장 범위: 0.45 – 0.55.
 SEMANTIC_GATE_THRESHOLD: float = 0.50
 
 # ── Action/completion signal keywords ────────────────────────────────────────
@@ -76,12 +76,12 @@ _NOISE_TYPES: set[str] = {"daily"}
 
 
 class GoalConditionedReranker:
-    """Category-first lexical-control precision reranker.
+    """카테고리를 우선적으로 심사하는 어휘 기반 정밀도 Reranker.
 
-    Schema category gate fires before scoring — ensures:
-      - Lifestyle/unrelated logs are rejected by domain mismatch
-      - action_signal + domain_consistency cannot carry zero-evidence logs
-      - Scoring is only reached by categorically-relevant logs with goal signal
+    점수를 매기기 전에 카테고리 관문을 먼저 적용하여 다음을 보장합니다:
+      - 일상(Lifestyle) 등 목표와 무관한 로그는 도메인 불일치로 즉시 거름
+      - 실행 신호(action_signal)나 도메인 점수만 높은 '증거 없는 깡통 로그'의 꼼수 합격 방지
+      - 오직 카테고리가 적합하고 목표 관련 신호가 있는 로그만 채점 단계에 진입
     """
 
     def __init__(
@@ -106,10 +106,10 @@ class GoalConditionedReranker:
         log_title: str,
         priority_terms: list[str],
     ) -> tuple[float, list[PriorityTermMatch]]:
-        """Weak-token-filtered priority matching.
+        """약한 토큰 필터링이 적용된 우선순위 단어 매칭.
 
-        Uses score_priority_terms so that generic tokens ("완료", "정리", …)
-        cannot trigger a positive match on their own.
+        score_priority_terms 함수를 사용하여 "완료", "정리" 같은 일반적인 단어들이
+        단독으로 매칭되어 점수를 얻는 것(가짜 매칭)을 방지합니다.
         """
         score, matches = score_priority_terms(
             priority_terms, log_text, log_title,
@@ -180,11 +180,11 @@ class GoalConditionedReranker:
     def _domain_consistency(
         self, candidate: CandidateLog, log_activity_type: str
     ) -> float:
-        """Activity-type based domain consistency (schema gate removed).
+        """행동 유형(Activity-type) 기반의 도메인 일치도 (스키마 관문 대체).
 
-        creative/execution → high (concrete output)
-        learning/planning  → medium
-        lifestyle/unknown  → low
+        creative/execution → 높음 (구체적인 결과물이 있음)
+        learning/planning  → 중간
+        lifestyle/unknown  → 낮음
         """
         base_scores = {
             "creative":  0.85,
@@ -266,12 +266,11 @@ class GoalConditionedReranker:
         cfg = self.config
 
         # ══════════════════════════════════════════════════════════════════════
-        # GATE 1: Activity-Type Gate
-        # Rejects logs whose activity-type is fundamentally incompatible with
-        # the goal's expected activity-types (e.g. lifestyle log for a pure
-        # learning goal).  Open-domain goals (e.g. "친구 관계 넓히기") are
-        # handled correctly because is_activity_type_compatible() only rejects
-        # on explicit _INCOMPATIBLE_PAIRS — unknown/novel types always pass.
+        # [관문 1] Activity-Type Gate (행동 유형 관문)
+        # 역할: 목표의 카테고리(예: 학습)와 로그의 카테고리(예: 일상)가 구조적으로
+        #       완전히 엇갈리는 경우(예: 공부가 목표인데 식사 로그가 들어옴),
+        #       내용을 볼 필요도 없이 즉시 불합격(Reject)시킵니다.
+        # 특징: 알 수 없는 유형(unknown)이거나 오픈 도메인 목표는 항상 통과시킵니다.
         # ══════════════════════════════════════════════════════════════════════
         log_activity_type = classify_log_activity_type(
             candidate.log.title + " " + (candidate.log.content or "")
@@ -317,20 +316,13 @@ class GoalConditionedReranker:
         base = self._base_goal_overlap(goal, log_text)
 
         # ══════════════════════════════════════════════════════════════════════
-        # GATE 2: Goal Lexical Gate + Support Gate
-        #
-        # Primary path (gate_mode="direct"):
-        #   Any of: priority match, evidence match, base_overlap ≥ 0.04
-        #   → proceed to full scoring, no score cap
-        #
-        # Support path (gate_mode="supporting"):
-        #   When no primary signal exists BUT:
-        #     (a) log text contains a support_context_signal for the goal domain
-        #     (b) log category is a supporting_category for the goal domain
-        #   → proceed to scoring with score_cap=0.12
-        #   score_cap ensures support logs never rank above direct evidence.
-        #
-        # Reject: neither path satisfied → no_goal_signal
+        # [관문 2] Goal Lexical Gate (핵심 어휘 관문)
+        # 역할: 목표와 관련된 '결정적 단어(키워드)'가 로그 안에 실제로 존재하는지 검사합니다.
+        # 
+        # - Direct (정상 통과): 우선순위 단어, 증거 단어, 또는 기본 목표문과 4% 이상 일치하면
+        #   제한 없이 점수 채점 단계로 넘어갑니다.
+        # - Reject (불합격): 목표를 유추할 수 있는 단서 단어가 단 하나도 없다면
+        #   가짜 합격(False Positive)으로 간주하고 가차 없이 불합격(no_goal_signal)시킵니다.
         # ══════════════════════════════════════════════════════════════════════
         primary_signal = (pri_score > 0.0 or ev_score > 0.0 or base >= 0.04)
         score_cap: float | None = None
@@ -380,18 +372,13 @@ class GoalConditionedReranker:
         )
 
         # ══════════════════════════════════════════════════════════════════════
-        # TIER 2: Semantic Relevance Gate
-        # Only fires when real embeddings are active (use_real_embeddings=True)
-        # AND skip_semantic_gate=False.
-        #
-        # skip_semantic_gate=True is set for Stage2 neighbor re-admission:
-        #   - Neighbors are already gated by temporal locality + lexical gates.
-        #   - dense_score here is raw cosine (not max-normalized like Stage1),
-        #     so the Stage1-calibrated threshold (0.50) would be misapplied.
-        #
-        # Condition: sem > 0 AND sem < threshold
-        #   → log is semantically too far from goal even after lexical gates pass
-        # supporting-mode logs are exempt (score_cap already limits their impact)
+        # [관문 3] Tier 2 Semantic Relevance Gate (AI 의미/문맥 관문)
+        # 역할: 단어 관문을 통과했더라도, 전체적인 문맥(의미)이 정말로 비슷한지 봅니다.
+        # 
+        # - 실제 API(real embeddings)를 사용할 때만 작동합니다.
+        # - AI가 판단한 임베딩(Dense) 유사도 점수가 커트라인(SEMANTIC_GATE_THRESHOLD)
+        #   미만이라면, 단어만 겹쳤을 뿐 문맥이 다르다고 판단하여 불합격 처리합니다.
+        # - 절대 평가 방식이므로, 초기 검색기가 억지로 가져온 쓰레기 로그들을 차단합니다.
         # ══════════════════════════════════════════════════════════════════════
         logger.debug(
             "[STAGE2_SEMANTIC_DEBUG]  log_id=%s  title=%s  "
@@ -432,9 +419,12 @@ class GoalConditionedReranker:
         raw_dm, penalty, neg_matched = self._negative_penalty(candidate, neg_terms)
 
         # ══════════════════════════════════════════════════════════════════════
-        # GATE 3: Negative Veto (domain conflict gate)
-        # Fires when: significant domain mismatch AND no priority evidence.
-        # NOT a keyword blacklist — requires BOTH conditions.
+        # [관문 4] Negative Veto (부정어 거부 / 도메인 충돌 관문)
+        # 역할: 목표와 완전히 반대되거나 무관한 도메인의 이야기인지 검사합니다.
+        # 
+        # - 무조건 거부하는 것이 아니라, 부정어 점수가 커트라인을 넘을 정도로 높고(심각한 충돌)
+        #   동시에 이 로그를 살려줄 만한 강력한 '우선순위 단어'조차 없을 때만
+        #   최종적으로 불합격(domain_conflict_veto)시킵니다.
         # ══════════════════════════════════════════════════════════════════════
         veto = (
             cfg.negative_veto_enabled
@@ -469,16 +459,16 @@ class GoalConditionedReranker:
         )
 
         # ── Final score ───────────────────────────────────────────────────────
-        # Dual-component formula:
-        #   relevance_score = priority + evidence + related + semantic + base
-        #   quality_score   = EvidenceQualityScorer.total
-        #   final = (1 - quality_weight) * relevance_score
-        #         + quality_weight       * quality_score
-        #         - negative_penalty
+        # 이중 구성(Dual-component) 점수 공식:
+        #   관련성 점수 = 우선순위 + 증거 + 연관성 + 의미유사도 + 기본목표일치
+        #   품질 점수   = EvidenceQualityScorer.total (구체성, 실행력 등)
+        #   최종 점수 = (1 - 품질_가중치) * 관련성_점수
+        #             + 품질_가중치       * 품질_점수
+        #             - 부정어_감점
         #
-        # Effective relevance weights (each × 0.70):
-        #   priority=0.30, evidence=0.18, related=0.08, semantic=0.04, base=0.05
-        # Effective quality weight: 0.30
+        # 실질적인 관련성 가중치 비중 (각 항목 × 0.70):
+        #   우선순위=0.30, 증거=0.18, 연관성=0.08, 의미유사도=0.04, 기본=0.05
+        # 실질적인 품질 가중치 비중: 0.30
         qw = cfg.quality_weight           # 0.30
         rw = 1.0 - qw                     # 0.70
 
@@ -600,19 +590,18 @@ class GoalConditionedReranker:
         related_terms: list[str] | None = None,
         skip_semantic_gate: bool = False,
     ) -> RankedLog:
-        """Score a single ResearchLog and return full RankedLog (with category trace).
+        """단일 ResearchLog의 점수를 매기고 전체 RankedLog 객체를 반환합니다 (관문 기록 포함).
 
-        Preferred over score_log() when caller needs category/admission info.
-        Used by LocalExpander for neighbor re-admission.
+        호출자가 관문 통과 여부 및 카테고리 정보가 필요할 때 score_log() 대신 사용됩니다.
+        Stage 2의 LocalExpander에서 이웃 로그들을 재심사할 때 사용됩니다.
 
         Parameters
         ----------
         skip_semantic_gate:
-            When True, Tier2 semantic gate is skipped regardless of
-            use_real_embeddings.  Set to True for Stage2 neighbor
-            re-admission: neighbors are already gated by temporal locality
-            and lexical filters, and dense_score=0.0 (raw cosine, not
-            max-normalized) would give a misleading scale vs Stage1.
+            True일 경우, use_real_embeddings 설정과 무관하게 Tier 2 의미론적 관문을 건너뜁니다.
+            Stage 2 이웃 재심사 시 True로 설정됨: 이웃 로그들은 이미 시간적 인접성과
+            어휘 관문을 거쳤으며, 여기서의 dense_score는 Stage 1처럼 정규화된 점수가 아니라
+            0.0으로 들어오기 때문에 커트라인을 적용하면 모두 억울하게 탈락하기 때문입니다.
         """
         candidate = CandidateLog(log=log, dense_score=0.0)
         results = self.rank(
