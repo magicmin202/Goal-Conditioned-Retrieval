@@ -132,10 +132,7 @@ class DenseRetriever:
             return []
         q_emb = self._query_provider.encode(query)
         raw = [cosine(q_emb, e) for e in self._embeddings]
-        max_s = max(raw) if raw else 1.0
-        if max_s <= 0:
-            max_s = 1.0
-        return [(log, r / max_s) for log, r in zip(self._corpus, raw)]
+        return [(log, r) for log, r in zip(self._corpus, raw)]
 
     # ── Retrieval ─────────────────────────────────────────────────────────────
 
@@ -144,6 +141,39 @@ class DenseRetriever:
         pairs = self.score_all(query)
         if not pairs:
             return []
+        ranked = sorted(pairs, key=lambda x: x[1], reverse=True)[:top_n]
+        return [
+            CandidateLog(log=log, dense_score=round(score, 6))
+            for log, score in ranked
+        ]
+
+    def retrieve_multi(self, queries: list[str], top_n: int = 30, pooling: str = "max") -> list[CandidateLog]:
+        """Return top-N candidates by pooling dense similarity across multiple queries.
+        pooling: "max", "average", "weighted_sum"
+        """
+        if not self._corpus or not queries:
+            return []
+            
+        q_embs = self._query_provider.encode_batch(queries)
+        
+        # 가중합을 위한 점진적 가중치 (앞쪽 쿼리일수록 높은 비중)
+        weights = [max(1.0 - (i * 0.15), 0.4) for i in range(len(queries))]
+        
+        pairs = []
+        for log, d_emb in zip(self._corpus, self._embeddings):
+            scores = [cosine(q_emb, d_emb) for q_emb in q_embs]
+            
+            if pooling == "max":
+                final_score = max(scores) if scores else 0.0
+            elif pooling == "weighted_sum":
+                final_score = sum(s * w for s, w in zip(scores, weights))
+            elif pooling == "average":
+                final_score = sum(scores) / len(scores) if scores else 0.0
+            else:
+                final_score = max(scores) if scores else 0.0
+                
+            pairs.append((log, final_score))
+            
         ranked = sorted(pairs, key=lambda x: x[1], reverse=True)[:top_n]
         return [
             CandidateLog(log=log, dense_score=round(score, 6))

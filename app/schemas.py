@@ -58,19 +58,11 @@ class ResearchLog:
         activity_type이 unknown인 경우 포함하지 않는다.
         keyword 기반 분류의 오분류가 embedding에 영향을 주는 것을 방지한다.
         """
-        topic = self.metadata.get("topic", "")
-
-        parts = [f"title: {self.title}"]
-
-        if self.activity_type and self.activity_type != "unknown":
-            parts.append(f"activity_type: {self.activity_type}")
-
-        if topic:
-            parts.append(f"topic: {topic}")
-
+        parts = []
+        if self.title:
+            parts.append(f"title: {self.title}")
         if self.content:
             parts.append(f"content: {self.content}")
-
         return "\n".join(parts).strip()
 
 

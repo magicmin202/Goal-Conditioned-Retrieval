@@ -92,7 +92,17 @@ class GoalConditionedReranker:
         use_real_embeddings: bool = False,
     ) -> None:
         self.config = config or RankerConfig()
-        self._dense = dense_retriever or DenseRetriever(doc_provider=MockEmbeddingProvider())
+        
+        if dense_retriever is None:
+            if use_real_embeddings:
+                # 버그 수정: use_real_embeddings가 True일 때는 None을 넘겨 
+                # DenseRetriever가 문서용/쿼리용 투트랙을 스스로 생성하도록 위임합니다.
+                self._dense = DenseRetriever()
+            else:
+                self._dense = DenseRetriever(doc_provider=MockEmbeddingProvider())
+        else:
+            self._dense = dense_retriever
+            
         # When False, Tier2 semantic gate is skipped (mock embeddings produce
         # meaningless cosine scores that would incorrectly reject relevant logs).
         self._use_real_embeddings = use_real_embeddings
@@ -209,7 +219,7 @@ class GoalConditionedReranker:
     ) -> float:
         if precomputed is not None:
             return precomputed
-        g_emb = self._dense.embed(goal.query_text)
+        g_emb = self._dense.embed_query(goal.query_text)
         l_emb = self._dense.embed(log_text)
         return max(0.0, cosine(g_emb, l_emb))
 

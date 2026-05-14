@@ -107,6 +107,7 @@ def main() -> None:
     parser.add_argument("--user_id", default=None)
     parser.add_argument("--goal_id", default=None)
     parser.add_argument("--top_k", type=int, default=10)
+    parser.add_argument("--candidate_size", type=int, default=None, help="Number of candidates to retrieve in Stage 1 (dense stage)")
     parser.add_argument(
         "--expand", action="store_true",
         help="[deprecated] Use --baseline hybrid_expand or ours instead. "
@@ -168,7 +169,11 @@ def main() -> None:
 
     cfg = DEFAULT_CONFIG.stage1
     cfg.retrieval.top_k = args.top_k
-    cfg.retrieval.candidate_size = _dynamic_candidate_size(len(user_logs), args.top_k)
+    
+    if args.candidate_size is not None:
+        cfg.retrieval.candidate_size = args.candidate_size
+    else:
+        cfg.retrieval.candidate_size = _dynamic_candidate_size(len(user_logs), args.top_k)
 
     pipeline = Stage1Pipeline(
         config=cfg,
@@ -252,6 +257,40 @@ def main() -> None:
             lbl = label_map.get(r.log_id, "unknown")
             dist[lbl] = dist.get(lbl, 0) + 1
         print(f"\n[Label dist in selected] {dist}")
+
+        # ── Debug Log Export ──────────────────────────────────────────────────
+        debug_file = Path("debug_retrieval.log")
+        with debug_file.open("w", encoding="utf-8") as f:
+            f.write(f"=== Stage 1 Debug Log ===\n")
+            f.write(f"Goal ID: {target_goal.goal_id}\n")
+            f.write(f"Goal Title: {target_goal.title}\n\n")
+
+            f.write("--- [1] 정답 로그 (Ground Truths for this Goal) ---\n")
+            relevant_log_ids = {lb.log_id for lb in user_labels if lb.label in ("high", "medium", "relevant")}
+            for lb in user_labels:
+                if lb.label in ("high", "medium", "relevant"):
+                    log_obj = next((l for l in user_logs if l.log_id == lb.log_id), None)
+                    if log_obj:
+                        f.write(f"[{lb.label.upper()}] ID: {log_obj.log_id} | Title: {log_obj.title}\n")
+                        f.write(f"    Content: {log_obj.content}\n\n")
+
+            f.write("--- [2] Dense Retrieval (Layer 1 Candidate Pool) 선택 로그 ---\n")
+            for i, cand in enumerate(result.candidates, 1):
+                is_gt = "O" if cand.log_id in relevant_log_ids else "X"
+                f.write(f"{i:2d}. [GT: {is_gt}] ID: {cand.log_id} | Title: {cand.log.title} | Score: {cand.dense_score:.4f}\n")
+                f.write(f"    Content: {cand.log.content}\n\n")
+                
+            if hasattr(result, "expanded_query") and result.expanded_query and hasattr(result.expanded_query, "dense_queries"):
+                f.write("--- [3] 개별 쿼리별 상위 검색 결과 (Before Pooling) ---\n")
+                cand_size = cand_metrics['candidate_size']
+                for q in result.expanded_query.dense_queries:
+                    f.write(f"\n>> 쿼리: {q}\n")
+                    q_candidates = pipeline._retriever._dense.retrieve(q, top_n=cand_size)
+                    for i, cand in enumerate(q_candidates, 1):
+                        is_gt = "O" if cand.log_id in relevant_log_ids else "X"
+                        f.write(f"  {i:2d}. [GT: {is_gt}] ID: {cand.log_id} | Title: {cand.log.title} | Score: {cand.dense_score:.4f}\n")
+            
+        print(f"\n[Debug Log saved] {debug_file.absolute()}")
 
         if args.save_result:
             from app.evaluation.result_writer import save_stage1_result

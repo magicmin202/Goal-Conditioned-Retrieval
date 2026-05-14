@@ -10,6 +10,7 @@ class QueryObject:
     raw_text: str
     canonical_text: str
     goal_id: str
+    title: str = ""
     expanded_terms: list[str] | None = None
 
 
@@ -24,4 +25,9 @@ def build_query(goal: ResearchGoal) -> QueryObject:
     """
     raw = goal.query_text
     canonical = _normalize(raw)
-    return QueryObject(raw_text=raw, canonical_text=canonical, goal_id=goal.goal_id)
+    return QueryObject(
+        raw_text=raw, 
+        canonical_text=canonical, 
+        goal_id=goal.goal_id,
+        title=goal.title
+    )

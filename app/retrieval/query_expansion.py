@@ -336,26 +336,24 @@ class ExpandedQuery:
         return self.base_query.canonical_text
 
     @property
-    def dense_query(self) -> str:
-        """Dense 임베딩 모델을 위한 최소한의 의미론적 핵심 쿼리입니다. (어휘적 확장 키워드는 포함하지 않음)
-
-        dense_query에 related_terms나 전체 확장 어휘를 포함시키면 '의미적 표류(Semantic Drift)' 현상이 발생합니다.
-        즉, 임베딩 벡터의 중심(Centroid)이 원래 목표에서 벗어나, 코사인 유사도로 인해 
-        약간만 관련된 엉뚱한 일상 로그(예: 운동, 요리 등)를 잘못 끌어오게 됩니다.
-
-        따라서 Dense Query는 '목표 요약(goal_summary) + 첫 번째 핵심 의도(core_intents[0])'만으로 구성하여 간결하게 유지합니다.
+    def dense_queries(self) -> list[str]:
+        """Multi-vector 검색을 위한 순수 핵심 의도 쿼리 리스트.
+        의미 표류(Semantic Drift) 및 의도 희석을 막기 위해 목표 제목조차 제외하고 
+        오직 '순수 핵심 의도' 단독으로만 쿼리를 구성합니다.
         """
-        parts = []
-        if self.goal_summary:
-            parts.append(self.goal_summary)
-        else:
-            parts.append(self.base_query.canonical_text)
-        if self.core_intents:
-            parts.append(self.core_intents[0])
-        # Deduplicate while preserving order
-        seen: set[str] = set()
-        unique = [p for p in parts if not (p in seen or seen.add(p))]  # type: ignore
-        return " ".join(unique).strip()
+        queries = []
+        for intent in self.core_intents:
+            queries.append(intent.strip())
+            
+        if not queries:
+            queries = [self.base_query.canonical_text]
+        return queries
+
+    @property
+    def dense_query(self) -> str:
+        """Legacy fallback"""
+        return self.dense_queries[0]
+
 
     @property
     def bm25_query(self) -> str:
@@ -482,7 +480,7 @@ def _load_expansion_cache(goal_id: str) -> dict | None:
     path = _expansion_cache_path(goal_id)
     if path.exists():
         try:
-            data = json.loads(path.read_text())
+            data = json.loads(path.read_text(encoding="utf-8"))
             logger.info("Expansion cache hit  goal=%s  (skipping Gemini API call)", goal_id)
             return data
         except Exception:
@@ -492,7 +490,7 @@ def _load_expansion_cache(goal_id: str) -> dict | None:
 
 def _save_expansion_cache(goal_id: str, parsed: dict) -> None:
     try:
-        _expansion_cache_path(goal_id).write_text(json.dumps(parsed, ensure_ascii=False))
+        _expansion_cache_path(goal_id).write_text(json.dumps(parsed, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception as exc:
         logger.warning("Failed to save expansion cache: %s", exc)
 

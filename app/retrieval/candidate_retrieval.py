@@ -72,19 +72,24 @@ class CandidateRetriever:
             n = _dynamic_candidate_size(corpus_size)
 
         if isinstance(query, ExpandedQuery):
-            dense_text = query.dense_query
+            dense_queries = query.dense_queries
+            
+            # --- [직접 변경 가능] 여기서 풀링 방식을 선택하세요 ---
+            # 지원 방식: "weighted_sum" (권장), "max", "average"
+            pooling_method = "weighted_sum" 
+
+            print(f"\n[ACTUAL DENSE QUERIES FED TO EMBEDDING MODEL (Multi-Vector | Pooling: {pooling_method})]")
+            for q in dense_queries:
+                print(f" - {q}")
+            print(flush=True)
+            
+            logger.debug("CandidateRetriever multi-vector  top_n=%d pooling=%s", n, pooling_method)
+            candidates = self._dense.retrieve_multi(dense_queries, top_n=n, pooling=pooling_method)
         else:
             dense_text = query.canonical_text
+            print(f"\n[ACTUAL DENSE QUERY FED TO EMBEDDING MODEL]\n{dense_text}\n", flush=True)
+            logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
+            candidates = self._dense.retrieve(dense_text, top_n=n)
 
-        #임시
-        dense_text="석사 과정 진학을 위한 연구실 리스트업 및 컨택 메일 작성법, 교수님 면담 준비, 연구계획서 및 학업계획서 초안 수정, TOEFL/TEPS 영어 성적 확보 전략 및 2026학년도 대학원 입학 모집요강 전형 일정 관리 통합 검색"
-        # 디버깅용: 실제 임베딩 모델(Dense Retrieval)에 들어가는 텍스트 출력
-        print(f"\n[ACTUAL DENSE QUERY FED TO EMBEDDING MODEL]\n{dense_text}\n", flush=True)
-
-        logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
-
-        candidates = self._dense.retrieve(dense_text, top_n=n)
-
-        logger.debug("Stage1 candidates: %d  dense_q=%s", len(candidates), dense_text[:60])
-
+        logger.debug("Stage1 candidates: %d", len(candidates))
         return candidates
