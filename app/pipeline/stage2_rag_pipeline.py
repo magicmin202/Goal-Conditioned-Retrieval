@@ -138,9 +138,21 @@ class Stage2Pipeline:
         use_real_embeddings: bool = False,  # kept for API compat; used by reranker embed
     ) -> None:
         self.config = config or Stage2Config()
+        # Fix: same asymmetric injection as Stage1.
+        # When real embeddings are requested, create DenseRetriever() with no
+        # args so its auto-detect path fires → doc=RETRIEVAL_DOCUMENT +
+        # query=RETRIEVAL_QUERY. Passing dense_retriever explicitly takes
+        # priority over the use_real_embeddings branch in GoalConditionedReranker,
+        # so the reranker's internal symmetric fallback is bypassed.
+        if use_real_embeddings:
+            from app.retrieval.dense_retriever import DenseRetriever as _DR
+            _dense_for_reranker = _DR()   # no args → auto-detect asymmetric providers
+        else:
+            _dense_for_reranker = None
         # Stage 2 has NO CandidateRetriever — no global retrieval.
         self._reranker = GoalConditionedReranker(
             config=self.config.ranker,
+            dense_retriever=_dense_for_reranker,
             use_real_embeddings=use_real_embeddings,
         )
         self._expander = LocalExpander(

@@ -56,7 +56,12 @@ class Stage1Pipeline:
             dense_threshold if dense_threshold is not None
             else self.config.retrieval.dense_threshold
         )
-        embed_provider = get_embedding_provider(real=use_real_embeddings)
+        # Fix: when real embeddings are requested, pass None so DenseRetriever
+        # uses its own auto-detect path → _build_gemini_providers() →
+        # doc=RETRIEVAL_DOCUMENT + query=RETRIEVAL_QUERY (asymmetric).
+        # Passing a single provider here would bypass that path and make both
+        # doc and query use RETRIEVAL_DOCUMENT (symmetric, suboptimal).
+        embed_provider = None if use_real_embeddings else get_embedding_provider(real=False)
         self._retriever = CandidateRetriever(
             config=self.config.retrieval,
             embedding_provider=embed_provider,
