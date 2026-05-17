@@ -283,8 +283,21 @@ def penalty_score(
 
     Phrase match in title → phrase_penalty + title_extra_penalty.
     Phrase match in body  → phrase_penalty.
-    Token match in title  → token_penalty + title_extra_penalty.
-    Token match in body   → token_penalty.
+    Token match in title  → token_penalty + title_extra_penalty (single-token terms only).
+    Token match in body   → token_penalty (single-token terms only).
+
+    IMPORTANT: multi-token negative phrases use phrase-match ONLY.
+    Token-level fallback is disabled for multi-token terms to prevent
+    generic tokens like "계획", "준비", "정리" from false-penalizing
+    relevant logs.
+
+    Example:
+      term="적금 계획", log="취업 준비 계획"
+        → phrase "적금 계획" not found → NO penalty   ✓
+        → (old behavior: "계획" token hit → 0.40 penalty ✗)
+
+      term="산책", log="공원 산책"
+        → token "산책" found → penalty 0.40   ✓
     """
     if not terms:
         return 0.0, []
@@ -298,13 +311,27 @@ def penalty_score(
     matched: list[str] = []
 
     for term in terms:
-        m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
-        if m.level == "none":
-            continue
-        base = phrase_penalty if m.level == "phrase" else token_penalty
-        extra = title_extra_penalty if m.in_title else 0.0
-        total += base + extra
-        tag = f"{'phrase' if m.level == 'phrase' else 'token'}{'_title' if m.in_title else ''}:{term}"
-        matched.append(tag)
+        term_lower = term.lower()
+        term_toks = set(_tok(term_lower))
+        is_multi = len(term_toks) > 1
+
+        if is_multi:
+            # Multi-token phrase: phrase match only (no token fallback)
+            if term_lower in text_lower:
+                in_title = bool(title_lower and term_lower in title_lower)
+                extra = title_extra_penalty if in_title else 0.0
+                total += phrase_penalty + extra
+                tag = f"{'phrase_title' if in_title else 'phrase'}:{term}"
+                matched.append(tag)
+        else:
+            # Single-token term: token match
+            m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
+            if m.level == "none":
+                continue
+            base = phrase_penalty if m.level == "phrase" else token_penalty
+            extra = title_extra_penalty if m.in_title else 0.0
+            total += base + extra
+            tag = f"{'phrase' if m.level == 'phrase' else 'token'}{'_title' if m.in_title else ''}:{term}"
+            matched.append(tag)
 
     return total, matched

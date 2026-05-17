@@ -44,6 +44,7 @@ class Stage1Pipeline:
         self,
         config: Stage1Config | None = None,
         use_real_embeddings: bool = False,
+        use_symmetric_embeddings: bool = False,
         disable_lexical_gate: bool = False,
         dense_threshold: float | None = None,
         **kwargs,  # absorb removed params (retrieval_mode)
@@ -56,12 +57,32 @@ class Stage1Pipeline:
             dense_threshold if dense_threshold is not None
             else self.config.retrieval.dense_threshold
         )
-        # Fix: when real embeddings are requested, pass None so DenseRetriever
-        # uses its own auto-detect path → _build_gemini_providers() →
-        # doc=RETRIEVAL_DOCUMENT + query=RETRIEVAL_QUERY (asymmetric).
-        # Passing a single provider here would bypass that path and make both
-        # doc and query use RETRIEVAL_DOCUMENT (symmetric, suboptimal).
-        embed_provider = None if use_real_embeddings else get_embedding_provider(real=False)
+
+        # Embedding mode selection:
+        #
+        # asymmetric (default, use_symmetric_embeddings=False):
+        #   Pass None → DenseRetriever auto-detect → _build_gemini_providers()
+        #   → doc=RETRIEVAL_DOCUMENT + query=RETRIEVAL_QUERY
+        #
+        # symmetric (use_symmetric_embeddings=True, A/B comparison):
+        #   Pass explicit provider → both doc and query use RETRIEVAL_DOCUMENT
+        #
+        # mock (use_real_embeddings=False):
+        #   get_embedding_provider(real=False) → MockEmbeddingProvider
+        if not use_real_embeddings:
+            embed_provider = get_embedding_provider(real=False)
+        elif use_symmetric_embeddings:
+            embed_provider = get_embedding_provider(real=True)   # symmetric: single RETRIEVAL_DOCUMENT provider
+        else:
+            embed_provider = None   # asymmetric: DenseRetriever builds doc+query pair internally
+
+        embed_mode = (
+            "mock" if not use_real_embeddings
+            else "symmetric" if use_symmetric_embeddings
+            else "asymmetric"
+        )
+        logger.info("Stage1Pipeline embedding_mode=%s", embed_mode)
+
         self._retriever = CandidateRetriever(
             config=self.config.retrieval,
             embedding_provider=embed_provider,

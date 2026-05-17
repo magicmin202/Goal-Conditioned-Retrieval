@@ -58,6 +58,7 @@ def run_baseline(
     baseline: str,
     bcfg: dict,
     top_k: int,
+    dense_threshold: float | None = None,
 ) -> dict:
     cfg = DEFAULT_CONFIG.stage1
     cfg.retrieval.top_k = top_k
@@ -67,6 +68,7 @@ def run_baseline(
         config=cfg,
         use_real_embeddings=True,
         disable_lexical_gate=bcfg["disable_lexical_gate"],
+        dense_threshold=dense_threshold,
     )
     pipeline.index(user_logs)
     result = pipeline.run(goal, use_expansion=bcfg["use_expansion"])
@@ -146,6 +148,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Dense vs Hybrid 비교")
     parser.add_argument("--goal_id", default=None, help="비교할 goal_id (생략 시 대화형 입력)")
     parser.add_argument("--top_k", type=int, default=5)
+    parser.add_argument(
+        "--dense_threshold", type=float, default=None,
+        help="Dense score threshold for candidate admission (e.g. 0.92)",
+    )
     args = parser.parse_args()
 
     print("데이터 로딩 중...", end=" ", flush=True)

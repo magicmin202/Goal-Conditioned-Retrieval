@@ -303,14 +303,21 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
 
 # ── Factory ───────────────────────────────────────────────────────────────────
 
-def get_embedding_provider(real: bool = False) -> EmbeddingProvider:
+def get_embedding_provider(real: bool | None = None) -> EmbeddingProvider:
     """Return the best available embedding provider.
 
+    When real=None (default): auto-detect — use real if GEMINI_API_KEY is set.
     When real=True, priority order:
       1. GeminiEmbeddingProvider  (if GEMINI_API_KEY is set — no extra install needed)
       2. SentenceTransformerProvider (if sentence-transformers installed)
       3. MockEmbeddingProvider (fallback)
+    When real=False: always use MockEmbeddingProvider.
     """
+    if real is None:
+        real = bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"))
+        if real:
+            logger.info("GEMINI_API_KEY detected — using real embeddings automatically")
+
     if real:
         # Try Gemini first (already installed via google-genai)
         api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")

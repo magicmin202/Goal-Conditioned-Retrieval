@@ -137,6 +137,12 @@ def main() -> None:
         help="Dense score threshold for candidate admission (e.g. 0.90). "
              "When set, only logs with normalized dense_score >= threshold enter the pipeline.",
     )
+    parser.add_argument(
+        "--symmetric", action="store_true",
+        help="Use symmetric embeddings (both doc and query use RETRIEVAL_DOCUMENT). "
+             "Default (without this flag): asymmetric — doc=RETRIEVAL_DOCUMENT, "
+             "query=RETRIEVAL_QUERY. Use with --real_embeddings for A/B comparison.",
+    )
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -182,6 +188,7 @@ def main() -> None:
     pipeline = Stage1Pipeline(
         config=cfg,
         use_real_embeddings=args.real_embeddings,
+        use_symmetric_embeddings=args.symmetric,
         disable_lexical_gate=bcfg["disable_lexical_gate"],
         dense_threshold=args.dense_threshold,
     )
@@ -195,6 +202,7 @@ def main() -> None:
     print(f"Category : {target_goal.goal_id}")
     print(f"Query    : {result.query_text}")
     print(f"Expand   : {result.used_expansion}")
+    print(f"Embeddings: {'symmetric (RETRIEVAL_DOCUMENT×2)' if args.symmetric else 'asymmetric (QUERY+DOCUMENT)'}")
     print(f"Corpus   : {len(user_logs)} logs")
     print("=" * 60)
 
