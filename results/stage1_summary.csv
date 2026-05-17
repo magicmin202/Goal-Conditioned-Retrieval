@@ -1,4 +1,4 @@
-goal_id,baseline,recall@5,precision@5,selected_count,selected_precision,f1@5,false_positive_rate,mrr,ndcg@5,diversity_coverage
+ goal_id,baseline,recall@5,precision@5,selected_count,selected_precision,f1@5,false_positive_rate,mrr,ndcg@5,diversity_coverage
 G-U0002-01,bm25,0.4166666666666667,1.0,5,1.0,0.5882352941176471,0.0,1.0,0.9062003939260992,0.4
 G-U0002-01,dense,0.4166666666666667,1.0,3,1.0,0.5882352941176471,0.0,1.0,0.9701391678366924,0.4
 G-U0002-01,hybrid,0.4166666666666667,1.0,5,1.0,0.5882352941176471,0.0,1.0,0.9470469058355147,0.4

@@ -61,6 +61,7 @@ class CandidateRetriever:
         self,
         query: QueryObject | ExpandedQuery,
         top_n: int | None = None,
+        dense_threshold: float | None = None,
     ) -> list[CandidateLog]:
         if not self._indexed:
             raise RuntimeError("Call index() before retrieve().")
@@ -91,5 +92,14 @@ class CandidateRetriever:
             logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
             candidates = self._dense.retrieve(dense_text, top_n=n)
 
-        logger.debug("Stage1 candidates: %d", len(candidates))
+        logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
+
+        candidates = self._dense.retrieve(
+            dense_text,
+            top_n=n,
+            threshold=dense_threshold,
+        )
+
+        logger.debug("Stage1 candidates: %d  dense_q=%s", len(candidates), dense_text[:60])
+
         return candidates

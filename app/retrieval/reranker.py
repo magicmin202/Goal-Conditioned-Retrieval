@@ -92,17 +92,15 @@ class GoalConditionedReranker:
         use_real_embeddings: bool = False,
     ) -> None:
         self.config = config or RankerConfig()
-        
-        if dense_retriever is None:
-            if use_real_embeddings:
-                # 버그 수정: use_real_embeddings가 True일 때는 None을 넘겨 
-                # DenseRetriever가 문서용/쿼리용 투트랙을 스스로 생성하도록 위임합니다.
-                self._dense = DenseRetriever()
-            else:
-                self._dense = DenseRetriever(doc_provider=MockEmbeddingProvider())
-        else:
+        if dense_retriever is not None:
             self._dense = dense_retriever
-            
+        elif use_real_embeddings:
+            # Use the same Gemini provider path as the retriever so semantic
+            # scores in the reranker have real meaning.
+            from app.retrieval.embedding_provider import get_embedding_provider
+            self._dense = DenseRetriever(doc_provider=get_embedding_provider(real=True))
+        else:
+            self._dense = DenseRetriever(doc_provider=MockEmbeddingProvider())
         # When False, Tier2 semantic gate is skipped (mock embeddings produce
         # meaningless cosine scores that would incorrectly reject relevant logs).
         self._use_real_embeddings = use_real_embeddings

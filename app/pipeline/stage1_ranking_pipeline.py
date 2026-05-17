@@ -45,16 +45,23 @@ class Stage1Pipeline:
         config: Stage1Config | None = None,
         use_real_embeddings: bool = False,
         disable_lexical_gate: bool = False,
+        dense_threshold: float | None = None,
         **kwargs,  # absorb removed params (retrieval_mode)
     ) -> None:
         from app.retrieval.embedding_provider import get_embedding_provider
         self.config = config or Stage1Config()
         self._disable_lexical_gate = disable_lexical_gate
-        
-        # 버그 수정: use_real_embeddings가 True일 때는 None을 넘겨 
-        # 하위 모듈(DenseRetriever)이 문서용/쿼리용 투트랙을 스스로 생성하도록 위임합니다.
+        # dense_threshold: explicit arg overrides config default (0.92)
+        self._dense_threshold = (
+            dense_threshold if dense_threshold is not None
+            else self.config.retrieval.dense_threshold
+        )
+        # Fix: when real embeddings are requested, pass None so DenseRetriever
+        # uses its own auto-detect path → _build_gemini_providers() →
+        # doc=RETRIEVAL_DOCUMENT + query=RETRIEVAL_QUERY (asymmetric).
+        # Passing a single provider here would bypass that path and make both
+        # doc and query use RETRIEVAL_DOCUMENT (symmetric, suboptimal).
         embed_provider = None if use_real_embeddings else get_embedding_provider(real=False)
-        
         self._retriever = CandidateRetriever(
             config=self.config.retrieval,
             embedding_provider=embed_provider,
@@ -153,9 +160,15 @@ class Stage1Pipeline:
                 query_obj.canonical_text[:80],
             )
 
-        # 3. Candidate Retrieval (+ vocab boost if ExpandedQuery)
+        # 3. Candidate Retrieval — dense_threshold gates admission (default 0.92)
+        logger.info(
+            "[Stage1 Retrieve]  dense_threshold=%.3f  goal=%s",
+            self._dense_threshold, goal.goal_id,
+        )
         candidates = self._retriever.retrieve(
-            active_query, top_n=self.config.retrieval.candidate_size
+            active_query,
+            top_n=self.config.retrieval.candidate_size,
+            dense_threshold=self._dense_threshold,
         )
         logger.info("Stage1: %d candidates  goal=%s", len(candidates), goal.goal_id)
 

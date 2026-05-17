@@ -129,6 +129,15 @@ def main() -> None:
         "--save_result", action="store_true",
         help="Save result to results/stage1/{goal_id}_{baseline}.json",
     )
+    parser.add_argument(
+        "--result_path", type=str, default=None,
+        help="Custom result save path (overrides default results/stage1/ location)",
+    )
+    parser.add_argument(
+        "--dense_threshold", type=float, default=None,
+        help="Dense score threshold for candidate admission (e.g. 0.90). "
+             "When set, only logs with normalized dense_score >= threshold enter the pipeline.",
+    )
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -179,6 +188,7 @@ def main() -> None:
         config=cfg,
         use_real_embeddings=args.real_embeddings,
         disable_lexical_gate=bcfg["disable_lexical_gate"],
+        dense_threshold=args.dense_threshold,
     )
     pipeline.index(user_logs)
     result = pipeline.run(target_goal, use_expansion=bcfg["use_expansion"])
@@ -307,10 +317,16 @@ def main() -> None:
                     "mrr": metrics["mrr"],
                     f"ndcg@{k}": metrics[f"ndcg@{k}"],
                     "diversity_coverage": metrics["diversity_coverage"],
+                    "candidate_count": cand_metrics["candidate_size"],
+                    "admitted_count": len(result.selected_logs),
                 },
                 selected_log_ids=[r.log_id for r in result.selected_logs],
                 selected_titles=[r.log.title for r in result.selected_logs],
-                extra={"baseline_config": {k2: str(v) for k2, v in bcfg.items()}},
+                extra={
+                    "baseline_config": {k2: str(v) for k2, v in bcfg.items()},
+                    "dense_threshold": args.dense_threshold,
+                },
+                result_path=args.result_path,
             )
             print(f"\n[Result saved] {path}")
     else:
