@@ -2,30 +2,27 @@
   "goal_id": "G-U0001-01",
   "baseline": "ours",
   "stage": "stage1",
-  "timestamp": "2026-05-02T03:47:47.626513",
+  "timestamp": "2026-05-13T03:06:06.515633",
   "metrics": {
-    "recall@5": 0.35714285714285715,
-    "precision@5": 1.0,
-    "selected_count": 3,
-    "selected_precision": 1.0,
-    "f1@5": 0.5263157894736842,
-    "false_positive_rate": 0.0,
-    "mrr": 1.0,
-    "ndcg@5": 0.8975045050353507,
+    "recall@10": 0.2,
+    "precision@10": 0.2,
+    "selected_count": 2,
+    "selected_precision": 0.5,
+    "f1@10": 0.20000000000000004,
+    "false_positive_rate": 0.5,
+    "mrr": 0.5,
+    "ndcg@10": 0.22722246831681187,
     "diversity_coverage": 0.5
   },
   "selected_log_ids": [
-    "L-U0001-0064",
-    "L-U0001-0067",
-    "L-U0001-0060"
+    "L-U0001-0053",
+    "L-U0001-0007"
   ],
   "selected_titles": [
-    "포트폴리오 작업",
-    "프로젝트 구현",
-    "CS 기초 정리"
+    "스토리 기획",
+    "지원 서류 작업"
   ],
   "baseline_config": {
-    "retrieval_mode": "RetrievalMode.HYBRID",
     "use_expansion": "True",
     "disable_lexical_gate": "False"
   }

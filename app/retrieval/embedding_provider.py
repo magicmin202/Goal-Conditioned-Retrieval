@@ -259,32 +259,80 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
                 self.save_cache()
         return self._cache[key]
 
-    def encode_batch(self, texts: list[str]) -> list[list[float]]:
-        """Encode batch, skipping texts already in cache.
+    def _api_encode_batch(self, texts: list[str]) -> list[list[float]]:
+        from google.genai import types  # type: ignore
+        result = self._client.models.embed_content(
+            model=self._model,
+            contents=texts,
+            config=types.EmbedContentConfig(task_type=self._task_type),
+        )
+        return [list(e.values) for e in result.embeddings]
 
-        Prints progress for large batches so the user can track API calls.
+    def encode_batch(self, texts: list[str]) -> list[list[float]]:
+        """Encode batch using native API batching, skipping texts already in cache.
+        
+        Gemini API allows multiple texts in a single request. 
+        We chunk the requests to avoid exceeding payload limits.
         """
-        missing = [t for t in texts if _text_key(t) not in self._cache]
+        import time
+        results: list[list[float]] = []
+        
+        # 1. Identify what needs to be embedded
+        missing_indices = []
+        missing_texts = []
+        for i, t in enumerate(texts):
+            key = _text_key(t)
+            if key not in self._cache:
+                missing_indices.append(i)
+                missing_texts.append(t)
+                
         total = len(texts)
-        cached_count = total - len(missing)
-        if missing:
+        cached_count = total - len(missing_texts)
+        if missing_texts:
             logger.info(
                 "GeminiEmbed: %d new texts to embed (%d already cached)",
-                len(missing), cached_count,
+                len(missing_texts), cached_count,
             )
-            print(f"  Embedding {len(missing)} new texts (skipping {cached_count} cached) ...",
+            print(f"  Embedding {len(missing_texts)} new texts in batches (skipping {cached_count} cached) ...",
                   flush=True)
-
-        results = []
-        for i, t in enumerate(texts):
-            results.append(self.encode(t))
-            # Progress every 50 new embeddings
-            if missing and (i + 1) % 50 == 0:
-                pct = (i + 1) / total * 100
-                print(f"  ... {i+1}/{total} ({pct:.0f}%)", flush=True)
-
-        if self._dirty:
-            self.save_cache()
+            
+            # 2. Batch embed missing texts (chunk size 100)
+            chunk_size = 100
+            for i in range(0, len(missing_texts), chunk_size):
+                chunk = missing_texts[i : i + chunk_size]
+                
+                # Retry logic
+                for attempt in range(3):
+                    try:
+                        batch_vecs = self._api_encode_batch(chunk)
+                        break
+                    except Exception as exc:
+                        if "429" in str(exc) and attempt < 2:
+                            wait = 60 * (attempt + 1)
+                            print(f"\n  [Rate limit] 429 hit — waiting {wait}s before retry (attempt {attempt+1}/3) ...", flush=True)
+                            self.save_cache()
+                            time.sleep(wait)
+                        else:
+                            raise
+                
+                # Cache the results
+                for t, vec in zip(chunk, batch_vecs):
+                    key = _text_key(t)
+                    self._cache[key] = vec
+                    self._dirty = True
+                    if self._dim_size is None:
+                        self._dim_size = len(vec)
+                        
+                # Minimal sleep to respect RPM limits on batch calls
+                time.sleep(0.5)
+                
+            if self._dirty:
+                self.save_cache()
+                
+        # 3. Reconstruct results in original order
+        for t in texts:
+            results.append(self._cache[_text_key(t)])
+            
         return results
 
     def save_cache(self) -> None:

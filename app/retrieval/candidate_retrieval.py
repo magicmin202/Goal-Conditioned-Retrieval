@@ -73,9 +73,24 @@ class CandidateRetriever:
             n = _dynamic_candidate_size(corpus_size)
 
         if isinstance(query, ExpandedQuery):
-            dense_text = query.dense_query
+            dense_queries = query.dense_queries
+            
+            # --- [직접 변경 가능] 여기서 풀링 방식을 선택하세요 ---
+            # 지원 방식: "weighted_sum" (권장), "max", "average"
+            pooling_method = "weighted_sum" 
+
+            print(f"\n[ACTUAL DENSE QUERIES FED TO EMBEDDING MODEL (Multi-Vector | Pooling: {pooling_method})]")
+            for q in dense_queries:
+                print(f" - {q}")
+            print(flush=True)
+            
+            logger.debug("CandidateRetriever multi-vector  top_n=%d pooling=%s", n, pooling_method)
+            candidates = self._dense.retrieve_multi(dense_queries, top_n=n, pooling=pooling_method)
         else:
             dense_text = query.canonical_text
+            print(f"\n[ACTUAL DENSE QUERY FED TO EMBEDDING MODEL]\n{dense_text}\n", flush=True)
+            logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
+            candidates = self._dense.retrieve(dense_text, top_n=n)
 
         logger.debug("CandidateRetriever  dense_q=%s  top_n=%d", dense_text[:80], n)
 

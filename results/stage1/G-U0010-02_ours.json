@@ -2,28 +2,21 @@
   "goal_id": "G-U0010-02",
   "baseline": "ours",
   "stage": "stage1",
-  "timestamp": "2026-05-11T11:38:04.638200",
+  "timestamp": "2026-05-13T02:52:47.438515",
   "metrics": {
-    "recall@5": 0.2,
-    "precision@5": 0.4,
-    "selected_count": 2,
-    "selected_precision": 0.5,
-    "f1@5": 0.26666666666666666,
-    "false_positive_rate": 0.5,
+    "recall@10": 0.2,
+    "precision@10": 0.2,
+    "selected_count": 0,
+    "selected_precision": 0.0,
+    "f1@10": 0.20000000000000004,
+    "false_positive_rate": 0.0,
     "mrr": 1.0,
-    "ndcg@5": 0.39676527443044984,
-    "diversity_coverage": 0.4
+    "ndcg@10": 0.29448289878313094,
+    "diversity_coverage": 1.0
   },
-  "selected_log_ids": [
-    "L-U0010-0059",
-    "L-U0010-0027"
-  ],
-  "selected_titles": [
-    "코치와 훈련",
-    "루트 짜는 중"
-  ],
+  "selected_log_ids": [],
+  "selected_titles": [],
   "baseline_config": {
-    "retrieval_mode": "RetrievalMode.HYBRID",
     "use_expansion": "True",
     "disable_lexical_gate": "False"
   }
