@@ -90,9 +90,10 @@ def main() -> None:
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
     parser.add_argument("--mock", action="store_true", help="Use mock LLM instead of Gemini")
     parser.add_argument(
-        "--real_embeddings", action="store_true",
-        help="Use Gemini Embedding API (requires GEMINI_API_KEY)",
+        "--no_real_embeddings", dest="real_embeddings", action="store_false",
+        help="Disable Gemini Embedding API and use mock embeddings instead",
     )
+    parser.set_defaults(real_embeddings=True)
     parser.add_argument(
         "--baseline",
         choices=["ours", "ours_wo_compression", "ours_wo_lexical_gate",

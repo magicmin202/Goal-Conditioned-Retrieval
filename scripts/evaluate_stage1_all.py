@@ -279,9 +279,10 @@ def main() -> None:
     parser.add_argument("--sample",          type=int, default=None, help="무작위 N개 goal만 평가")
     parser.add_argument("--seed",            type=int, default=42)
     parser.add_argument(
-        "--real_embeddings", action="store_true",
-        help="Gemini Embedding API 사용 (권장, GEMINI_API_KEY 필요)",
+        "--no_real_embeddings", dest="real_embeddings", action="store_false",
+        help="Gemini Embedding API 비활성화 (mock embedding 사용)",
     )
+    parser.set_defaults(real_embeddings=True)
     args = parser.parse_args()
 
     if not args.real_embeddings:

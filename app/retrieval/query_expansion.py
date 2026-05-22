@@ -426,11 +426,21 @@ def _call_gemini(goal: ResearchGoal, max_terms: int, gemini_config=None) -> dict
     )
     response_text = llm.generate(prompt)
 
-    match = re.search(r"\{.*\}", response_text, re.DOTALL)
-    if not match:
-        raise ValueError(f"No JSON in Gemini response: {response_text[:200]}")
+    # 1) markdown code-block: ```json ... ``` 또는 ``` ... ```
+    json_text: str | None = None
+    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+    if fence:
+        json_text = fence.group(1)
+    else:
+        # 2) bare JSON object
+        bare = re.search(r"\{.*\}", response_text, re.DOTALL)
+        if bare:
+            json_text = bare.group()
 
-    parsed = json.loads(match.group())
+    if not json_text:
+        raise ValueError(f"No JSON in Gemini response: {response_text[:300]}")
+
+    parsed = json.loads(json_text)
 
     # Post-process all term lists
     evidence = _postprocess(parsed.get("evidence_terms", []), 0, max_terms)

@@ -270,7 +270,8 @@ def main() -> None:
     parser.add_argument("--top_k", type=int, default=5)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
-    parser.add_argument("--real_embeddings", action="store_true")
+    parser.add_argument("--no_real_embeddings", dest="real_embeddings", action="store_false")
+    parser.set_defaults(real_embeddings=True)
     parser.add_argument("--json_out", default=None, help="Write comparison JSON to file")
     args = parser.parse_args()
 

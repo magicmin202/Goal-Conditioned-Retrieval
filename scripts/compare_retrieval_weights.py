@@ -313,9 +313,10 @@ def main() -> None:
     parser.add_argument("--top_k", type=int, default=10)
     parser.add_argument("--data_dir", default=_DEFAULT_DATA_DIR)
     parser.add_argument(
-        "--real_embeddings", action="store_true",
-        help="Use Gemini Embedding API (requires GEMINI_API_KEY)",
+        "--no_real_embeddings", dest="real_embeddings", action="store_false",
+        help="Disable Gemini Embedding API and use mock embeddings instead",
     )
+    parser.set_defaults(real_embeddings=True)
     parser.add_argument(
         "--exps", default=None,
         help="Comma-separated experiment names to run (e.g. dense,ours). Default: all.",

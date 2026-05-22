@@ -35,7 +35,7 @@ class GeminiConfig:
 
     API key is read from GEMINI_API_KEY or GOOGLE_API_KEY environment variable.
     """
-    model_name: str = "gemini-2.0-flash"
+    model_name: str = "gemini-2.5-flash"
     api_key_env: str = "GEMINI_API_KEY"
     fallback_env: str = "GOOGLE_API_KEY"
     max_output_tokens: int = 512

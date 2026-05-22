@@ -43,7 +43,7 @@ class Stage1Pipeline:
     def __init__(
         self,
         config: Stage1Config | None = None,
-        use_real_embeddings: bool = False,
+        use_real_embeddings: bool = True,
         use_symmetric_embeddings: bool = False,
         disable_lexical_gate: bool = False,
         dense_threshold: float | None = None,

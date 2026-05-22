@@ -135,7 +135,7 @@ class Stage2Pipeline:
         self,
         config: Stage2Config | None = None,
         use_mock_llm: bool = False,
-        use_real_embeddings: bool = False,  # kept for API compat; used by reranker embed
+        use_real_embeddings: bool = True,   # kept for API compat; used by reranker embed
     ) -> None:
         self.config = config or Stage2Config()
         # Fix: same asymmetric injection as Stage1.
