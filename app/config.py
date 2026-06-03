@@ -53,41 +53,41 @@ class RetrievalConfig:
     candidate_size: int = 20
     top_k: int = 10
     random_seed: int = 42
-    dense_threshold: float = 0.92   # optimal from threshold experiment (case3, F1=0.5172)
+    dense_threshold: float = 0.85   # recall-focused: wider candidate net, precision handled by reranker
 
 
 @dataclass
 class RankerConfig:
-    """Lexical-control reranker weights.
-
-    Retrieval architecture:
-      Stage 1 (candidate) = recall   → Dense embedding retrieval
-      Stage 2 (reranker)  = precision → lexical 90%, semantic 5-10%
+    """Reranker weights — empirically validated via validation/step3_relevance_weights.
 
     final_score =
         priority_weight   * priority_phrase_score
       + evidence_weight   * evidence_phrase_score
       + related_weight    * related_score
-      + action_weight     * action_signal
-      + domain_weight     * domain_consistency
       + semantic_weight   * semantic_similarity
       + base_weight       * base_goal_overlap
       - negative_penalty
     """
-    # ── Reranker component weights (should sum to ~1.0) ───────────────────────
-    priority_weight: float = 0.35       # strongest lexical signal
-    evidence_weight: float = 0.20       # direct evidence vocabulary
-    related_weight: float = 0.10        # indirect/related vocabulary
+    # ── Reranker component weights ────────────────────────────────────────────
+    # Validated: sem=0.70 dominates (solo recall=0.757), lexical as supplement.
+    # Scale = 1/total_w normalizes final_score to [0,1].
+    priority_weight: float = 0.10       # lexical: goal-specific key phrases
+    evidence_weight: float = 0.06       # lexical: direct evidence vocabulary
+    related_weight: float = 0.03        # lexical: indirect/related vocabulary
     action_weight: float = 0.15         # completion/action keywords
     domain_weight: float = 0.10         # activity_type + metadata consistency
-    semantic_weight: float = 0.05       # tie-breaker: dense similarity
+    semantic_weight: float = 0.70       # dominant signal: Gemini embedding cosine
     base_weight: float = 0.05           # raw goal-text token overlap
 
     # ── Negative penalty levels ───────────────────────────────────────────────
+    # CONSTRAINT: negative_penalty_phrase >= negative_veto_dm_threshold
+    #   single phrase match → raw_dm = phrase_penalty
+    #   veto fires when raw_dm >= veto_dm_threshold
+    #   → phrase_penalty < veto_dm_threshold means single phrase cannot trigger veto
     negative_penalty_phrase: float = 0.70   # phrase match in text body
     negative_penalty_token: float = 0.40    # token match
-    negative_penalty_title: float = 0.30    # extra if match in title
-    negative_daily_penalty: float = 0.20    # activity_type="daily" extra
+    negative_penalty_title: float = 0.30    # extra if match in title (unused — removed)
+    negative_daily_penalty: float = 0.20    # activity_type="daily" extra (must be > 0)
 
     # ── Evidence quality weights ──────────────────────────────────────────────
     # final_score = relevance_score + quality_weight * quality_score - penalty
@@ -105,6 +105,8 @@ class RankerConfig:
     redundancy_similarity_threshold: float = 0.60
 
     # ── Negative veto ─────────────────────────────────────────────────────────
+    # CONSTRAINT: negative_veto_dm_threshold <= negative_penalty_phrase
+    #   보장: single phrase match 하나로 veto 발동 가능
     negative_veto_enabled: bool = True
     negative_veto_dm_threshold: float = 0.70   # dm ≥ this triggers veto
     negative_veto_priority_min: float = 0.05   # unless priority_score ≥ this
@@ -133,7 +135,7 @@ class DiversityConfig:
     mmr_lambda_small: float = 0.85     # SMALL corpus → maximise relevance, weak diversity
     mmr_lambda_large: float = 0.55     # LARGE corpus → more diversity
     top_k: int = 10
-    relevance_threshold: float = 0.05  # pre-filter: drop logs below this score before MMR
+    relevance_threshold: float = 0.60  # validated: recall 최고점 유지하는 최대 threshold
     pre_mmr_multiplier: int = 3        # keep top (k * multiplier) before MMR
 
 
@@ -207,7 +209,7 @@ class Stage1Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
     diversity: DiversityConfig = field(
-        default_factory=lambda: DiversityConfig(relevance_threshold=0.08)
+        default_factory=lambda: DiversityConfig(relevance_threshold=0.60)
     )
     query_expansion: QueryExpansionConfig = field(
         default_factory=lambda: QueryExpansionConfig(enabled=False)

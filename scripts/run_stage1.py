@@ -37,7 +37,9 @@ from app.evaluation.ranking_metrics import (
     compute_candidate_metrics,
     f1_at_k,
     false_positive_rate,
+    ndcg_at_k,
     selected_precision as calc_selected_precision,
+    _relevant_ids,
 )
 from app.pipeline.stage1_ranking_pipeline import Stage1Pipeline
 from app.schemas import GoalLogLabel, ResearchGoal, ResearchLog
@@ -226,32 +228,39 @@ def main() -> None:
         print(f"  {'candidate_precision':<28} {cand_metrics['candidate_precision']:.4f}  ← 후보 중 관련 로그 비율")
         print(f"  {'candidate_f1':<28} {cand_metrics['candidate_f1']:.4f}")
 
-        # ── Layer 2: Selected (final top-K) metrics ───────────────────────────
+        # ── Layer 2: Selected (all admitted) metrics ──────────────────────────
         metrics = compute_all_metrics(
             result.ranked_logs, user_labels,
             k=k,
             all_activity_types=all_types,
             selected_logs=result.selected_logs,
         )
-        s_prec = metrics["selected_precision"]
-        s_count = metrics["selected_count"]
-        fpr = metrics["false_positive_rate"]
-        f1 = metrics[f"f1@{k}"]
 
-        print(f"\n[Layer 2: Final Selected  (top-{k})]")
-        print(f"  {'recall@'+str(k):<28} {metrics[f'recall@{k}']:.4f}  ← 최종 선택에서 관련 로그 회수율")
-        print(f"  {'precision@'+str(k):<28} {metrics[f'precision@{k}']:.4f}")
-        print(f"  {'selected_count':<28} {s_count}")
-        print(f"  {'selected_precision':<28} {s_prec:.4f}  ← 최종 선택의 정확도")
-        print(f"  {'f1@'+str(k):<28} {f1:.4f}")
+        # selected_logs 전체 기준으로 재계산
+        relevant   = _relevant_ids(user_labels)
+        selected   = result.selected_logs
+        s_count    = len(selected)
+        tp         = sum(1 for r in selected if r.log_id in relevant)
+        recall_sel = tp / len(relevant) if relevant else 0.0
+        prec_sel   = tp / s_count if s_count > 0 else 0.0
+        f1_sel     = (2 * prec_sel * recall_sel / (prec_sel + recall_sel)
+                      if (prec_sel + recall_sel) > 0 else 0.0)
+        ndcg_sel   = ndcg_at_k(selected, user_labels, k=s_count) if s_count > 0 else 0.0
+        fpr        = metrics["false_positive_rate"]
+
+        print(f"\n[Layer 2: Final Selected  (admitted={s_count})]")
+        print(f"  {'recall@selected':<28} {recall_sel:.4f}  ← 최종 선택에서 관련 로그 회수율")
+        print(f"  {'precision@selected':<28} {prec_sel:.4f}")
+        print(f"  {'f1@selected':<28} {f1_sel:.4f}")
+        print(f"  {'ndcg@selected':<28} {ndcg_sel:.4f}")
+        print(f"  {'relevant_in_selected':<28} {tp} / {len(relevant)}")
         print(f"  {'false_positive_rate':<28} {fpr:.4f}")
         print(f"  {'mrr':<28} {metrics['mrr']:.4f}")
-        print(f"  {'ndcg@'+str(k):<28} {metrics[f'ndcg@{k}']:.4f}")
         print(f"  {'diversity_coverage':<28} {metrics['diversity_coverage']:.4f}")
 
         # ── Bottleneck diagnosis ──────────────────────────────────────────────
         cr = cand_metrics["candidate_recall"]
-        sp = s_prec
+        sp = prec_sel
         print(f"\n[Bottleneck Diagnosis]")
         if cr < 0.70:
             print(f"  ⚠ candidate_recall={cr:.2f} — retrieval 단계에서 관련 로그를 놓치고 있음")
@@ -278,17 +287,16 @@ def main() -> None:
                 goal_id=target_goal.goal_id,
                 baseline=baseline,
                 metrics={
-                    f"recall@{k}": metrics[f"recall@{k}"],
-                    f"precision@{k}": metrics[f"precision@{k}"],
-                    "selected_count": s_count,
-                    "selected_precision": s_prec,
-                    f"f1@{k}": f1,
+                    "recall@selected":    recall_sel,
+                    "precision@selected": prec_sel,
+                    "f1@selected":        f1_sel,
+                    "ndcg@selected":      ndcg_sel,
+                    "selected_count":     s_count,
+                    "relevant_in_selected": tp,
                     "false_positive_rate": fpr,
-                    "mrr": metrics["mrr"],
-                    f"ndcg@{k}": metrics[f"ndcg@{k}"],
+                    "mrr":                metrics["mrr"],
                     "diversity_coverage": metrics["diversity_coverage"],
-                    "candidate_count": cand_metrics["candidate_size"],
-                    "admitted_count": len(result.selected_logs),
+                    "candidate_count":    cand_metrics["candidate_size"],
                 },
                 selected_log_ids=[r.log_id for r in result.selected_logs],
                 selected_titles=[r.log.title for r in result.selected_logs],

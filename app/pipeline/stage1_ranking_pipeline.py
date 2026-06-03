@@ -105,6 +105,7 @@ class Stage1Pipeline:
         goal: ResearchGoal,
         use_expansion: bool | None = None,
         run_label: str = "stage1_standalone",
+        pre_expanded: "ExpandedQuery | None" = None,
     ) -> Stage1Result:
         if not self._indexed:
             raise RuntimeError("Call index() before run().")
@@ -138,12 +139,16 @@ class Stage1Pipeline:
         expanded_query_obj: ExpandedQuery | None = None
 
         if expand:
-            expanded = expand_goal_query(
-                goal, query_obj,
-                max_terms=self.config.query_expansion.max_terms,
-                mode=self.config.query_expansion.mode,
-                use_mock_fallback=self.config.query_expansion.use_mock_fallback,
-            )
+            if pre_expanded is not None:
+                expanded = pre_expanded
+                logger.info("Stage1: using pre-computed expansion  goal=%s", goal.goal_id)
+            else:
+                expanded = expand_goal_query(
+                    goal, query_obj,
+                    max_terms=self.config.query_expansion.max_terms,
+                    mode=self.config.query_expansion.mode,
+                    use_mock_fallback=self.config.query_expansion.use_mock_fallback,
+                )
             active_query = expanded
             expanded_query_obj = expanded
             expanded_terms = expanded.expanded_terms

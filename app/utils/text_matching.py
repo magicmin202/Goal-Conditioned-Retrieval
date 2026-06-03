@@ -139,16 +139,15 @@ def score_terms(
     terms: list[str],
     text: str,
     title: str = "",
-    phrase_weight: float = 1.5,
+    phrase_weight: float = 1.0,
     token_weight: float = 1.0,
-    title_multiplier: float = 1.5,
+    title_multiplier: float = 1.5,  # unused — title position no longer weighted
 ) -> tuple[float, list[TermMatch]]:
     """Normalized [0, 1] match score for a list of terms.
 
     Returns (score, matches) so callers can log which terms matched and how.
 
-    Normalization: max_possible = len(terms) * phrase_weight * title_multiplier
-    This means every term matching as phrase-in-title gives 1.0.
+    Normalization: max_possible = len(terms) * phrase_weight
     """
     if not terms:
         return 0.0, []
@@ -163,13 +162,13 @@ def score_terms(
         for t in terms
     ]
 
-    max_possible = len(terms) * phrase_weight * title_multiplier
+    max_possible = len(terms) * phrase_weight
     total = 0.0
     for m in matches:
         if m.level == "none":
             continue
         base = phrase_weight if m.level == "phrase" else token_weight
-        total += base * (title_multiplier if m.in_title else 1.0)
+        total += base
 
     return min(total / max_possible, 1.0), matches
 
@@ -235,9 +234,9 @@ def score_priority_terms(
     terms: list[str],
     text: str,
     title: str = "",
-    phrase_weight: float = 1.5,
-    token_weight: float = 0.4,       # reduced vs score_terms (core-token only)
-    title_multiplier: float = 1.5,
+    phrase_weight: float = 1.0,
+    token_weight: float = 1.0,
+    title_multiplier: float = 1.5,   # unused — title position no longer weighted
 ) -> tuple[float, list[PriorityTermMatch]]:
     """Normalized [0, 1] score using weak-token-filtered phrase matching.
 
@@ -257,13 +256,13 @@ def score_priority_terms(
         for t in terms
     ]
 
-    max_possible = len(terms) * phrase_weight * title_multiplier
+    max_possible = len(terms) * phrase_weight
     total = 0.0
     for m in matches:
         if m.score == 0.0:
             continue
         base = phrase_weight if m.mode == "exact_phrase" else token_weight
-        total += base * (title_multiplier if m.in_title else 1.0)
+        total += base
 
     return min(total / max_possible, 1.0), matches
 
@@ -318,20 +317,15 @@ def penalty_score(
         if is_multi:
             # Multi-token phrase: phrase match only (no token fallback)
             if term_lower in text_lower:
-                in_title = bool(title_lower and term_lower in title_lower)
-                extra = title_extra_penalty if in_title else 0.0
-                total += phrase_penalty + extra
-                tag = f"{'phrase_title' if in_title else 'phrase'}:{term}"
-                matched.append(tag)
+                total += phrase_penalty
+                matched.append(f"phrase:{term}")
         else:
             # Single-token term: token match
             m = match_term(term, text_lower, text_tokens, title_lower, title_tokens)
             if m.level == "none":
                 continue
             base = phrase_penalty if m.level == "phrase" else token_penalty
-            extra = title_extra_penalty if m.in_title else 0.0
-            total += base + extra
-            tag = f"{'phrase' if m.level == 'phrase' else 'token'}{'_title' if m.in_title else ''}:{term}"
-            matched.append(tag)
+            total += base
+            matched.append(f"{'phrase' if m.level == 'phrase' else 'token'}:{term}")
 
     return total, matched

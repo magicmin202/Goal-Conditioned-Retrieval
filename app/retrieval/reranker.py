@@ -104,8 +104,7 @@ class GoalConditionedReranker:
         """
         score, matches = score_priority_terms(
             priority_terms, log_text, log_title,
-            phrase_weight=1.5, token_weight=0.4,
-            title_multiplier=self.config.title_weight_multiplier,
+            phrase_weight=1.0, token_weight=1.0,
         )
         for m in matches:
             if m.mode in ("weak_token_only", "none") and m.weak_hits_only:
@@ -128,8 +127,7 @@ class GoalConditionedReranker:
         """Weak-token-filtered evidence matching (same logic as priority)."""
         score, matches = score_priority_terms(
             evidence_terms, log_text, log_title,
-            phrase_weight=1.5, token_weight=0.4,
-            title_multiplier=self.config.title_weight_multiplier,
+            phrase_weight=1.0, token_weight=1.0,
         )
         return score, matches
 
@@ -140,8 +138,7 @@ class GoalConditionedReranker:
     ) -> float:
         score, _ = score_terms(
             related_terms, log_text, log_title,
-            phrase_weight=1.2, token_weight=1.0,
-            title_multiplier=self.config.title_weight_multiplier,
+            phrase_weight=1.0, token_weight=1.0,
         )
         return score
 
@@ -223,7 +220,6 @@ class GoalConditionedReranker:
             negative_terms, candidate.log.full_text, candidate.log.title,
             phrase_penalty=cfg.negative_penalty_phrase,
             token_penalty=cfg.negative_penalty_token,
-            title_extra_penalty=cfg.negative_penalty_title,
         )
         noise = cfg.negative_daily_penalty if candidate.log.activity_type in _NOISE_TYPES else 0.0
         capped = min(raw_dm + noise, 1.0)
