@@ -135,7 +135,7 @@ class DiversityConfig:
     mmr_lambda_small: float = 0.85     # SMALL corpus → maximise relevance, weak diversity
     mmr_lambda_large: float = 0.55     # LARGE corpus → more diversity
     top_k: int = 10
-    relevance_threshold: float = 0.60  # validated: recall 최고점 유지하는 최대 threshold
+    relevance_threshold: float = 0.674  # validated: recall=precision 교차점 (F1 최적, recall=prec≈0.779)
     pre_mmr_multiplier: int = 3        # keep top (k * multiplier) before MMR
 
 
@@ -209,7 +209,7 @@ class Stage1Config:
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     ranker: RankerConfig = field(default_factory=RankerConfig)
     diversity: DiversityConfig = field(
-        default_factory=lambda: DiversityConfig(relevance_threshold=0.60)
+        default_factory=lambda: DiversityConfig(relevance_threshold=0.674)
     )
     query_expansion: QueryExpansionConfig = field(
         default_factory=lambda: QueryExpansionConfig(enabled=False)

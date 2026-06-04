@@ -5440,7 +5440,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -5845,7 +5845,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -5980,7 +5980,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -6160,7 +6160,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -6520,7 +6520,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -8185,7 +8185,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0065",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -8545,7 +8545,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0073",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -8860,7 +8860,7 @@
     "user_id": "U0003",
     "goal_id": "G-U0003-02",
     "log_id": "L-U0003-0080",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -13189,7 +13189,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-04",
     "log_id": "L-U0005-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -13513,7 +13513,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-04",
     "log_id": "L-U0005-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -14017,7 +14017,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-04",
     "log_id": "L-U0005-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -14161,7 +14161,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-04",
     "log_id": "L-U0005-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -14341,7 +14341,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-04",
     "log_id": "L-U0005-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -14710,7 +14710,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-01",
     "log_id": "L-U0005-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -14890,7 +14890,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-01",
     "log_id": "L-U0005-0065",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -15034,7 +15034,7 @@
     "user_id": "U0005",
     "goal_id": "G-U0005-01",
     "log_id": "L-U0005-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -17014,7 +17014,7 @@
     "user_id": "U0006",
     "goal_id": "G-U0006-01",
     "log_id": "L-U0006-0053",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -18148,7 +18148,7 @@
     "user_id": "U0007",
     "goal_id": "G-U0007-03",
     "log_id": "L-U0007-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -18229,7 +18229,7 @@
     "user_id": "U0007",
     "goal_id": "G-U0007-03",
     "log_id": "L-U0007-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -20992,7 +20992,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -21271,7 +21271,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-04",
     "log_id": "L-U0009-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -21451,7 +21451,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-04",
     "log_id": "L-U0009-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -21604,7 +21604,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -21748,7 +21748,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -21964,7 +21964,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -22180,7 +22180,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -22360,7 +22360,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -22576,7 +22576,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -22684,7 +22684,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -22972,7 +22972,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0056",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -23260,7 +23260,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-01",
     "log_id": "L-U0009-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -23467,7 +23467,7 @@
     "user_id": "U0009",
     "goal_id": "G-U0009-04",
     "log_id": "L-U0009-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -27868,7 +27868,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -28120,7 +28120,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -28336,7 +28336,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -28624,7 +28624,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -28876,7 +28876,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -29164,7 +29164,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -29488,7 +29488,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -29704,7 +29704,7 @@
     "user_id": "U0012",
     "goal_id": "G-U0012-02",
     "log_id": "L-U0012-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -30352,7 +30352,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -30451,7 +30451,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-01",
     "log_id": "L-U0013-0005",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -30568,7 +30568,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -30748,7 +30748,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -30964,7 +30964,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -31288,7 +31288,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -31432,7 +31432,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -31720,7 +31720,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -31900,7 +31900,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -32107,7 +32107,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-01",
     "log_id": "L-U0013-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -32224,7 +32224,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-02",
     "log_id": "L-U0013-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -32251,7 +32251,7 @@
     "user_id": "U0013",
     "goal_id": "G-U0013-01",
     "log_id": "L-U0013-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -34177,7 +34177,7 @@
     "user_id": "U0014",
     "goal_id": "G-U0014-03",
     "log_id": "L-U0014-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -34465,7 +34465,7 @@
     "user_id": "U0014",
     "goal_id": "G-U0014-03",
     "log_id": "L-U0014-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -35455,7 +35455,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -35671,7 +35671,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -35806,7 +35806,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0015",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -35995,7 +35995,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -36103,7 +36103,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -36373,7 +36373,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -36535,7 +36535,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -36751,7 +36751,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -36859,7 +36859,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -36994,7 +36994,7 @@
     "user_id": "U0015",
     "goal_id": "G-U0015-02",
     "log_id": "L-U0015-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -41449,7 +41449,7 @@
     "user_id": "U0017",
     "goal_id": "G-U0017-05",
     "log_id": "L-U0017-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -41539,7 +41539,7 @@
     "user_id": "U0017",
     "goal_id": "G-U0017-05",
     "log_id": "L-U0017-0063",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -42169,7 +42169,7 @@
     "user_id": "U0017",
     "goal_id": "G-U0017-05",
     "log_id": "L-U0017-0077",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -42601,7 +42601,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -42817,7 +42817,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -42826,7 +42826,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-01",
     "log_id": "L-U0018-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -42961,7 +42961,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -43141,7 +43141,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -43249,7 +43249,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -43294,7 +43294,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-01",
     "log_id": "L-U0018-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -43573,7 +43573,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -43897,7 +43897,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-04",
     "log_id": "L-U0018-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -44050,7 +44050,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-01",
     "log_id": "L-U0018-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -44239,7 +44239,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-02",
     "log_id": "L-U0018-0053",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -44266,7 +44266,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-01",
     "log_id": "L-U0018-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -44482,7 +44482,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-01",
     "log_id": "L-U0018-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -44779,7 +44779,7 @@
     "user_id": "U0018",
     "goal_id": "G-U0018-02",
     "log_id": "L-U0018-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -50359,7 +50359,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -50467,7 +50467,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -50575,7 +50575,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -50791,7 +50791,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -50872,7 +50872,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -51142,7 +51142,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -51250,7 +51250,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -51358,7 +51358,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -51466,7 +51466,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -51574,7 +51574,7 @@
     "user_id": "U0021",
     "goal_id": "G-U0021-03",
     "log_id": "L-U0021-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -54409,7 +54409,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -54571,7 +54571,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -54607,7 +54607,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-02",
     "log_id": "L-U0023-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -54688,7 +54688,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-02",
     "log_id": "L-U0023-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -54760,7 +54760,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -54922,7 +54922,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -55255,7 +55255,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-02",
     "log_id": "L-U0023-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -55273,7 +55273,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -55327,7 +55327,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -55363,7 +55363,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-02",
     "log_id": "L-U0023-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -55489,7 +55489,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0041",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -55579,7 +55579,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-02",
     "log_id": "L-U0023-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -55678,7 +55678,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -55786,7 +55786,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0052",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -55921,7 +55921,7 @@
     "user_id": "U0023",
     "goal_id": "G-U0023-01",
     "log_id": "L-U0023-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -59188,7 +59188,7 @@
     "user_id": "U0024",
     "goal_id": "G-U0024-04",
     "log_id": "L-U0024-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -59548,7 +59548,7 @@
     "user_id": "U0024",
     "goal_id": "G-U0024-04",
     "log_id": "L-U0024-0078",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -60943,7 +60943,7 @@
     "user_id": "U0025",
     "goal_id": "G-U0025-03",
     "log_id": "L-U0025-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -61663,7 +61663,7 @@
     "user_id": "U0025",
     "goal_id": "G-U0025-03",
     "log_id": "L-U0025-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -65425,7 +65425,7 @@
     "user_id": "U0027",
     "goal_id": "G-U0027-02",
     "log_id": "L-U0027-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -65668,7 +65668,7 @@
     "user_id": "U0028",
     "goal_id": "G-U0028-02",
     "log_id": "L-U0028-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -66136,7 +66136,7 @@
     "user_id": "U0028",
     "goal_id": "G-U0028-02",
     "log_id": "L-U0028-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -68179,7 +68179,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-01",
     "log_id": "L-U0029-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -68296,7 +68296,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -68359,7 +68359,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-01",
     "log_id": "L-U0029-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -68512,7 +68512,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -68656,7 +68656,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -69043,7 +69043,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-01",
     "log_id": "L-U0029-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -69268,7 +69268,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -69295,7 +69295,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-01",
     "log_id": "L-U0029-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -69376,7 +69376,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -69556,7 +69556,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0041",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -70375,7 +70375,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-01",
     "log_id": "L-U0029-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -70528,7 +70528,7 @@
     "user_id": "U0029",
     "goal_id": "G-U0029-02",
     "log_id": "L-U0029-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -70744,7 +70744,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -71104,7 +71104,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -71239,7 +71239,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -71824,7 +71824,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -72049,7 +72049,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -72319,7 +72319,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -72589,7 +72589,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -72904,7 +72904,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -73444,7 +73444,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -74119,7 +74119,7 @@
     "user_id": "U0030",
     "goal_id": "G-U0030-05",
     "log_id": "L-U0030-0077",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -78268,7 +78268,7 @@
     "user_id": "U0032",
     "goal_id": "G-U0032-02",
     "log_id": "L-U0032-0065",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -85378,7 +85378,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-01",
     "log_id": "L-U0036-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -85666,7 +85666,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-01",
     "log_id": "L-U0036-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -85720,7 +85720,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-03",
     "log_id": "L-U0036-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -85792,7 +85792,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-03",
     "log_id": "L-U0036-0015",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -85810,7 +85810,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-01",
     "log_id": "L-U0036-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -86134,7 +86134,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-01",
     "log_id": "L-U0036-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -86350,7 +86350,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-01",
     "log_id": "L-U0036-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -87322,7 +87322,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-01",
     "log_id": "L-U0036-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -87421,7 +87421,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-04",
     "log_id": "L-U0036-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -87565,7 +87565,7 @@
     "user_id": "U0036",
     "goal_id": "G-U0036-04",
     "log_id": "L-U0036-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -88546,7 +88546,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -88618,7 +88618,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0023",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -88978,7 +88978,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -89338,7 +89338,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -89482,7 +89482,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -89626,7 +89626,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -89770,7 +89770,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -90022,7 +90022,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-01",
     "log_id": "L-U0037-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -90220,7 +90220,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-03",
     "log_id": "L-U0037-0067",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -90328,7 +90328,7 @@
     "user_id": "U0037",
     "goal_id": "G-U0037-03",
     "log_id": "L-U0037-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -92191,7 +92191,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -92344,7 +92344,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-01",
     "log_id": "L-U0039-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -92506,7 +92506,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -92659,7 +92659,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-01",
     "log_id": "L-U0039-0015",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -92821,7 +92821,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -93496,7 +93496,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -93739,7 +93739,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-01",
     "log_id": "L-U0039-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -94099,7 +94099,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-01",
     "log_id": "L-U0039-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -94216,7 +94216,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -94396,7 +94396,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0053",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -94846,7 +94846,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0063",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -94981,7 +94981,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -95296,7 +95296,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0073",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -95521,7 +95521,7 @@
     "user_id": "U0039",
     "goal_id": "G-U0039-04",
     "log_id": "L-U0039-0078",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -95854,7 +95854,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -95998,7 +95998,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -96043,7 +96043,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -96268,7 +96268,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0023",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -96340,7 +96340,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -96403,7 +96403,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -96502,7 +96502,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -96511,7 +96511,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -96583,7 +96583,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -96646,7 +96646,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -96772,7 +96772,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0041",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -96853,7 +96853,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -96889,7 +96889,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0046",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -97042,7 +97042,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -97150,7 +97150,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-03",
     "log_id": "L-U0040-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -97213,7 +97213,7 @@
     "user_id": "U0040",
     "goal_id": "G-U0040-01",
     "log_id": "L-U0040-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -97483,7 +97483,7 @@
     "user_id": "U0041",
     "goal_id": "G-U0041-01",
     "log_id": "L-U0041-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -97780,7 +97780,7 @@
     "user_id": "U0041",
     "goal_id": "G-U0041-01",
     "log_id": "L-U0041-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -97861,7 +97861,7 @@
     "user_id": "U0041",
     "goal_id": "G-U0041-01",
     "log_id": "L-U0041-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -99022,7 +99022,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-03",
     "log_id": "L-U0042-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -99130,7 +99130,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-03",
     "log_id": "L-U0042-0005",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -99274,7 +99274,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-03",
     "log_id": "L-U0042-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -99553,7 +99553,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-02",
     "log_id": "L-U0042-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -99661,7 +99661,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-02",
     "log_id": "L-U0042-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -100885,7 +100885,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-02",
     "log_id": "L-U0042-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -101038,7 +101038,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-03",
     "log_id": "L-U0042-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -101065,7 +101065,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-02",
     "log_id": "L-U0042-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -101254,7 +101254,7 @@
     "user_id": "U0042",
     "goal_id": "G-U0042-03",
     "log_id": "L-U0042-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -103081,7 +103081,7 @@
     "user_id": "U0043",
     "goal_id": "G-U0043-03",
     "log_id": "L-U0043-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -103216,7 +103216,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -103486,7 +103486,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -103603,7 +103603,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-04",
     "log_id": "L-U0044-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -103936,7 +103936,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -104521,7 +104521,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -104971,7 +104971,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0041",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -105241,7 +105241,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -105691,7 +105691,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -106096,7 +106096,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -106276,7 +106276,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-01",
     "log_id": "L-U0044-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -106573,7 +106573,7 @@
     "user_id": "U0044",
     "goal_id": "G-U0044-04",
     "log_id": "L-U0044-0076",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -107023,7 +107023,7 @@
     "user_id": "U0045",
     "goal_id": "G-U0045-04",
     "log_id": "L-U0045-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -109750,7 +109750,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-03",
     "log_id": "L-U0046-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -110893,7 +110893,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-05",
     "log_id": "L-U0046-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -111073,7 +111073,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-05",
     "log_id": "L-U0046-0038",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -111505,7 +111505,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-03",
     "log_id": "L-U0046-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -111568,7 +111568,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-05",
     "log_id": "L-U0046-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -111703,7 +111703,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-05",
     "log_id": "L-U0046-0052",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -112108,7 +112108,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-05",
     "log_id": "L-U0046-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -112603,7 +112603,7 @@
     "user_id": "U0046",
     "goal_id": "G-U0046-05",
     "log_id": "L-U0046-0072",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -113107,7 +113107,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-01",
     "log_id": "L-U0047-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -113872,7 +113872,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-01",
     "log_id": "L-U0047-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -115258,7 +115258,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-05",
     "log_id": "L-U0047-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -115267,7 +115267,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-01",
     "log_id": "L-U0047-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -115573,7 +115573,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-05",
     "log_id": "L-U0047-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -115708,7 +115708,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-05",
     "log_id": "L-U0047-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -115717,7 +115717,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-01",
     "log_id": "L-U0047-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -115852,7 +115852,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-01",
     "log_id": "L-U0047-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -115978,7 +115978,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-05",
     "log_id": "L-U0047-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -116113,7 +116113,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-05",
     "log_id": "L-U0047-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -116212,7 +116212,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-01",
     "log_id": "L-U0047-0072",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -116428,7 +116428,7 @@
     "user_id": "U0047",
     "goal_id": "G-U0047-05",
     "log_id": "L-U0047-0076",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -116725,7 +116725,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -116761,7 +116761,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-03",
     "log_id": "L-U0048-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -116896,7 +116896,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-03",
     "log_id": "L-U0048-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -116995,7 +116995,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -117157,7 +117157,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -117238,7 +117238,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -117373,7 +117373,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -117454,7 +117454,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0030",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -117490,7 +117490,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-03",
     "log_id": "L-U0048-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -117562,7 +117562,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -117643,7 +117643,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -117679,7 +117679,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-03",
     "log_id": "L-U0048-0038",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -117994,7 +117994,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -118129,7 +118129,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-02",
     "log_id": "L-U0048-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -118246,7 +118246,7 @@
     "user_id": "U0048",
     "goal_id": "G-U0048-03",
     "log_id": "L-U0048-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -118381,7 +118381,7 @@
     "user_id": "U0049",
     "goal_id": "G-U0049-01",
     "log_id": "L-U0049-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -118489,7 +118489,7 @@
     "user_id": "U0049",
     "goal_id": "G-U0049-01",
     "log_id": "L-U0049-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -120433,7 +120433,7 @@
     "user_id": "U0049",
     "goal_id": "G-U0049-01",
     "log_id": "L-U0049-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -121333,7 +121333,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -121603,7 +121603,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -121684,7 +121684,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -121792,7 +121792,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -122035,7 +122035,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -122143,7 +122143,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -122251,7 +122251,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0052",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -122386,7 +122386,7 @@
     "user_id": "U0050",
     "goal_id": "G-U0050-02",
     "log_id": "L-U0050-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -123043,7 +123043,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-05",
     "log_id": "L-U0051-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -124393,7 +124393,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-05",
     "log_id": "L-U0051-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -124753,7 +124753,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-05",
     "log_id": "L-U0051-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -125203,7 +125203,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-05",
     "log_id": "L-U0051-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -125257,7 +125257,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-01",
     "log_id": "L-U0051-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -125572,7 +125572,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-01",
     "log_id": "L-U0051-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -125842,7 +125842,7 @@
     "user_id": "U0051",
     "goal_id": "G-U0051-01",
     "log_id": "L-U0051-0075",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -127507,7 +127507,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-01",
     "log_id": "L-U0052-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -128065,7 +128065,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-03",
     "log_id": "L-U0052-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -128290,7 +128290,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-03",
     "log_id": "L-U0052-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -128497,7 +128497,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-01",
     "log_id": "L-U0052-0053",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -128560,7 +128560,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-03",
     "log_id": "L-U0052-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -128677,7 +128677,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-01",
     "log_id": "L-U0052-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -128830,7 +128830,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-03",
     "log_id": "L-U0052-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -128920,7 +128920,7 @@
     "user_id": "U0052",
     "goal_id": "G-U0052-03",
     "log_id": "L-U0052-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -129928,7 +129928,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -130432,7 +130432,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -130648,7 +130648,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -130720,7 +130720,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -131044,7 +131044,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -131296,7 +131296,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -131692,7 +131692,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0053",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -132304,7 +132304,7 @@
     "user_id": "U0053",
     "goal_id": "G-U0053-03",
     "log_id": "L-U0053-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -132520,7 +132520,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -132610,7 +132610,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -132925,7 +132925,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -133510,7 +133510,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -133870,7 +133870,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -134095,7 +134095,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -134320,7 +134320,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -135175,7 +135175,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0063",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -135310,7 +135310,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -135895,7 +135895,7 @@
     "user_id": "U0054",
     "goal_id": "G-U0054-04",
     "log_id": "L-U0054-0079",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -140287,7 +140287,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-05",
     "log_id": "L-U0057-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -140602,7 +140602,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-05",
     "log_id": "L-U0057-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -140782,7 +140782,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-05",
     "log_id": "L-U0057-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -141187,7 +141187,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-05",
     "log_id": "L-U0057-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -142735,7 +142735,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-02",
     "log_id": "L-U0057-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -143140,7 +143140,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-02",
     "log_id": "L-U0057-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -143437,7 +143437,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-05",
     "log_id": "L-U0057-0072",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -143635,7 +143635,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-02",
     "log_id": "L-U0057-0077",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -143707,7 +143707,7 @@
     "user_id": "U0057",
     "goal_id": "G-U0057-05",
     "log_id": "L-U0057-0078",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -143977,7 +143977,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-03",
     "log_id": "L-U0058-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -144004,7 +144004,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0005",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -144094,7 +144094,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -144274,7 +144274,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -144508,7 +144508,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -144580,7 +144580,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -144634,7 +144634,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -144778,7 +144778,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -144805,7 +144805,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-03",
     "log_id": "L-U0058-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -145066,7 +145066,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -145093,7 +145093,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-03",
     "log_id": "L-U0058-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -145120,7 +145120,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -145201,7 +145201,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-03",
     "log_id": "L-U0058-0038",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -145228,7 +145228,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -145282,7 +145282,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -145390,7 +145390,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -145444,7 +145444,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -145498,7 +145498,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0046",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -145642,7 +145642,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -145768,7 +145768,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -145921,7 +145921,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-03",
     "log_id": "L-U0058-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -145948,7 +145948,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -146020,7 +146020,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-02",
     "log_id": "L-U0058-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -146182,7 +146182,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-04",
     "log_id": "L-U0058-0065",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -146209,7 +146209,7 @@
     "user_id": "U0058",
     "goal_id": "G-U0058-03",
     "log_id": "L-U0058-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -146713,7 +146713,7 @@
     "user_id": "U0059",
     "goal_id": "G-U0059-03",
     "log_id": "L-U0059-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -147145,7 +147145,7 @@
     "user_id": "U0059",
     "goal_id": "G-U0059-03",
     "log_id": "L-U0059-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -147649,7 +147649,7 @@
     "user_id": "U0059",
     "goal_id": "G-U0059-03",
     "log_id": "L-U0059-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -148081,7 +148081,7 @@
     "user_id": "U0059",
     "goal_id": "G-U0059-03",
     "log_id": "L-U0059-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -148441,7 +148441,7 @@
     "user_id": "U0059",
     "goal_id": "G-U0059-03",
     "log_id": "L-U0059-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -149305,7 +149305,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -149323,7 +149323,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-01",
     "log_id": "L-U0060-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -149485,7 +149485,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -149593,7 +149593,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-01",
     "log_id": "L-U0060-0015",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -149980,7 +149980,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0023",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -149998,7 +149998,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-01",
     "log_id": "L-U0060-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -150223,7 +150223,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-01",
     "log_id": "L-U0060-0029",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -150583,7 +150583,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-01",
     "log_id": "L-U0060-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -150808,7 +150808,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-01",
     "log_id": "L-U0060-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -151105,7 +151105,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -151465,7 +151465,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0056",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -151915,7 +151915,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -152275,7 +152275,7 @@
     "user_id": "U0060",
     "goal_id": "G-U0060-04",
     "log_id": "L-U0060-0074",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -152851,7 +152851,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -153031,7 +153031,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -153301,7 +153301,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -153481,7 +153481,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -153931,7 +153931,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0030",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -154336,7 +154336,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -154561,7 +154561,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -155371,7 +155371,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -155641,7 +155641,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -155911,7 +155911,7 @@
     "user_id": "U0061",
     "goal_id": "G-U0061-03",
     "log_id": "L-U0061-0074",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -158854,7 +158854,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-02",
     "log_id": "L-U0063-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -159322,7 +159322,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-02",
     "log_id": "L-U0063-0015",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -159403,7 +159403,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-03",
     "log_id": "L-U0063-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -159538,7 +159538,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-02",
     "log_id": "L-U0063-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -159646,7 +159646,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-02",
     "log_id": "L-U0063-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -159691,7 +159691,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-03",
     "log_id": "L-U0063-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -159790,7 +159790,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-02",
     "log_id": "L-U0063-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -159970,7 +159970,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-02",
     "log_id": "L-U0063-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -160519,7 +160519,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-03",
     "log_id": "L-U0063-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -161023,7 +161023,7 @@
     "user_id": "U0063",
     "goal_id": "G-U0063-03",
     "log_id": "L-U0063-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -163129,7 +163129,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -163381,7 +163381,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -163489,7 +163489,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -163741,7 +163741,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -163975,7 +163975,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -163993,7 +163993,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -164119,7 +164119,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -164425,7 +164425,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -164515,7 +164515,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -164641,7 +164641,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0046",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -164731,7 +164731,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -164857,7 +164857,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0052",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -164965,7 +164965,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-02",
     "log_id": "L-U0065-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -165127,7 +165127,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -165235,7 +165235,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -165487,7 +165487,7 @@
     "user_id": "U0065",
     "goal_id": "G-U0065-04",
     "log_id": "L-U0065-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -165847,7 +165847,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -166540,7 +166540,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -166657,7 +166657,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -167017,7 +167017,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -167197,7 +167197,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -167305,7 +167305,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -167485,7 +167485,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -167620,7 +167620,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0046",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -167647,7 +167647,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -167827,7 +167827,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -168160,7 +168160,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -168277,7 +168277,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -168340,7 +168340,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -168502,7 +168502,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-02",
     "log_id": "L-U0066-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -168790,7 +168790,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0072",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -169015,7 +169015,7 @@
     "user_id": "U0066",
     "goal_id": "G-U0066-04",
     "log_id": "L-U0066-0077",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -173011,7 +173011,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0005",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -173407,7 +173407,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -173515,7 +173515,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -173695,7 +173695,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -173911,7 +173911,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0030",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -174163,7 +174163,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -174631,7 +174631,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -174703,7 +174703,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0052",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -174919,7 +174919,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -175027,7 +175027,7 @@
     "user_id": "U0068",
     "goal_id": "G-U0068-02",
     "log_id": "L-U0068-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -175495,7 +175495,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -175603,7 +175603,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -175855,7 +175855,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -176179,7 +176179,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -176575,7 +176575,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -176683,7 +176683,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -177007,7 +177007,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -177151,7 +177151,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -177331,7 +177331,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -177907,7 +177907,7 @@
     "user_id": "U0069",
     "goal_id": "G-U0069-02",
     "log_id": "L-U0069-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -180913,7 +180913,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -181120,7 +181120,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -181201,7 +181201,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -181264,7 +181264,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -181336,7 +181336,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0023",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -181516,7 +181516,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -181561,7 +181561,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0029",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -181876,7 +181876,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0038",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -181921,7 +181921,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -182029,7 +182029,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -182272,7 +182272,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -182353,7 +182353,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -182569,7 +182569,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -182677,7 +182677,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0060",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -182776,7 +182776,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-03",
     "log_id": "L-U0071-0063",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -182821,7 +182821,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -182965,7 +182965,7 @@
     "user_id": "U0071",
     "goal_id": "G-U0071-04",
     "log_id": "L-U0071-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -183109,7 +183109,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-04",
     "log_id": "L-U0072-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -183352,7 +183352,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-01",
     "log_id": "L-U0072-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -183469,7 +183469,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-04",
     "log_id": "L-U0072-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -183505,7 +183505,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -183622,7 +183622,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-01",
     "log_id": "L-U0072-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -183694,7 +183694,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-04",
     "log_id": "L-U0072-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -184045,7 +184045,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -184270,7 +184270,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -184342,7 +184342,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-01",
     "log_id": "L-U0072-0029",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -184567,7 +184567,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-01",
     "log_id": "L-U0072-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -184765,7 +184765,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0038",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -185170,7 +185170,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0047",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -185305,7 +185305,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -185602,7 +185602,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-01",
     "log_id": "L-U0072-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -185665,7 +185665,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -185935,7 +185935,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -186169,7 +186169,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-04",
     "log_id": "L-U0072-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -186250,7 +186250,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0071",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -186304,7 +186304,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-04",
     "log_id": "L-U0072-0072",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -186520,7 +186520,7 @@
     "user_id": "U0072",
     "goal_id": "G-U0072-03",
     "log_id": "L-U0072-0077",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -187105,7 +187105,7 @@
     "user_id": "U0073",
     "goal_id": "G-U0073-03",
     "log_id": "L-U0073-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -187177,7 +187177,7 @@
     "user_id": "U0073",
     "goal_id": "G-U0073-01",
     "log_id": "L-U0073-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -187960,7 +187960,7 @@
     "user_id": "U0073",
     "goal_id": "G-U0073-03",
     "log_id": "L-U0073-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -188437,7 +188437,7 @@
     "user_id": "U0073",
     "goal_id": "G-U0073-01",
     "log_id": "L-U0073-0039",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -192955,7 +192955,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-04",
     "log_id": "L-U0075-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -193279,7 +193279,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-04",
     "log_id": "L-U0075-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -193531,7 +193531,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-04",
     "log_id": "L-U0075-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -193846,7 +193846,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-03",
     "log_id": "L-U0075-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -193990,7 +193990,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-03",
     "log_id": "L-U0075-0030",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -194170,7 +194170,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-03",
     "log_id": "L-U0075-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -194494,7 +194494,7 @@
     "user_id": "U0075",
     "goal_id": "G-U0075-03",
     "log_id": "L-U0075-0044",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -195646,7 +195646,7 @@
     "user_id": "U0076",
     "goal_id": "G-U0076-01",
     "log_id": "L-U0076-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -195727,7 +195727,7 @@
     "user_id": "U0076",
     "goal_id": "G-U0076-01",
     "log_id": "L-U0076-0010",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -196159,7 +196159,7 @@
     "user_id": "U0076",
     "goal_id": "G-U0076-01",
     "log_id": "L-U0076-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -197212,7 +197212,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -197347,7 +197347,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -197590,7 +197590,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -197806,7 +197806,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0026",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -197887,7 +197887,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0029",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -197968,7 +197968,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -198103,7 +198103,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -198211,7 +198211,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0041",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -198697,7 +198697,7 @@
     "user_id": "U0077",
     "goal_id": "G-U0077-01",
     "log_id": "L-U0077-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -198814,7 +198814,7 @@
     "user_id": "U0078",
     "goal_id": "G-U0078-01",
     "log_id": "L-U0078-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -200938,7 +200938,7 @@
     "user_id": "U0078",
     "goal_id": "G-U0078-01",
     "log_id": "L-U0078-0061",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -203332,7 +203332,7 @@
     "user_id": "U0079",
     "goal_id": "G-U0079-03",
     "log_id": "L-U0079-0056",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -203548,7 +203548,7 @@
     "user_id": "U0079",
     "goal_id": "G-U0079-03",
     "log_id": "L-U0079-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -203836,7 +203836,7 @@
     "user_id": "U0079",
     "goal_id": "G-U0079-03",
     "log_id": "L-U0079-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -203962,7 +203962,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -204367,7 +204367,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0018",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -204475,7 +204475,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -204556,7 +204556,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -204718,7 +204718,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -204826,7 +204826,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -204961,7 +204961,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -205366,7 +205366,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -205447,7 +205447,7 @@
     "user_id": "U0080",
     "goal_id": "G-U0080-03",
     "log_id": "L-U0080-0058",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -205888,7 +205888,7 @@
     "user_id": "U0081",
     "goal_id": "G-U0081-01",
     "log_id": "L-U0081-0014",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -206023,7 +206023,7 @@
     "user_id": "U0081",
     "goal_id": "G-U0081-01",
     "log_id": "L-U0081-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -206077,7 +206077,7 @@
     "user_id": "U0081",
     "goal_id": "G-U0081-01",
     "log_id": "L-U0081-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -206158,7 +206158,7 @@
     "user_id": "U0081",
     "goal_id": "G-U0081-01",
     "log_id": "L-U0081-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -206374,7 +206374,7 @@
     "user_id": "U0081",
     "goal_id": "G-U0081-01",
     "log_id": "L-U0081-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -206482,7 +206482,7 @@
     "user_id": "U0081",
     "goal_id": "G-U0081-01",
     "log_id": "L-U0081-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -210532,7 +210532,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0002",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -210550,7 +210550,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-01",
     "log_id": "L-U0084-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -210676,7 +210676,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -210874,7 +210874,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-01",
     "log_id": "L-U0084-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -211018,7 +211018,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-01",
     "log_id": "L-U0084-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -211144,7 +211144,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -211324,7 +211324,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -211432,7 +211432,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -211576,7 +211576,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -212080,7 +212080,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -212296,7 +212296,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -212836,7 +212836,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0066",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -212944,7 +212944,7 @@
     "user_id": "U0084",
     "goal_id": "G-U0084-03",
     "log_id": "L-U0084-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -213223,7 +213223,7 @@
     "user_id": "U0085",
     "goal_id": "G-U0085-01",
     "log_id": "L-U0085-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -213412,7 +213412,7 @@
     "user_id": "U0085",
     "goal_id": "G-U0085-01",
     "log_id": "L-U0085-0015",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -214708,7 +214708,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -214789,7 +214789,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -215149,7 +215149,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -215563,7 +215563,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -215599,7 +215599,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -215968,7 +215968,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0029",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -216238,7 +216238,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -216553,7 +216553,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -216859,7 +216859,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -216958,7 +216958,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -217228,7 +217228,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -217309,7 +217309,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -217669,7 +217669,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0067",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -217723,7 +217723,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -217858,7 +217858,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0071",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -217894,7 +217894,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-03",
     "log_id": "L-U0086-0072",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -218038,7 +218038,7 @@
     "user_id": "U0086",
     "goal_id": "G-U0086-04",
     "log_id": "L-U0086-0075",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -220000,7 +220000,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-04",
     "log_id": "L-U0088-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -220180,7 +220180,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-04",
     "log_id": "L-U0088-0005",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -220450,7 +220450,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-04",
     "log_id": "L-U0088-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -220486,7 +220486,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -220675,7 +220675,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-04",
     "log_id": "L-U0088-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -220711,7 +220711,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0017",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -220936,7 +220936,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -221161,7 +221161,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -221386,7 +221386,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -221611,7 +221611,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -221971,7 +221971,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -222286,7 +222286,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0052",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -223006,7 +223006,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -223456,7 +223456,7 @@
     "user_id": "U0088",
     "goal_id": "G-U0088-03",
     "log_id": "L-U0088-0078",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -225409,7 +225409,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0004",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -226174,7 +226174,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -226354,7 +226354,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -226759,7 +226759,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0034",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -227029,7 +227029,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -227524,7 +227524,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -227794,7 +227794,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -228019,7 +228019,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0062",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -228514,7 +228514,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0073",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -228739,7 +228739,7 @@
     "user_id": "U0090",
     "goal_id": "G-U0090-02",
     "log_id": "L-U0090-0078",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -228973,7 +228973,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -229108,7 +229108,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -229243,7 +229243,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0013",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -229657,7 +229657,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-03",
     "log_id": "L-U0091-0028",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -229792,7 +229792,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-03",
     "log_id": "L-U0091-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -229846,7 +229846,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-03",
     "log_id": "L-U0091-0035",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -229999,7 +229999,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0041",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -230107,7 +230107,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0045",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -230188,7 +230188,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -230431,7 +230431,7 @@
     "user_id": "U0091",
     "goal_id": "G-U0091-02",
     "log_id": "L-U0091-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -231457,7 +231457,7 @@
     "user_id": "U0092",
     "goal_id": "G-U0092-01",
     "log_id": "L-U0092-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -232807,7 +232807,7 @@
     "user_id": "U0092",
     "goal_id": "G-U0092-01",
     "log_id": "L-U0092-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -234067,7 +234067,7 @@
     "user_id": "U0092",
     "goal_id": "G-U0092-01",
     "log_id": "L-U0092-0079",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -234256,7 +234256,7 @@
     "user_id": "U0093",
     "goal_id": "G-U0093-01",
     "log_id": "L-U0093-0003",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -234499,7 +234499,7 @@
     "user_id": "U0093",
     "goal_id": "G-U0093-01",
     "log_id": "L-U0093-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -236668,7 +236668,7 @@
     "user_id": "U0094",
     "goal_id": "G-U0094-04",
     "log_id": "L-U0094-0023",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -236812,7 +236812,7 @@
     "user_id": "U0094",
     "goal_id": "G-U0094-04",
     "log_id": "L-U0094-0027",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -237280,7 +237280,7 @@
     "user_id": "U0094",
     "goal_id": "G-U0094-04",
     "log_id": "L-U0094-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -237568,7 +237568,7 @@
     "user_id": "U0094",
     "goal_id": "G-U0094-04",
     "log_id": "L-U0094-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -237676,7 +237676,7 @@
     "user_id": "U0094",
     "goal_id": "G-U0094-04",
     "log_id": "L-U0094-0051",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.82,
     "label_source": "synthetic_rule"
   },
@@ -238324,7 +238324,7 @@
     "user_id": "U0094",
     "goal_id": "G-U0094-04",
     "log_id": "L-U0094-0069",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -239341,7 +239341,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-05",
     "log_id": "L-U0095-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -239881,7 +239881,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-05",
     "log_id": "L-U0095-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -240061,7 +240061,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-05",
     "log_id": "L-U0095-0037",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -240466,7 +240466,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-05",
     "log_id": "L-U0095-0046",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -240646,7 +240646,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-05",
     "log_id": "L-U0095-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -240745,7 +240745,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-01",
     "log_id": "L-U0095-0053",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -240880,7 +240880,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-01",
     "log_id": "L-U0095-0056",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -241456,7 +241456,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-05",
     "log_id": "L-U0095-0068",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -241510,7 +241510,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-01",
     "log_id": "L-U0095-0070",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -241690,7 +241690,7 @@
     "user_id": "U0095",
     "goal_id": "G-U0095-01",
     "log_id": "L-U0095-0074",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -242077,7 +242077,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0001",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.81,
     "label_source": "synthetic_rule"
   },
@@ -242356,7 +242356,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-03",
     "log_id": "L-U0096-0009",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -242473,7 +242473,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0012",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -242725,7 +242725,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -242752,7 +242752,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-03",
     "log_id": "L-U0096-0020",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.99,
     "label_source": "synthetic_rule"
   },
@@ -242824,7 +242824,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-03",
     "log_id": "L-U0096-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -242941,7 +242941,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.97,
     "label_source": "synthetic_rule"
   },
@@ -243229,7 +243229,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0033",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -243337,7 +243337,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -243553,7 +243553,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -243688,7 +243688,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-03",
     "log_id": "L-U0096-0046",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -243841,7 +243841,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0050",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -244021,7 +244021,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -244084,7 +244084,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-03",
     "log_id": "L-U0096-0057",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.83,
     "label_source": "synthetic_rule"
   },
@@ -244345,7 +244345,7 @@
     "user_id": "U0096",
     "goal_id": "G-U0096-04",
     "log_id": "L-U0096-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -245344,7 +245344,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -245461,7 +245461,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-04",
     "log_id": "L-U0097-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -246028,7 +246028,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -246136,7 +246136,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -246352,7 +246352,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -246604,7 +246604,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0056",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -246712,7 +246712,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -246892,7 +246892,7 @@
     "user_id": "U0097",
     "goal_id": "G-U0097-03",
     "log_id": "L-U0097-0064",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -247288,7 +247288,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0005",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -247369,7 +247369,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0008",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -247720,7 +247720,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0021",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -247801,7 +247801,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0024",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -247963,7 +247963,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0030",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -248017,7 +248017,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0032",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 1.0,
     "label_source": "synthetic_rule"
   },
@@ -248125,7 +248125,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0036",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.92,
     "label_source": "synthetic_rule"
   },
@@ -248233,7 +248233,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0040",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.93,
     "label_source": "synthetic_rule"
   },
@@ -248314,7 +248314,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -248611,7 +248611,7 @@
     "user_id": "U0098",
     "goal_id": "G-U0098-03",
     "log_id": "L-U0098-0054",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.85,
     "label_source": "synthetic_rule"
   },
@@ -249502,7 +249502,7 @@
     "user_id": "U0099",
     "goal_id": "G-U0099-03",
     "log_id": "L-U0099-0016",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -249907,7 +249907,7 @@
     "user_id": "U0099",
     "goal_id": "G-U0099-03",
     "log_id": "L-U0099-0025",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.88,
     "label_source": "synthetic_rule"
   },
@@ -250177,7 +250177,7 @@
     "user_id": "U0099",
     "goal_id": "G-U0099-03",
     "log_id": "L-U0099-0031",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -250492,7 +250492,7 @@
     "user_id": "U0099",
     "goal_id": "G-U0099-03",
     "log_id": "L-U0099-0038",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -250717,7 +250717,7 @@
     "user_id": "U0099",
     "goal_id": "G-U0099-03",
     "log_id": "L-U0099-0043",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.9,
     "label_source": "synthetic_rule"
   },
@@ -252202,7 +252202,7 @@
     "user_id": "U0099",
     "goal_id": "G-U0099-03",
     "log_id": "L-U0099-0076",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.98,
     "label_source": "synthetic_rule"
   },
@@ -252598,7 +252598,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-02",
     "log_id": "L-U0100-0006",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.96,
     "label_source": "synthetic_rule"
   },
@@ -252634,7 +252634,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-03",
     "log_id": "L-U0100-0007",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },
@@ -252742,7 +252742,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-03",
     "log_id": "L-U0100-0011",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -252940,7 +252940,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-01",
     "log_id": "L-U0100-0019",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.84,
     "label_source": "synthetic_rule"
   },
@@ -253021,7 +253021,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-01",
     "log_id": "L-U0100-0022",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.95,
     "label_source": "synthetic_rule"
   },
@@ -253057,7 +253057,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-02",
     "log_id": "L-U0100-0023",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.87,
     "label_source": "synthetic_rule"
   },
@@ -253579,7 +253579,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-03",
     "log_id": "L-U0100-0042",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -253732,7 +253732,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-02",
     "log_id": "L-U0100-0048",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.86,
     "label_source": "synthetic_rule"
   },
@@ -253768,7 +253768,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-03",
     "log_id": "L-U0100-0049",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.89,
     "label_source": "synthetic_rule"
   },
@@ -253930,7 +253930,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-03",
     "log_id": "L-U0100-0055",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.94,
     "label_source": "synthetic_rule"
   },
@@ -253948,7 +253948,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-02",
     "log_id": "L-U0100-0056",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.91,
     "label_source": "synthetic_rule"
   },
@@ -254038,7 +254038,7 @@
     "user_id": "U0100",
     "goal_id": "G-U0100-03",
     "log_id": "L-U0100-0059",
-    "label": "relevant",
+    "label": "partial",
     "relevance_score": 0.8,
     "label_source": "synthetic_rule"
   },

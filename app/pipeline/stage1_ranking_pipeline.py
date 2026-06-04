@@ -47,6 +47,8 @@ class Stage1Pipeline:
         use_symmetric_embeddings: bool = False,
         disable_lexical_gate: bool = False,
         dense_threshold: float | None = None,
+        disable_redundancy: bool = True,
+        disable_diversity: bool = True,
         **kwargs,  # absorb removed params (retrieval_mode)
     ) -> None:
         from app.retrieval.embedding_provider import get_embedding_provider
@@ -93,8 +95,14 @@ class Stage1Pipeline:
         )
         self._selector = DiversitySelector(config=self.config.diversity)
         self._indexed = False
+        self._disable_redundancy = disable_redundancy
+        self._disable_diversity  = disable_diversity
         if disable_lexical_gate:
             logger.info("Stage1Pipeline: lexical gate DISABLED (baseline mode)")
+        if disable_redundancy:
+            logger.info("Stage1Pipeline: redundancy penalty DISABLED")
+        if disable_diversity:
+            logger.info("Stage1Pipeline: diversity selection DISABLED (score-sorted top-k)")
 
     def index(self, logs: list[ResearchLog]) -> None:
         self._retriever.index(logs)
@@ -227,34 +235,35 @@ class Stage1Pipeline:
         )
 
         # 5b. Redundancy Penalty (applied greedy, high-score first)
-        # Logs that are near-duplicates of already-admitted logs get penalised.
-        # This pushes out repeated low-info logs (e.g. "여행 준비물 쇼핑" ×3).
-        rdup_cfg = self.config.ranker
-        admitted_logs: list = []
-        penalised: list[RankedLog] = []
-        for r in above:
-            pen, reason = compute_redundancy_penalty(
-                r.log,
-                admitted_logs,
-                exact_penalty=rdup_cfg.redundancy_penalty_exact,
-                similar_penalty=rdup_cfg.redundancy_penalty_similar,
-                similarity_threshold=rdup_cfg.redundancy_similarity_threshold,
-            )
-            if pen > 0:
-                r.redundancy_penalty = round(pen, 4)
-                r.final_score = max(0.0, round(r.final_score - pen, 4))
-                r.rejection_reason = r.rejection_reason or f"redundancy:{reason}"
-                logger.info(
-                    "  [REDUNDANCY] %s  penalty=%.2f  reason=%s  new_score=%.4f  [%s]",
-                    r.log_id, pen, reason, r.final_score, r.log.title,
+        if self._disable_redundancy:
+            penalised = above
+        else:
+            rdup_cfg = self.config.ranker
+            admitted_logs: list = []
+            penalised: list[RankedLog] = []
+            for r in above:
+                pen, reason = compute_redundancy_penalty(
+                    r.log,
+                    admitted_logs,
+                    exact_penalty=rdup_cfg.redundancy_penalty_exact,
+                    similar_penalty=rdup_cfg.redundancy_penalty_similar,
+                    similarity_threshold=rdup_cfg.redundancy_similarity_threshold,
                 )
-            admitted_logs.append(r.log)
-            penalised.append(r)
+                if pen > 0:
+                    r.redundancy_penalty = round(pen, 4)
+                    r.final_score = max(0.0, round(r.final_score - pen, 4))
+                    r.rejection_reason = r.rejection_reason or f"redundancy:{reason}"
+                    logger.info(
+                        "  [REDUNDANCY] %s  penalty=%.2f  reason=%s  new_score=%.4f  [%s]",
+                        r.log_id, pen, reason, r.final_score, r.log.title,
+                    )
+                admitted_logs.append(r.log)
+                penalised.append(r)
 
-        # Re-sort after redundancy penalty
-        penalised.sort(key=lambda x: x.final_score, reverse=True)
-        for i, r in enumerate(penalised):
-            r.rank = i + 1
+            # Re-sort after redundancy penalty
+            penalised.sort(key=lambda x: x.final_score, reverse=True)
+            for i, r in enumerate(penalised):
+                r.rank = i + 1
 
         # Per-candidate admission trace (INFO level for debugging)
         for r in ranked[:15]:
@@ -280,14 +289,15 @@ class Stage1Pipeline:
             )
 
         # 6. Diversity-aware Top-K Selection (from admitted only, after redundancy)
-        # Exclude logs whose score dropped to 0 after redundancy penalty —
-        # they are effectively rejected and must NOT reach Stage2 as anchors.
         pool = [r for r in penalised if r.final_score > 0]
         logger.info(
             "Stage1 pool after redundancy filter: %d/%d  label=%s",
             len(pool), len(penalised), run_label,
         )
-        selected = self._selector.select(goal, pool, top_k=top_k)
+        if self._disable_diversity:
+            selected = pool   # dynamic k: threshold 통과 로그 전체
+        else:
+            selected = self._selector.select(goal, pool, top_k=top_k)
 
         query_text = (
             active_query.full_text

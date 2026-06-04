@@ -146,6 +146,18 @@ def main() -> None:
              "Default (without this flag): asymmetric — doc=RETRIEVAL_DOCUMENT, "
              "query=RETRIEVAL_QUERY. Use with --real_embeddings for A/B comparison.",
     )
+    parser.add_argument(
+        "--harness", action="store_true",
+        help="Stage 1 결과를 LLM에 직접 전달하고 하네스 캐시를 관리합니다.",
+    )
+    parser.add_argument(
+        "--harness_dir", type=str, default=".harness",
+        help="하네스 캐시 저장 디렉토리 (default: .harness)",
+    )
+    parser.add_argument(
+        "--clear_harness", action="store_true",
+        help="실행 전 해당 goal의 하네스 캐시를 초기화합니다.",
+    )
     args = parser.parse_args()
 
     goals, logs, labels = load_data(args.data_dir)
@@ -309,6 +321,33 @@ def main() -> None:
             print(f"\n[Result saved] {path}")
     else:
         print("\n[No labels found for this goal — skipping metrics]")
+
+    # ── Harness Analysis ──────────────────────────────────────────────────────
+    if args.harness:
+        from app.harness.analyzer import HarnessAnalyzer
+
+        analyzer = HarnessAnalyzer(
+            use_mock_llm=False,
+            harness_dir=args.harness_dir,
+        )
+
+        if args.clear_harness:
+            analyzer.clear_cache(target_goal.user_id, target_goal.goal_id)
+            print(f"\n[Harness] 캐시 초기화 완료  goal={target_goal.goal_id}")
+
+        # selected_logs의 ResearchLog 객체 추출
+        logs_for_analysis = [r.log for r in result.selected_logs]
+
+        print(f"\n[Harness Analysis]  로그={len(logs_for_analysis)}개  goal={target_goal.goal_id}")
+        harness_result = analyzer.analyze(target_goal, logs_for_analysis)
+
+        print("=" * 60)
+        print(f"  first_run:   {harness_result.is_first_run}")
+        print(f"  new_logs:    {harness_result.new_log_count}개")
+        print(f"  total_logs:  {harness_result.total_log_count}개 (누적)")
+        print("=" * 60)
+        print(harness_result.analysis)
+        print("=" * 60)
 
 
 if __name__ == "__main__":
