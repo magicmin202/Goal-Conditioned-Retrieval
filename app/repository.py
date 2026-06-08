@@ -1,18 +1,20 @@
-"""Repository layer — wraps Firestore access for research collections."""
+"""Repository layer — JSON file 기반 dataset 접근."""
 from __future__ import annotations
+import json
 import logging
+from pathlib import Path
 from typing import Any
 
-from app.config import AppConfig, DEFAULT_CONFIG
-from app.firestore_loader import batch_get_docs, get_firestore_client
 from app.schemas import GoalLogLabel, ResearchGoal, ResearchLog
 
 logger = logging.getLogger(__name__)
 
+_DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "synthetic_v2"
+
 
 def _to_research_log(data: dict[str, Any]) -> ResearchLog:
     return ResearchLog(
-        log_id=data.get("log_id") or data.get("_doc_id", ""),
+        log_id=data.get("log_id", ""),
         user_id=data.get("user_id", ""),
         date=data.get("date", ""),
         title=data.get("title", ""),
@@ -26,84 +28,53 @@ def _to_research_log(data: dict[str, Any]) -> ResearchLog:
 
 def _to_research_goal(data: dict[str, Any]) -> ResearchGoal:
     return ResearchGoal(
-        goal_id=data.get("goal_id") or data.get("_doc_id", ""),
+        goal_id=data.get("goal_id", ""),
         user_id=data.get("user_id", ""),
-        title=data.get("title", ""),
-        description=data.get("description", ""),
-        time_horizon=data.get("time_horizon", "mid_term"),
+        domain=data.get("domain", ""),
+        long_term=data.get("long_term", ""),
+        mid_term=data.get("mid_term", ""),
+        short_term=data.get("short_term", ""),
         status=data.get("status", "active"),
+        noise_ratio=float(data.get("noise_ratio", 0.0)),
         created_at=data.get("created_at", ""),
     )
 
 
-class ResearchRepository:
-    def __init__(self, config: AppConfig = DEFAULT_CONFIG) -> None:
-        self.config = config
-        self.collections = config.collections
-        self._client = None
+class DatasetRepository:
+    """data/synthetic_v2/ JSON 파일에서 데이터 로드."""
 
-    @property
-    def client(self):
-        if self._client is None:
-            self._client = get_firestore_client()
-        return self._client
+    def __init__(self, data_dir: Path = _DATA_DIR) -> None:
+        self._dir = data_dir
+        self._goals: list[ResearchGoal] | None = None
+        self._logs: list[ResearchLog] | None = None
+        self._labels: list[GoalLogLabel] | None = None
 
-    def get_user_goals(self, user_id: str) -> list[ResearchGoal]:
-        docs = batch_get_docs(
-            self.client, self.collections.research_goals, {"user_id": user_id}
-        )
-        return [_to_research_goal(d) for d in docs]
+    def _load(self, name: str) -> list[dict]:
+        path = self._dir / f"{name}.json"
+        return json.loads(path.read_text(encoding="utf-8"))
 
-    def get_goal(self, goal_id: str) -> ResearchGoal | None:
-        doc = (
-            self.client.collection(self.collections.research_goals)
-            .document(goal_id)
-            .get()
-        )
-        if not doc.exists:
-            return None
-        data = doc.to_dict() or {}
-        data["_doc_id"] = doc.id
-        return _to_research_goal(data)
+    def goals(self) -> list[ResearchGoal]:
+        if self._goals is None:
+            self._goals = [_to_research_goal(d) for d in self._load("goals")]
+        return self._goals
 
-    def get_user_logs(self, user_id: str) -> list[ResearchLog]:
-        docs = batch_get_docs(
-            self.client, self.collections.research_logs, {"user_id": user_id}
-        )
-        return [_to_research_log(d) for d in docs]
+    def logs(self) -> list[ResearchLog]:
+        if self._logs is None:
+            self._logs = [_to_research_log(d) for d in self._load("logs")]
+        return self._logs
 
-    def get_logs_by_date_range(
-        self, user_id: str, start_date: str, end_date: str
-    ) -> list[ResearchLog]:
-        all_logs = self.get_user_logs(user_id)
-        return [l for l in all_logs if start_date <= l.date <= end_date]
-
-    def get_goal_log_labels(
-        self, user_id: str, goal_id: str
-    ) -> list[GoalLogLabel]:
-        docs = batch_get_docs(
-            self.client,
-            self.collections.research_goal_log_labels,
-            {"user_id": user_id, "goal_id": goal_id},
-        )
-        return [
-            GoalLogLabel(
-                label_id=d.get("label_id") or d.get("_doc_id", ""),
-                user_id=d.get("user_id", ""),
-                goal_id=d.get("goal_id", ""),
-                log_id=d.get("log_id", ""),
-                label=d.get("label", "relevant"),
-                relevance_score=float(d.get("relevance_score", 1.0)),
-                label_source=d.get("label_source", "synthetic_rule"),
-            )
-            for d in docs
-        ]
-
-    # compat aliases
-    def get_user_goal_projects(self, user_id: str) -> list[ResearchGoal]:
-        return self.get_user_goals(user_id)
-
-    def get_project_logs(self, user_id: str, project_id: str) -> list[ResearchLog]:
-        labels = self.get_goal_log_labels(user_id, project_id)
-        labeled_ids = {lbl.log_id for lbl in labels}
-        return [l for l in self.get_user_logs(user_id) if l.log_id in labeled_ids]
+    def labels(self) -> list[GoalLogLabel]:
+        if self._labels is None:
+            self._labels = [
+                GoalLogLabel(
+                    label_id=d.get("label_id", ""),
+                    user_id=d.get("user_id", ""),
+                    goal_id=d.get("goal_id", ""),
+                    log_id=d.get("log_id", ""),
+                    label=d.get("label", "relevant"),
+                    relevance_score=float(d.get("relevance_score", 1.0)),
+                    label_source=d.get("label_source", "synthetic_rule"),
+                )
+                for d in self._load("labels")
+            ]
+        return self._labels

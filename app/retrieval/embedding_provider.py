@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 EMBEDDING_DIM = 128
 _ST_DEFAULT_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
-_GEMINI_EMBED_MODEL = "models/gemini-embedding-001"  # 3072-dim, multilingual
+_GEMINI_EMBED_MODEL = "models/gemini-embedding-2"  # multilingual
 
 
 # ── Disk cache helpers ────────────────────────────────────────────────────────

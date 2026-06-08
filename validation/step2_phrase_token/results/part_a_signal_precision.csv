@@ -1,4 +1,0 @@
-bucket,n_relevant,n_irrelevant,n_total,relevant_rate
-phrase_match,63,0,63,1.0
-token_only,725,143,868,0.8353
-no_match,3142,21790,24932,0.126

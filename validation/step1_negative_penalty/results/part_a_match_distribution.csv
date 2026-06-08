@@ -1,7 +1,0 @@
-bucket,n_relevant,n_irrelevant,n_total,irrelevant_rate,signal_strength
-phrase_only,0,72,72,1.0,★★★ 강함
-phrase+daily,0,3,3,1.0,★★★ 강함
-token_only,0,43,43,1.0,★★★ 강함
-token+daily,0,349,349,1.0,★★★ 강함
-daily_only,0,11831,11831,1.0,★★★ 강함
-no_signal,3930,9635,13565,0.7103,★★  중간

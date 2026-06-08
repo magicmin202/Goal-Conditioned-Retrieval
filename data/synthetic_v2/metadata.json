@@ -1,0 +1,106 @@
+{
+  "version": "2.1",
+  "description": "Persona-grounded per-goal noise-stratified synthetic dataset (A안)",
+  "references": [
+    "Chan et al. (2024). Scaling Synthetic Data Creation with 1,000,000,000 Personas.",
+    "nvidia/Nemotron-Personas-Korea (HuggingFace)",
+    "Simulating Authentic User Personas to Generate Analytics for Evaluating Digital Products."
+  ],
+  "n_users": 100,
+  "n_goals": 392,
+  "n_logs": 7050,
+  "n_labels": 27655,
+  "label_distribution": {
+    "irrelevant": 24180,
+    "relevant": 3475
+  },
+  "label_types": [
+    "relevant",
+    "irrelevant"
+  ],
+  "precision_upper_bound": 0.126,
+  "noise_design": "per_goal_uniform (A안)",
+  "noise_levels": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "noise_target_per_level": 37,
+  "noise_distribution": [
+    {
+      "noise_ratio": 0.0,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.1,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.2,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.3,
+      "n_goals": 34,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.4,
+      "n_goals": 35,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.5,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.6,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.7,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.8,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 0.9,
+      "n_goals": 36,
+      "target": 37
+    },
+    {
+      "noise_ratio": 1.0,
+      "n_goals": 35,
+      "target": 37
+    }
+  ],
+  "date_range": {
+    "start": "2026-03-01",
+    "end": "2026-03-31"
+  },
+  "logs_per_user": {
+    "min": 61,
+    "max": 81
+  },
+  "goals_per_user": {
+    "min": 3,
+    "max": 5
+  }
+}

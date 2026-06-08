@@ -28,10 +28,11 @@ data/
 # API 키 / 인증 관련
 *.json
 !package.json
-!data/synthetic/users.json
-!data/synthetic/goals.json
-!data/synthetic/logs.json
-!data/synthetic/labels.json
+!data/synthetic_v2/users.json
+!data/synthetic_v2/goals.json
+!data/synthetic_v2/logs.json
+!data/synthetic_v2/labels.json
+!data/synthetic_v2/metadata.json
 !results/**/*.json
 !results/*.csv
 *.pem
